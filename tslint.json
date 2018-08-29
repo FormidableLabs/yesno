@@ -1,0 +1,17 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended"],
+  "jsRules": {},
+  "linterOptions": {
+    "exclude": ["**/*.d.ts"]
+  },
+  "nodePath": "./node_modules",
+  "rules": {
+    "interface-name": true,
+    "max-line-length": [true, 100],
+    "no-var-requires": false,
+    "object-literal-key-quotes": [true, "as-needed"],
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"]
+  },
+  "rulesDirectory": []
+}
