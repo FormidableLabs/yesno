@@ -2,50 +2,12 @@ import { expect } from 'chai';
 import * as http from 'http';
 import * as https from 'https';
 import Mitm from 'mitm';
-import * as rp from 'request-promise';
 import * as url from 'url';
+import * as yesno from '../../src';
 
 describe('yesno', () => {
   it('should mock requests', (done) => {
-    const mitm = Mitm();
-
-    mitm.on('connect', function(socket, opts: any) {
-      console.log('connect', opts);
-      if (opts.proxying) {
-        socket.bypass();
-      }
-    });
-
-    mitm.on('request', (req: any, res) => {
-      // console.log('event:request');
-      // req.socket.bypass();
-      // res.end('Request end');
-      console.log('TO:', req.headers.host, req.url);
-      const proxied = https.request({
-        host: req.headers.host,
-        path: url.parse(req.url).path,
-        proxying: true,
-      } as any);
-      proxied.end();
-
-      proxied.on('response', (pRes) => {
-        console.log('Piping response');
-        pRes.pipe(res);
-      });
-      // if (req.body) {
-      //   req.body.pipe(proxied);
-      //   req.body.on('end', proxied.end.bind(proxied));
-      // }
-
-      // proxied.pipe(res);
-      // proxied.on('end', res.end.bind(res));
-      // req.resume();
-      // console.log('Uh', this);
-    });
-
-    // const result: rp.RequestPromise = await rp.get('http://www.google.com', {
-    //   resolveWithFullResponse: true,
-    // });
+    yesno.enable();
 
     const request: http.ClientRequest = https.request({
       host: 'www.google.com',

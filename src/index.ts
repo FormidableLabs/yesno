@@ -1,40 +1,37 @@
-// import { ClientRequest, ClientRequestArgs } from 'http';
-// import * as sinon from 'sinon';
+import * as http from 'http';
+import * as https from 'https';
+import Mitm from 'mitm';
+import * as url from 'url';
+const debug = require('debug')('yesno');
 
-// /* Import can break our reference to the module object, so require instead */
-// const http: any = require('http');
-// const https: any = require('https');
+export function enable(): void {
+  debug('Enabling intercept');
+  const mitm = Mitm();
 
-// const sandbox: sinon.SinonSandbox = sinon.createSandbox();
-// let clientRequestStub: sinon.SinonStub;
+  mitm.on('connect', (socket, opts: any) => {
+    debug('Connect event');
+    if (opts.proxying) {
+      debug('Enabling proxy.');
+      socket.bypass();
+    }
+  });
 
-// class YesNoClientRequest extends ClientRequest {
-//   constructor(
-//     url: string | URL | ClientRequestArgs,
-//     cb: () => void | undefined,
-//   ) {
-//     console.log('URL!', url);
-//     super(url, cb);
-//   }
-// }
+  mitm.on('request', (req: any, res) => {
+    debug('Request', req.headers.host, req.url);
+    const proxied: http.ClientRequest = https.request({
+      host: req.headers.host,
+      path: url.parse(req.url).path,
+      proxying: true,
+    } as any);
 
-// export function install(): void {
-//   // https://github.com/nodejs/node/blob/master/lib/http.js#L40
-//   // clientRequestStub = sinon.stub(http, 'ClientRequest').value(1);
-//   http.ClientRequest.prototype = YesNoClientRequest;
-//   const httpsRequest: (...a: any[]) => void = https.request;
-//   const httpsGet: (...a: any[]) => void = https.get;
-//   const httpRequest: (...a: any[]) => void = http.request;
-//   const httpGet: (...a: any[]) => void = http.get;
+    proxied.on('response', (pRes: http.IncomingMessage) => {
+      debug('Response');
+      // res.statusCode = 401;
+      // res.write('Foobar');
+      // res.end();
+      pRes.pipe(res);
+    });
 
-//   http.request = (
-//     options: string | URL | ClientRequestArgs,
-//     cb: () => void | undefined,
-//   ) => new YesNoClientRequest(options, cb);
-//   // https.get = (...args: any[]) =>
-//   //   console.log('Stub called2') || httpsGet(...args);
-//   // http.request = (...args: any[]) =>
-//   //   console.log('Stub called3') || httpRequest(...args);
-//   // http.get = (...args: any[]) =>
-//   //   console.log('Stub called4') || httpGet(...args);
-// }
+    proxied.end();
+  });
+}
