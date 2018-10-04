@@ -2,6 +2,6 @@
   "extends": ["../tslint.json"],
   "rules": {
     "max-line-length": [true, 150],
-    "no-unused-expression": false
+    "no-unused-expression": false,
   }
 }

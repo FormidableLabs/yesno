@@ -1,9 +1,10 @@
 import * as http from 'http';
 import * as https from 'https';
-import * as yesno from '../../src';
+import Yesno from '../../src';
 
 describe('yesno', () => {
   before(() => {
+    const yesno: Yesno = new Yesno();
     yesno.enable();
   });
 
