@@ -10,8 +10,11 @@ describe('yesno', () => {
 
   it('should mock HTTP requests', (done) => {
     const request: http.ClientRequest = http.request({
-      host: 'www.google.com',
-      path: '/',
+      headers: {
+        'context-type': 'application/json',
+      },
+      host: 'postman-echo.com',
+      path: '/get',
     });
 
     request.on('error', (e) => {
@@ -40,8 +43,11 @@ describe('yesno', () => {
   });
   it('should mock HTTPS requests', (done) => {
     const request: http.ClientRequest = https.request({
-      host: 'www.google.com',
-      path: '/',
+      headers: {
+        'context-type': 'application/json',
+      },
+      host: 'postman-echo.com',
+      path: '/get',
     });
 
     request.on('error', (e) => {

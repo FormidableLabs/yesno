@@ -1,7 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
 import Mitm = require('mitm');
-import { Socket } from 'net';
 import * as url from 'url';
 const debug = require('debug')('yesno');
 
@@ -13,8 +12,23 @@ interface ProxiedSocketOptions extends Mitm.SocketOptions {
   proxying: boolean;
 }
 
+export enum Mode {
+  Record,
+  Mock,
+  Live,
+}
+export interface YesNoOptions {
+  mode: Mode;
+}
+
 export default class YesNo {
   private mitm: undefined | Mitm.Mitm;
+  private mode: Mode;
+
+  constructor(options?: YesNoOptions) {
+    const { mode = Mode.Live } = options || {};
+    this.mode = mode;
+  }
 
   public enable(): void {
     debug('Enabling intercept');
@@ -35,26 +49,37 @@ export default class YesNo {
   }
 
   private _mitmOnRequest(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
+    clientRequest: http.IncomingMessage,
+    clientResponse: http.ServerResponse,
   ): void {
     debug('mitm event:request');
-    const isHttps: boolean = (req.connection as any).encrypted;
+    // tslint:disable-next-line:max-line-length
+    // @todo Replicate some logic from https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy/passes/web-incoming.js#L100
+    const isHttps: boolean = (clientRequest.connection as any).encrypted;
     const request = isHttps ? https.request : http.request;
-    const proxied: http.ClientRequest = request({
-      host: req.headers.host,
-      path: url.parse(req.url as string).path,
+
+    // @todo Use `node-http-proxy.common.setupOutgoing`
+    const proxiedRequest: http.ClientRequest = request({
+      host: clientRequest.headers.host,
+      path: url.parse(clientRequest.url as string).path,
       proxying: true,
     } as ProxiedRequestOptions);
 
-    proxied.on('response', (proxiedRes: http.IncomingMessage) => {
-      debug('proxied response (%d)', proxiedRes.statusCode);
+    clientRequest.pipe(
+      proxiedRequest,
+      { end: true },
+    );
+
+    // tslint:disable-next-line:max-line-length
+    // @todo Use https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy/passes/web-incoming.js#L173
+    proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
+      debug('proxied response (%d)', proxiedResponse.statusCode);
       // res.statusCode = 401;
       // res.write('Foobar');
       // res.end();
-      proxiedRes.pipe(res);
+      proxiedResponse.pipe(clientResponse);
     });
 
-    proxied.end();
+    proxiedRequest.end();
   }
 }
