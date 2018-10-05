@@ -1,12 +1,7 @@
 import * as http from 'http';
-import * as https from 'https';
 import Mitm = require('mitm');
-import * as url from 'url';
+import { createProxiedRequest } from './proxy';
 const debug = require('debug')('yesno');
-
-interface ProxiedRequestOptions extends http.RequestOptions {
-  proxying: boolean;
-}
 
 interface ProxiedSocketOptions extends Mitm.SocketOptions {
   proxying: boolean;
@@ -43,41 +38,55 @@ export default class YesNo {
   ): void {
     debug('mitm event:connect');
     if (opts.proxying) {
-      debug('proxing');
+      debug('proxying');
       socket.bypass();
     }
   }
 
   private _mitmOnRequest(
-    clientRequest: http.IncomingMessage,
-    clientResponse: http.ServerResponse,
+    interceptedRequest: http.IncomingMessage,
+    interceptedResponse: http.ServerResponse,
   ): void {
     debug('mitm event:request');
-    // tslint:disable-next-line:max-line-length
-    // @todo Replicate some logic from https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy/passes/web-incoming.js#L100
-    const isHttps: boolean = (clientRequest.connection as any).encrypted;
-    const request = isHttps ? https.request : http.request;
-
-    // @todo Use `node-http-proxy.common.setupOutgoing`
-    const proxiedRequest: http.ClientRequest = request({
-      host: clientRequest.headers.host,
-      path: url.parse(clientRequest.url as string).path,
-      proxying: true,
-    } as ProxiedRequestOptions);
-
-    clientRequest.pipe(
-      proxiedRequest,
-      { end: true },
+    const proxiedRequest: http.ClientRequest = createProxiedRequest(
+      interceptedRequest,
     );
+
+    interceptedRequest.on('error', (e: any) =>
+      debug('Error on intercepted request:', e),
+    );
+    interceptedRequest.on('aborted', () => {
+      debug('Intercepted request aborted');
+      proxiedRequest.abort();
+    });
+    proxiedRequest.on('timeout', (e: any) =>
+      debug('Proxied request timeout', e),
+    );
+    proxiedRequest.on('error', (e: any) => debug('Proxied request error', e));
+    proxiedRequest.on('aborted', () => {
+      debug('Proxied request aborted');
+    });
+
+    // Add the body
+    // interceptedRequest.pipe(
+    //   proxiedRequest,
+    //   { end: true },
+    // );
+    // proxiedRequest.write('foo');
+    proxiedRequest.end();
 
     // tslint:disable-next-line:max-line-length
     // @todo Use https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy/passes/web-incoming.js#L173
     proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
       debug('proxied response (%d)', proxiedResponse.statusCode);
-      // res.statusCode = 401;
-      // res.write('Foobar');
-      // res.end();
-      proxiedResponse.pipe(clientResponse);
+      proxiedResponse.pipe(
+        interceptedResponse,
+        { end: true },
+      );
+      // proxiedResponse.on('data', (d: any) => console.log('Data', d.toString()));
+      interceptedResponse.on('finish', () =>
+        debug('Intercepted response finished'),
+      );
     });
 
     proxiedRequest.end();
