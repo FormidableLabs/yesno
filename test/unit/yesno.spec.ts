@@ -65,7 +65,7 @@ describe('yesno', () => {
       'headers.x-test-header',
       TEST_HEADER_VALUE,
     );
-    expect(response).to.have.nested.property('body.test', TEST_BODY_VALUE);
+    expect(response).to.have.nested.property('json.test', TEST_BODY_VALUE);
   });
 
   it('should mock HTTPS requests', (done) => {

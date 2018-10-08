@@ -3,11 +3,7 @@ import { ClientRequest } from 'http';
 import * as https from 'https';
 import * as _ from 'lodash';
 import Mitm = require('mitm');
-import { Socket } from 'net';
-import * as url from 'url';
-import { createProxiedRequest } from './proxy';
-import YesNoClientRequest from './spy';
-const httpModule = require('http');
+import * as readable from 'readable-stream';
 const debug = require('debug')('yesno');
 
 interface ProxiedSocketOptions extends http.RequestOptions {
@@ -54,6 +50,7 @@ export default class YesNo {
       ClientRequest.prototype.onSocket,
       // tslint:disable-next-line:only-arrow-functions
       function(this: ClientRequest, socket: RegisteredSocket): RegisteredSocket {
+        debug('ClientRequest:onSocket');
         if (undefined !== socket.__yesno_req_id) {
           // Give precedence to the parsed path
           clientRequests[socket.__yesno_req_id].path = (this as any).path;
@@ -63,6 +60,7 @@ export default class YesNo {
         return socket;
       },
     );
+
     this.mitm = Mitm();
 
     this.mitm.on('connect', this._mitmOnConnect as Mitm.SocketConnectCallback);
@@ -110,47 +108,20 @@ export default class YesNo {
       proxying: true,
     } as ProxiedSocketOptions);
 
-    // Listen to events
-    interceptedRequest.on('error', (e: any) =>
-      debug('Error on intercepted request:', e),
-    );
+    (readable as any).pipeline(interceptedRequest, proxiedRequest);
+
+    interceptedRequest.on('error', (e: any) => debug('Error on intercepted request:', e));
     interceptedRequest.on('aborted', () => {
       debug('Intercepted request aborted');
       proxiedRequest.abort();
     });
-    interceptedRequest.on('end', () => debug('Intercepted request ended'));
-    proxiedRequest.on('timeout', (e: any) =>
-      debug('Proxied request timeout', e),
-    );
-    // tslint:disable-next-line:max-line-length
-    // Add error handling from https://github.com/nodejitsu/node-http-proxy/blob/a3fe02d651d05d02d0ced377c22ae8345a2435a4/lib/http-proxy/passes/web-incoming.js#L155
+
+    proxiedRequest.on('timeout', (e: any) => debug('Proxied request timeout', e));
     proxiedRequest.on('error', (e: any) => debug('Proxied request error', e));
-    proxiedRequest.on('aborted', () => {
-      debug('Proxied request aborted');
-    });
-    proxiedRequest.on('end', () => debug('Proxied request end'));
-
-    // Add the body
-    interceptedRequest.pipe(proxiedRequest);
-    interceptedRequest.on('data', (data: Buffer) => {
-      debug('Writing', data.toString());
-      proxiedRequest.write(data);
-    });
-
-    // tslint:disable-next-line:max-line-length
-    // @todo Use https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy/passes/web-incoming.js#L173
+    proxiedRequest.on('aborted', () => debug('Proxied request aborted'));
     proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
       debug('proxied response (%d)', proxiedResponse.statusCode);
-      proxiedResponse.pipe(
-        interceptedResponse,
-        { end: true },
-      );
-      proxiedResponse.on('data', (d: any) => console.log('Data', d.toString()));
-      interceptedResponse.on('finish', () =>
-        debug('Intercepted response finished'),
-      );
+      (readable as any).pipeline(proxiedResponse, interceptedResponse);
     });
-
-    proxiedRequest.end();
   }
 }
