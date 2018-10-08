@@ -8,10 +8,15 @@ import * as testServer from '../server';
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
+  let yesno: Yesno;
 
   before(() => {
-    const yesno: Yesno = new Yesno();
+    yesno = new Yesno();
     yesno.enable();
+  });
+
+  afterEach(() => {
+    yesno.save();
   });
 
   it('should send get to test server', async () => {
