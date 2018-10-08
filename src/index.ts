@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import Mitm = require('mitm');
 import * as readable from 'readable-stream';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
-import { RequestSerializer } from './http-serializer';
+import { RequestSerializer, ResponseSerializer } from './http-serializer';
 const debug = require('debug')('yesno');
 
 interface ProxiedSocketOptions extends http.RequestOptions {
@@ -87,7 +87,8 @@ export default class YesNo {
     interceptedRequest: http.IncomingMessage,
     interceptedResponse: http.ServerResponse,
   ): void {
-    debug('mitm event:request', interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER]);
+    const requestId = interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER];
+    debug('mitm event:request', requestId);
 
     if (!interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER]) {
       debug('Error: Missing internal header');
@@ -113,7 +114,7 @@ export default class YesNo {
       options, proxiedRequest, interceptedRequest, isHttps,
     );
 
-    (readable as any).pipeline(interceptedRequest, proxiedRequest);
+    (readable as any).pipeline(interceptedRequest, requestSerializer,  proxiedRequest);
 
     interceptedRequest.on('error', (e: any) => debug('Error on intercepted request:', e));
     interceptedRequest.on('aborted', () => {
@@ -125,9 +126,17 @@ export default class YesNo {
     proxiedRequest.on('error', (e: any) => debug('Proxied request error', e));
     proxiedRequest.on('aborted', () => debug('Proxied request aborted'));
     proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
-      const serializedRequest = requestSerializer.serialize();
+      const responseSerializer = new ResponseSerializer(proxiedResponse);
       debug('proxied response (%d)', proxiedResponse.statusCode);
-      (readable as any).pipeline(proxiedResponse, interceptedResponse);
+      (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
+
+      proxiedResponse.on('end', () => {
+        // {
+        //   request: requestSerializer.serialize(),
+        //   response: responseSerializer.serialize(),
+        // }
+        debug('response complete');
+      });
     });
   }
 }
