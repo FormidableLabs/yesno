@@ -5,10 +5,10 @@ import * as _ from 'lodash';
 import Mitm = require('mitm');
 import * as readable from 'readable-stream';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
-import { RequestSerializer, ResponseSerializer } from './http-serializer';
+import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 const debug = require('debug')('yesno');
 
-interface ProxiedSocketOptions extends http.RequestOptions {
+interface ProxyRequestOptions extends http.RequestOptions {
   proxying?: boolean;
 }
 
@@ -25,12 +25,19 @@ interface RegisteredSocket extends Mitm.BypassableSocket {
   __yesno_req_id?: string;
 }
 
-let clientRequestId: number = 0;
-const clientRequests: { [key: string]: http.RequestOptions } = {};
+interface ClientRequestTracker {
+  [key: string]: {
+    clientOptions: http.RequestOptions,
+    clientRequest?: ClientRequestFull,
+  };
+}
 
-function setOptions(socket: RegisteredSocket, options: ProxiedSocketOptions): void {
+let clientRequestId: number = 0;
+const clientRequests: ClientRequestTracker = {};
+
+function setOptions(socket: RegisteredSocket, clientOptions: ProxyRequestOptions): void {
   socket.__yesno_req_id = String(clientRequestId);
-  clientRequests[clientRequestId] = options;
+  clientRequests[clientRequestId] = { clientOptions };
 
   clientRequestId++;
 }
@@ -50,11 +57,11 @@ export default class YesNo {
     ClientRequest.prototype.onSocket = _.flowRight(
       ClientRequest.prototype.onSocket,
       // tslint:disable-next-line:only-arrow-functions
-      function(this: ClientRequest, socket: RegisteredSocket): RegisteredSocket {
+      function(this: ClientRequestFull, socket: RegisteredSocket): RegisteredSocket {
         debug('ClientRequest:onSocket');
         if (undefined !== socket.__yesno_req_id) {
           // Give precedence to the parsed path
-          clientRequests[socket.__yesno_req_id].path = (this as any).path;
+          clientRequests[socket.__yesno_req_id].clientRequest = this;
           this.setHeader(YESNO_INTERNAL_HTTP_HEADER, socket.__yesno_req_id);
         }
 
@@ -70,7 +77,7 @@ export default class YesNo {
 
   private _mitmOnConnect(
     socket: Mitm.BypassableSocket,
-    options: ProxiedSocketOptions,
+    options: ProxyRequestOptions,
   ): void {
     debug('mitm event:connect');
 
@@ -96,22 +103,25 @@ export default class YesNo {
     }
 
     const id: string = interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER] as string;
-    const options: http.RequestOptions = clientRequests[id];
 
-    if (!options) {
+    if (!clientRequests[id]) {
       debug(`Error: Missing client options for yesno req ${id}`);
       throw new Error(`Missing client options for yesno req ${id}`);
     }
 
+    const { clientOptions } = clientRequests[id];
+    const clientRequest: ClientRequestFull = clientRequests[id].clientRequest as ClientRequestFull;
     const isHttps: boolean = (interceptedRequest.connection as any).encrypted;
     const request = isHttps ? https.request : http.request;
     const proxiedRequest: http.ClientRequest = request({
-      ...options,
+      ...clientOptions,
+      headers: _.omit(clientRequest.getHeaders(), YESNO_INTERNAL_HTTP_HEADER),
+      path: (clientRequest as ClientRequestFull).path,
       proxying: true,
-    } as ProxiedSocketOptions);
+    } as ProxyRequestOptions);
 
     const requestSerializer = new RequestSerializer(
-      options, proxiedRequest, interceptedRequest, isHttps,
+      clientOptions, proxiedRequest, interceptedRequest, isHttps,
     );
 
     (readable as any).pipeline(interceptedRequest, requestSerializer,  proxiedRequest);

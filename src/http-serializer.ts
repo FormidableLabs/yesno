@@ -34,15 +34,12 @@ export interface SerializedRequest {
 }
 
 // Some properties are not present in the TS definition
-interface ClientRequestFull extends ClientRequest {
+export interface ClientRequestFull extends ClientRequest {
   agent?: {
     defaultPort?: number;
   };
   path: string;
 }
-
-// tslint:disable-next-line:no-empty
-export function serialize(): void {}
 
 export class RequestSerializer extends Transform implements SerializedRequest {
   public body: string | undefined;
@@ -55,28 +52,25 @@ export class RequestSerializer extends Transform implements SerializedRequest {
   private data: Buffer[] = [];
 
   constructor(
-    options: RequestOptions,
-    clientReq: ClientRequest,
-    serverRequest: IncomingMessage,
+    originalClientOpts: RequestOptions,
+    originalClientReq: ClientRequest,
+    interceptedServerReq: IncomingMessage,
     isHttps: boolean,
     ) {
     super();
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L121
-    const agent = (clientReq as ClientRequestFull).agent;
-    const defaultPort = options.defaultPort || agent && agent.defaultPort;
-    const port: number | string = options.port || defaultPort || 80;
+    const agent = (originalClientReq as ClientRequestFull).agent;
+    const defaultPort = originalClientOpts.defaultPort || agent && agent.defaultPort;
+    const port: number | string = originalClientOpts.port || defaultPort || 80;
     this.port = typeof port === 'string' ? parseInt(port, 10) : port;
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L125
-    this.host = options.hostname || options.host || 'localhost';
-    this.method = serverRequest.method as string;
-    this.path = (clientReq as ClientRequestFull).path; // We force set this property earlier
+    this.host = originalClientOpts.hostname || originalClientOpts.host || 'localhost';
+    this.method = interceptedServerReq.method as string;
+    this.path = (originalClientReq as ClientRequestFull).path; // We force set this property earlier
     this.protocol = isHttps ? 'https' : 'http';
-    // Should headers come from options? From client? From incoming message?
-    // We should store a ref to the clientRequest, then use those headers to generate
-    // the request!
-    this.headers = _.omit(clientReq.getHeaders(), YESNO_INTERNAL_HTTP_HEADER);
+    this.headers = _.omit(originalClientReq.getHeaders(), YESNO_INTERNAL_HTTP_HEADER);
   }
 
   public _transform(chunk: Buffer, encoding: string, done: () => void) {
