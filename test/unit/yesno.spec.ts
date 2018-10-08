@@ -3,31 +3,69 @@ import * as http from 'http';
 import * as https from 'https';
 import * as rp from 'request-promise';
 import Yesno from '../../src';
+import * as testServer from '../server';
 
 describe('yesno', () => {
+  const TEST_HEADER_VALUE = 'foo';
+  const TEST_BODY_VALUE = 'fiz';
+
   before(() => {
     const yesno: Yesno = new Yesno();
     yesno.enable();
   });
 
-  it('should mock HTTP requests', async () => {
-    const testHeaderValue = 'foo';
+  it('should send get to test server', async () => {
+    await testServer.start();
+
     const response: rp.RequestPromise = await rp.get({
-      body: {
-        test: 'value',
-      },
       headers: {
-        'x-test-header': testHeaderValue,
+        'x-test-header': TEST_HEADER_VALUE,
       },
       json: true,
-      uri: 'https://postman-echo.com/get',
+      uri: 'http://localhost:3001/get',
     });
 
-    expect(response).to.be.ok;
+    expect(response, 'Missing response').to.be.ok;
     expect(response).to.have.nested.property(
       'headers.x-test-header',
-      testHeaderValue,
+      TEST_HEADER_VALUE,
     );
+  });
+
+  it('should proxy HTTP GET requests', async () => {
+    const response: rp.RequestPromise = await rp.get({
+      headers: {
+        'x-test-header': TEST_HEADER_VALUE,
+      },
+      json: true,
+      uri: 'http://postman-echo.com/get',
+    });
+
+    expect(response, 'Missing response').to.be.ok;
+    expect(response).to.have.nested.property(
+      'headers.x-test-header',
+      TEST_HEADER_VALUE,
+    );
+  });
+
+  it('should proxy HTTP POST requests', async () => {
+    const response: rp.RequestPromise = await rp.post({
+      body: {
+        test: TEST_BODY_VALUE,
+      },
+      headers: {
+        'x-test-header': TEST_HEADER_VALUE,
+      },
+      json: true,
+      uri: 'https://postman-echo.com/post',
+    });
+
+    expect(response, 'Missing response').to.be.ok;
+    expect(response).to.have.nested.property(
+      'headers.x-test-header',
+      TEST_HEADER_VALUE,
+    );
+    expect(response).to.have.nested.property('body.test', TEST_BODY_VALUE);
   });
 
   it('should mock HTTPS requests', (done) => {

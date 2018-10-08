@@ -5,7 +5,8 @@ import * as url from 'url';
 const debug = require('debug')('yesno:proxy');
 
 interface ProxiedRequestOptions extends http.RequestOptions {
-  proxying: boolean;
+  proxying?: boolean;
+  uri?: url.UrlWithStringQuery;
 }
 
 /**
