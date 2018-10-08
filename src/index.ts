@@ -4,6 +4,8 @@ import * as https from 'https';
 import * as _ from 'lodash';
 import Mitm = require('mitm');
 import * as readable from 'readable-stream';
+import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { RequestSerializer } from './http-serializer';
 const debug = require('debug')('yesno');
 
 interface ProxiedSocketOptions extends http.RequestOptions {
@@ -24,7 +26,6 @@ interface RegisteredSocket extends Mitm.BypassableSocket {
 }
 
 let clientRequestId: number = 0;
-const YESNO_INTERNAL_HTTP_HEADER: string = 'x-yesno-internal-header';
 const clientRequests: { [key: string]: http.RequestOptions } = {};
 
 function setOptions(socket: RegisteredSocket, options: ProxiedSocketOptions): void {
@@ -108,6 +109,10 @@ export default class YesNo {
       proxying: true,
     } as ProxiedSocketOptions);
 
+    const requestSerializer = new RequestSerializer(
+      options, proxiedRequest, interceptedRequest, isHttps,
+    );
+
     (readable as any).pipeline(interceptedRequest, proxiedRequest);
 
     interceptedRequest.on('error', (e: any) => debug('Error on intercepted request:', e));
@@ -120,6 +125,7 @@ export default class YesNo {
     proxiedRequest.on('error', (e: any) => debug('Proxied request error', e));
     proxiedRequest.on('aborted', () => debug('Proxied request aborted'));
     proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
+      const serializedRequest = requestSerializer.serialize();
       debug('proxied response (%d)', proxiedResponse.statusCode);
       (readable as any).pipeline(proxiedResponse, interceptedResponse);
     });
