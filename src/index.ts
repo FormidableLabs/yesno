@@ -1,5 +1,6 @@
+import { expect } from 'chai';
 import { IDebugger } from 'debug';
-import { writeFile } from 'fs';
+import { readFile, writeFile } from 'fs';
 import * as http from 'http';
 import { ClientRequest } from 'http';
 import * as https from 'https';
@@ -7,9 +8,14 @@ import * as _ from 'lodash';
 import Mitm = require('mitm');
 import * as path from 'path';
 import * as readable from 'readable-stream';
+import { pipeline } from 'stream';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import {
-  ClientRequestFull, RequestSerializer, ResponseSerializer, SerializedRequestResponse,
+  ClientRequestFull,
+  RequestSerializer,
+  ResponseSerializer,
+  SerializedRequest,
+  SerializedRequestResponse,
 } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno');
 
@@ -54,8 +60,8 @@ interface RegisteredSocket extends Mitm.BypassableSocket {
 
 interface ClientRequestTracker {
   [key: string]: {
-    clientOptions: http.RequestOptions,
-    clientRequest?: ClientRequestFull,
+    clientOptions: http.RequestOptions;
+    clientRequest?: ClientRequestFull;
   };
 }
 
@@ -71,6 +77,7 @@ function setOptions(socket: RegisteredSocket, clientOptions: ProxyRequestOptions
 
 export class YesNo {
   public interceptedRequests: SerializedRequestResponse[] = [];
+  private mocks: SerializedRequestResponse[] = [];
   private mitm: undefined | Mitm.Mitm;
   private mode: Mode;
   private dir: string;
@@ -105,6 +112,26 @@ export class YesNo {
     this.mitm.on('request', this._mitmOnRequest.bind(this));
   }
 
+  public load(name: string): Promise<SerializedRequestResponse[] | void> {
+    if (!this.isMode(Mode.Mock)) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const filename = path.join(this.dir, `${name}-yesno.json`);
+      debug('Loading requests from', filename);
+
+      readFile(filename, (e: Error, data: Buffer) => {
+        if (e) {
+          return reject(e);
+        }
+
+        this.mocks = JSON.parse(data.toString());
+        resolve(this.mocks);
+      });
+    });
+  }
+
   /**
    * Save intercepted request/response if we're in record mode.
    * Clears local copy of intercepted request.
@@ -123,7 +150,7 @@ export class YesNo {
       const filename = path.join(this.dir, `${name}-yesno.json`);
       debug('Saving %d requests to %s', this.interceptedRequests.length, filename);
 
-      writeFile(filename, contents, (e: Error) => e ? reject(e) : resolve(filename));
+      writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
     });
   }
 
@@ -131,10 +158,7 @@ export class YesNo {
     return this.mode === mode;
   }
 
-  private _mitmOnConnect(
-    socket: Mitm.BypassableSocket,
-    options: ProxyRequestOptions,
-  ): void {
+  private _mitmOnConnect(socket: Mitm.BypassableSocket, options: ProxyRequestOptions): void {
     debug('mitm event:connect');
 
     if (options.proxying) {
@@ -152,12 +176,7 @@ export class YesNo {
   ): void {
     debug('mitm event:request');
 
-    const id: string = interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER] as string;
-
-    if (!interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER]) {
-      debug('Error: Missing internal header');
-      throw new Error('Missing internal header');
-    }
+    const id = this._getRequestId(interceptedRequest);
 
     function debugReq(formatter: string, ...args: any[]): void {
       debug(`[id:${id}] ${formatter}`, ...args);
@@ -171,6 +190,18 @@ export class YesNo {
     const { clientOptions } = clientRequests[id];
     const clientRequest: ClientRequestFull = clientRequests[id].clientRequest as ClientRequestFull;
     const isHttps: boolean = (interceptedRequest.connection as any).encrypted;
+    const requestSerializer = new RequestSerializer(
+      clientOptions,
+      clientRequest,
+      interceptedRequest,
+      isHttps,
+    );
+
+    if (this.isMode(Mode.Mock)) {
+      this._mockResponse(interceptedRequest, interceptedResponse, requestSerializer);
+      return;
+    }
+
     const request = isHttps ? https.request : http.request;
     const proxiedRequest: http.ClientRequest = request({
       ...clientOptions,
@@ -179,11 +210,7 @@ export class YesNo {
       proxying: true,
     } as ProxyRequestOptions);
 
-    const requestSerializer = new RequestSerializer(
-      clientOptions, proxiedRequest, interceptedRequest, isHttps,
-    );
-
-    (readable as any).pipeline(interceptedRequest, requestSerializer,  proxiedRequest);
+    (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
 
     interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
     interceptedRequest.on('aborted', () => {
@@ -207,5 +234,90 @@ export class YesNo {
         });
       });
     });
+  }
+
+  private async _mockResponse(
+    interceptedRequest: http.IncomingMessage,
+    interceptedResponse: http.ServerResponse,
+    requestSerializer: RequestSerializer,
+  ): Promise<void> {
+    debug('Mock response');
+
+    await (readable as any).pipeline(interceptedRequest, requestSerializer);
+    const serializedRequest = requestSerializer.serialize();
+    const i: number = this.interceptedRequests.length;
+    const mock = this.mocks[i];
+
+    this.assertMatches(serializedRequest, mock.request, i + 1);
+
+    interceptedResponse.statusCode = mock.response.statusCode;
+    for (const entry of Object.entries(mock.response.headers)) {
+      const [header, value] = entry;
+      interceptedResponse.setHeader(header, value as string | string[] | number);
+    }
+
+    if (mock.response.body) {
+      interceptedResponse.write(mock.response.body);
+    }
+
+    this.interceptedRequests.push({
+      request: serializedRequest,
+      response: mock.response,
+    });
+  }
+
+  private assertMatches(
+    currentRequest: SerializedRequest,
+    mockRequest: SerializedRequest,
+    requestNum: number,
+  ): void {
+    expect(currentRequest.host, `YesNo: Expected different host for request #${requestNum}`).to.eql(
+      mockRequest.host,
+    );
+    const { host } = currentRequest;
+
+    expect(
+      currentRequest.protocol,
+      `YesNo: Expected request #${requestNum} to ${host} to use the ${mockRequest.method} method`,
+    ).to.eql(mockRequest.protocol);
+
+    expect(
+      currentRequest.protocol,
+      `YesNo: Expected request #${requestNum} to ${host} to be served over ${mockRequest.protocol}`,
+    ).to.eql(mockRequest.protocol);
+
+    expect(
+      currentRequest.port,
+      `YesNo: Expected request #${requestNum} to ${host} to be served on port ${mockRequest.port}`,
+    ).to.eql(mockRequest.port);
+
+    const nickname = `${currentRequest.method} ${currentRequest.protocol}://${
+      currentRequest.host
+    }:${currentRequest.port}`;
+
+    // @todo check auth part
+
+    expect(
+      currentRequest.path,
+      `YesNo: Expected request #${requestNum} "${nickname}" to have path ${mockRequest.path}`,
+    ).to.eql(mockRequest.path);
+
+    // @todo check query and hash
+    // @todo check headers
+
+    expect(
+      currentRequest.body,
+      `YesNo: Request #${requestNum} "${nickname}${mockRequest.path}" has unexpected body`,
+    ).to.eql(mockRequest.body);
+  }
+
+  private _getRequestId(interceptedRequest: http.IncomingMessage): string {
+    const id: string = interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER] as string;
+
+    if (!id) {
+      throw new Error('Missing internal header');
+    }
+
+    return id;
   }
 }

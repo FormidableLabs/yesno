@@ -1,4 +1,3 @@
-
 import {
   ClientRequest,
   IncomingHttpHeaders,
@@ -56,18 +55,18 @@ export class RequestSerializer extends Transform implements SerializedRequest {
     originalClientReq: ClientRequest,
     interceptedServerReq: IncomingMessage,
     isHttps: boolean,
-    ) {
+  ) {
     super();
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L121
     const agent = (originalClientReq as ClientRequestFull).agent;
-    const defaultPort = originalClientOpts.defaultPort || agent && agent.defaultPort;
+    const defaultPort = originalClientOpts.defaultPort || (agent && agent.defaultPort);
     const port: number | string = originalClientOpts.port || defaultPort || 80;
     this.port = typeof port === 'string' ? parseInt(port, 10) : port;
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L125
     this.host = originalClientOpts.hostname || originalClientOpts.host || 'localhost';
-    this.method = interceptedServerReq.method as string;
+    this.method = (interceptedServerReq.method as string).toUpperCase();
     this.path = (originalClientReq as ClientRequestFull).path; // We force set this property earlier
     this.protocol = isHttps ? 'https' : 'http';
     this.headers = _.omit(originalClientReq.getHeaders(), YESNO_INTERNAL_HTTP_HEADER);
@@ -100,9 +99,7 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
   public statusCode: number;
   private data: Buffer[] = [];
 
-  constructor(
-    clientResponse: IncomingMessage,
-    ) {
+  constructor(clientResponse: IncomingMessage) {
     super();
 
     this.statusCode = clientResponse.statusCode as number;
