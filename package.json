@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "npm run lint && npm run unit",
+    "test": "npm run lint && npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
-    "unit": "mocha --timeout 5000 --recursive test/unit/**/*.spec.ts"
+    "unit": "mocha --timeout 2000 --recursive test/unit/**/*.spec.ts",
+    "integration": "mocha --timeout 5000 --recursive test/integration/**/*.spec.ts"
   },
   "repository": {
     "type": "git",

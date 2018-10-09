@@ -1,9 +1,11 @@
 import { IDebugger } from 'debug';
+import { writeFile } from 'fs';
 import * as http from 'http';
 import { ClientRequest } from 'http';
 import * as https from 'https';
 import * as _ from 'lodash';
 import Mitm = require('mitm');
+import * as path from 'path';
 import * as readable from 'readable-stream';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import {
@@ -16,12 +18,34 @@ interface ProxyRequestOptions extends http.RequestOptions {
 }
 
 export enum Mode {
-  Record,
+  /**
+   * Intercept requests and respond with local mocks
+   */
   Mock,
-  Live,
+  /**
+   * Spy on request/response then generate mocks
+   */
+  Record,
+  /**
+   * Spy on request/response
+   */
+  Spy,
+  /**
+   * Do nothing. HTTP & TCP will be completely unmodified.
+   *
+   * Note that all assertions will throw exceptions if YesNo is off.
+   */
+  Off,
 }
 export interface YesNoOptions {
-  mode: Mode;
+  /**
+   * Test mode
+   */
+  mode?: Mode;
+  /**
+   * Default directory to locate and persist intercepted request/response
+   */
+  dir: string;
 }
 
 interface RegisteredSocket extends Mitm.BypassableSocket {
@@ -45,14 +69,15 @@ function setOptions(socket: RegisteredSocket, clientOptions: ProxyRequestOptions
   clientRequestId++;
 }
 
-export default class YesNo {
-  private completedRequests: SerializedRequestResponse[] = [];
+export class YesNo {
+  public interceptedRequests: SerializedRequestResponse[] = [];
   private mitm: undefined | Mitm.Mitm;
   private mode: Mode;
+  private dir: string;
 
-  constructor(options?: YesNoOptions) {
-    const { mode = Mode.Live } = options || {};
+  constructor({ mode = Mode.Spy, dir }: YesNoOptions) {
     this.mode = mode;
+    this.dir = dir;
   }
 
   public enable(): void {
@@ -80,9 +105,30 @@ export default class YesNo {
     this.mitm.on('request', this._mitmOnRequest.bind(this));
   }
 
-  public save(): void {
-    debug('Saving %d requests', this.completedRequests.length);
-    this.completedRequests = [];
+  /**
+   * Save intercepted request/response if we're in record mode.
+   * Clears local copy of intercepted request.
+   * @returns Full filename of saved JSON if generated
+   */
+  public save(name: string): Promise<string | void> {
+    const interceptedRequests = this.interceptedRequests;
+    this.interceptedRequests = [];
+
+    if (!this.isMode(Mode.Record)) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const contents = JSON.stringify(interceptedRequests);
+      const filename = path.join(this.dir, `${name}-yesno.json`);
+      debug('Saving %d requests to %s', this.interceptedRequests.length, filename);
+
+      writeFile(filename, contents, (e: Error) => e ? reject(e) : resolve(filename));
+    });
+  }
+
+  public isMode(mode: Mode): boolean {
+    return this.mode === mode;
   }
 
   private _mitmOnConnect(
@@ -155,7 +201,7 @@ export default class YesNo {
 
       proxiedResponse.on('end', () => {
         debugReq('Response complete');
-        this.completedRequests.push({
+        this.interceptedRequests.push({
           request: requestSerializer.serialize(),
           response: responseSerializer.serialize(),
         });
