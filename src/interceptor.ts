@@ -68,9 +68,8 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       this.origOnSocket,
       // tslint:disable-next-line:only-arrow-functions
       function(this: ClientRequestFull, socket: RegisteredSocket): RegisteredSocket {
-        debug('ClientRequest:onSocket');
-
         if (undefined !== socket.__yesno_req_id) {
+          debug('New socket on client request', socket.__yesno_req_id);
           self.clientRequests[socket.__yesno_req_id].clientRequest = this;
           this.setHeader(YESNO_INTERNAL_HTTP_HEADER, socket.__yesno_req_id);
         }
@@ -99,14 +98,14 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
    * Event handler for Mitm "connect" event.
    */
   private mitmOnConnect(socket: Mitm.BypassableSocket, options: ProxyRequestOptions): void {
-    debug('mitm event:connect');
+    debug('New socket connection');
 
     if (options.proxying) {
-      debug('proxying');
+      debug('Bypassing intercept...');
       socket.bypass();
     } else {
       this.trackSocketAndClientOptions(socket as RegisteredSocket, options);
-      debug('socket id', (socket as RegisteredSocket).__yesno_req_id);
+      debug('Tracking socket %s', (socket as RegisteredSocket).__yesno_req_id);
     }
   }
 

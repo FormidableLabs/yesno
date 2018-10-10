@@ -145,36 +145,20 @@ export class YesNo {
     this.interceptor = undefined;
   }
 
-  public load(name: string): Promise<SerializedRequestResponse[] | void> {
-    if (!this.isMode(Mode.Mock)) {
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve, reject) => {
-      const filename = path.join(this.dir, `${name}-yesno.json`);
-      debug('Loading requests from', filename);
-
-      readFile(filename, (e: Error, data: Buffer) => {
-        if (e) {
-          return reject(e);
-        }
-
-        this.mocks = JSON.parse(data.toString());
-        resolve(this.mocks);
-      });
-    });
-  }
-
-  public begin(name: string, mode?: Mode): void {
+  public async begin(name: string, mode?: Mode): Promise<void> {
     if (!this.interceptor) {
       throw new YesNoError('Cannot begin until enabled');
     }
 
     this.currentName = name;
 
-    if (mode) {
+    if (mode !== undefined) {
       this.mode = mode;
       this.interceptor.proxy(!this.isMode(Mode.Mock));
+    }
+
+    if (this.isMode(Mode.Mock)) {
+      await this.load(this.currentName);
     }
   }
 
@@ -184,7 +168,6 @@ export class YesNo {
    * @returns Full filename of saved JSON if generated
    */
   public save(): Promise<string | void> {
-    debug('Saving %s...', this.currentName);
     const interceptedRequests = this.completedRequests;
     const inFlightRequests = this.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
@@ -200,12 +183,14 @@ export class YesNo {
       );
     }
 
-    this.clear();
+    // Should we clear here?
 
     if (!this.isMode(Mode.Record)) {
       debug('Not in record mode, will not persist records');
       return Promise.resolve();
     }
+
+    debug('Saving %s...', this.currentName);
 
     return new Promise((resolve, reject) => {
       const payload: ISaveFile = { records: interceptedRequests };
@@ -217,6 +202,11 @@ export class YesNo {
     });
   }
 
+  public useDir(dir: string): YesNo {
+    this.dir = dir;
+    return this;
+  }
+
   public isMode(mode: Mode): boolean {
     return this.mode === mode;
   }
@@ -224,11 +214,32 @@ export class YesNo {
   public clear() {
     this.completedRequests = [];
     this.inFlightRequests = [];
+    this.mocks = [];
     (this.interceptor as Interceptor).requestNumber = 0;
   }
 
   public getMockFilename(name: string): string {
     return path.join(this.dir, `${name}-yesno.json`);
+  }
+
+  private load(name: string): Promise<SerializedRequestResponse[] | void> {
+    if (!this.isMode(Mode.Mock)) {
+      return Promise.reject(new YesNoError('Cannot load mocks outside mock mode'));
+    }
+
+    return new Promise((resolve, reject) => {
+      const filename = path.join(this.dir, `${name}-yesno.json`);
+      debug('Loading mocks from', filename);
+
+      readFile(filename, (e: Error, data: Buffer) => {
+        if (e) {
+          return reject(e);
+        }
+
+        this.mocks = (JSON.parse(data.toString()) as ISaveFile).records;
+        resolve(this.mocks);
+      });
+    });
   }
 
   private async mockResponse({
@@ -246,20 +257,23 @@ export class YesNo {
 
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
     const serializedRequest = requestSerializer.serialize();
-    const i: number = this.completedRequests.length;
     const mock = this.mocks[requestNumber];
 
-    this.assertMatches(serializedRequest, mock.request, i + 1);
-
-    interceptedResponse.statusCode = mock.response.statusCode;
-    for (const entry of Object.entries(mock.response.headers)) {
-      const [header, value] = entry;
-      interceptedResponse.setHeader(header, value as string | string[] | number);
+    if (!mock) {
+      throw new YesNoError(`No mock found for request #${requestNumber}`);
     }
 
-    if (mock.response.body) {
-      interceptedResponse.write(mock.response.body);
-    }
+    this.assertMatches(serializedRequest, mock.request, requestNumber);
+
+    // interceptedResponse.statusCode = mock.response.statusCode;
+    // for (const entry of Object.entries(mock.response.headers)) {
+    //   const [header, value] = entry;
+    //   interceptedResponse.setHeader(header, value as string | string[] | number);
+    // }
+
+    interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
+    interceptedResponse.write(mock.response.body);
+    interceptedResponse.end();
 
     this.recordCompleted(serializedRequest, mock.response, requestNumber);
   }

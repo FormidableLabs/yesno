@@ -56,6 +56,35 @@ describe('yesno', () => {
     });
   });
 
+  describe('mock mode', () => {
+    it('should play back the requests from disk', async () => {
+      const name = 'mock-test-1';
+      await yesno.useDir(path.join(__dirname, 'mocks')).begin(name, Mode.Mock);
+      const now = Date.now();
+
+      const response1 = await rp.get({
+        headers: {
+          'x-status-code': 299,
+          'x-timestamp': now,
+        },
+        uri: 'http://localhost:3001/get?foo=bar',
+      });
+      const response2 = await rp.post({
+        body: {
+          foo: 'bar',
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      const { records }: ISaveFile = require(yesno.getMockFilename(name));
+      expect(response1).to.eql(records[0].response.body);
+      expect(response2).to.eql(records[1].response.body);
+
+      await yesno.save();
+    });
+  });
+
   it('should send get to test server', async () => {
     const response: rp.RequestPromise = await rp.get({
       headers: {
