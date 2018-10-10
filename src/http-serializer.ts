@@ -33,6 +33,7 @@ export interface SerializedRequest {
   path: string;
   method: string;
   port: number;
+  query?: string;
   protocol: 'http' | 'https';
 }
 
@@ -49,6 +50,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
   public headers: OutgoingHttpHeaders = {};
   public host: string;
   public path: string;
+  public query: string | undefined;
   public method: string;
   public port: number;
   public protocol: 'http' | 'https';
@@ -69,9 +71,11 @@ export class RequestSerializer extends Transform implements SerializedRequest {
     this.port = typeof port === 'string' ? parseInt(port, 10) : port;
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L125
+    const [path, query] = (originalClientReq as ClientRequestFull).path.split('?');
     this.host = originalClientOpts.hostname || originalClientOpts.host || 'localhost';
     this.method = (interceptedServerReq.method as string).toUpperCase();
-    this.path = (originalClientReq as ClientRequestFull).path; // We force set this property earlier
+    this.path = path;
+    this.query = query;
     this.protocol = isHttps ? 'https' : 'http';
     this.headers = _.omit(originalClientReq.getHeaders(), YESNO_INTERNAL_HTTP_HEADER);
   }
@@ -93,6 +97,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
       path: this.path,
       port: this.port,
       protocol: this.protocol,
+      query: this.query,
     };
   }
 }

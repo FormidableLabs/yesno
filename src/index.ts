@@ -2,27 +2,25 @@ import { expect } from 'chai';
 import { IDebugger } from 'debug';
 import { readFile, writeFile } from 'fs';
 import * as http from 'http';
-import { ClientRequest } from 'http';
-import * as https from 'https';
 import * as _ from 'lodash';
 import Mitm = require('mitm');
+import { EOL } from 'os';
 import * as path from 'path';
 import * as readable from 'readable-stream';
-import { pipeline } from 'stream';
-import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import {
-  ClientRequestFull,
   RequestSerializer,
-  ResponseSerializer,
   SerializedRequest,
   SerializedRequestResponse,
   SerializedResponse,
 } from './http-serializer';
+import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
 const debug: IDebugger = require('debug')('yesno');
 const { version }: { version: string } = require('../package.json');
 
-interface ProxyRequestOptions extends http.RequestOptions {
-  proxying?: boolean;
+class YesNoError extends Error {
+  constructor(message: string) {
+    super(`YesNo: ${message}`);
+  }
 }
 
 export enum Mode {
@@ -56,62 +54,95 @@ export interface YesNoOptions {
   dir: string;
 }
 
-interface RegisteredSocket extends Mitm.BypassableSocket {
-  __yesno_req_id?: string;
+interface IInFlightRequest {
+  startTime: number;
+  requestSerializer: RequestSerializer;
 }
 
-interface ClientRequestTracker {
-  [key: string]: {
-    clientOptions: http.RequestOptions;
-    clientRequest?: ClientRequestFull;
-  };
+export interface ISaveFile {
+  records: SerializedRequestResponse[];
 }
 
-let clientRequestId: number = 0;
-const clientRequests: ClientRequestTracker = {};
-
-function setOptions(socket: RegisteredSocket, clientOptions: ProxyRequestOptions): void {
-  socket.__yesno_req_id = String(clientRequestId);
-  clientRequests[clientRequestId] = { clientOptions };
-
-  clientRequestId++;
-}
-
+// tslint:disable-next-line:max-classes-per-file
 export class YesNo {
-  public interceptedRequests: Array<SerializedRequestResponse | number> = [];
+  /**
+   * Completed serialized request-response objects. Used for:
+   * A. Assertions
+   * B. Saved to disk if in record mode
+   */
+  public completedRequests: SerializedRequestResponse[] = [];
+
+  /**
+   * Proxied requests which have not yet responded. When completed
+   * the value is set to "null" but the index is preserved.
+   */
+  private inFlightRequests: Array<IInFlightRequest | null> = [];
+
+  /**
+   * Serialized records loaded from disk.
+   */
   private mocks: SerializedRequestResponse[] = [];
-  private mitm: undefined | Mitm.Mitm;
+
   private mode: Mode;
   private dir: string;
+  private currentName: string | undefined;
+  private interceptor: Interceptor | undefined;
 
   constructor({ mode = Mode.Spy, dir }: YesNoOptions) {
     this.mode = mode;
     this.dir = dir;
   }
 
-  public enable(): void {
+  public enable(): YesNo {
     debug('Enabling intercept');
 
-    // @todo Disable this later
-    ClientRequest.prototype.onSocket = _.flowRight(
-      ClientRequest.prototype.onSocket,
-      // tslint:disable-next-line:only-arrow-functions
-      function(this: ClientRequestFull, socket: RegisteredSocket): RegisteredSocket {
-        debug('ClientRequest:onSocket');
-        if (undefined !== socket.__yesno_req_id) {
-          // Give precedence to the parsed path
-          clientRequests[socket.__yesno_req_id].clientRequest = this;
-          this.setHeader(YESNO_INTERNAL_HTTP_HEADER, socket.__yesno_req_id);
+    this.interceptor = new Interceptor({ mitm: Mitm(), shouldProxy: !this.isMode(Mode.Mock) });
+    this.interceptor.on(
+      'intercept',
+      ({
+        requestSerializer,
+        interceptedRequest,
+        interceptedResponse,
+        requestNumber,
+      }: IInterceptEvent) => {
+        this.inFlightRequests[requestNumber] = {
+          requestSerializer,
+          startTime: Date.now(),
+        };
+
+        if (!this.isMode(Mode.Mock)) {
+          return;
         }
 
-        return socket;
+        this.mockResponse({
+          interceptedRequest,
+          interceptedResponse,
+          requestNumber,
+          requestSerializer,
+        });
+      },
+    );
+    this.interceptor.on(
+      'proxied',
+      ({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent) => {
+        this.recordCompleted(
+          requestSerializer.serialize(),
+          responseSerializer.serialize(),
+          requestNumber,
+        );
       },
     );
 
-    this.mitm = Mitm();
+    return this;
+  }
 
-    this.mitm.on('connect', this._mitmOnConnect.bind(this) as Mitm.SocketConnectCallback);
-    this.mitm.on('request', this._mitmOnRequest.bind(this));
+  public disable(): void {
+    if (!this.interceptor) {
+      throw new YesNoError('Cannot disable if not enabled');
+    }
+
+    this.interceptor.disable();
+    this.interceptor = undefined;
   }
 
   public load(name: string): Promise<SerializedRequestResponse[] | void> {
@@ -134,23 +165,53 @@ export class YesNo {
     });
   }
 
+  public begin(name: string, mode?: Mode): void {
+    if (!this.interceptor) {
+      throw new YesNoError('Cannot begin until enabled');
+    }
+
+    this.currentName = name;
+
+    if (mode) {
+      this.mode = mode;
+      this.interceptor.proxy(!this.isMode(Mode.Mock));
+    }
+  }
+
   /**
    * Save intercepted request/response if we're in record mode.
    * Clears local copy of intercepted request.
    * @returns Full filename of saved JSON if generated
    */
-  public save(name: string): Promise<string | void> {
-    const interceptedRequests = this.interceptedRequests;
-    this.interceptedRequests = [];
+  public save(): Promise<string | void> {
+    debug('Saving %s...', this.currentName);
+    const interceptedRequests = this.completedRequests;
+    const inFlightRequests = this.inFlightRequests.filter((x) => x) as IInFlightRequest[];
+
+    if (inFlightRequests.length) {
+      const urls = inFlightRequests
+        .map(
+          ({ requestSerializer }) =>
+            `${requestSerializer.method}${this.formatUrl(requestSerializer)}`,
+        )
+        .join(EOL);
+      throw new YesNoError(
+        `Cannot save. Still have ${inFlightRequests.length} in flight requests: ${EOL}${urls}`,
+      );
+    }
+
+    this.clear();
 
     if (!this.isMode(Mode.Record)) {
+      debug('Not in record mode, will not persist records');
       return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
-      const contents = JSON.stringify(interceptedRequests);
-      const filename = path.join(this.dir, `${name}-yesno.json`);
-      debug('Saving %d requests to %s', this.interceptedRequests.length, filename);
+      const payload: ISaveFile = { records: interceptedRequests };
+      const contents = JSON.stringify(payload, null, 2);
+      const filename = this.getMockFilename(this.currentName as string);
+      debug('Saving %d records to %s', interceptedRequests.length, filename);
 
       writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
     });
@@ -160,109 +221,33 @@ export class YesNo {
     return this.mode === mode;
   }
 
-  private _mitmOnConnect(socket: Mitm.BypassableSocket, options: ProxyRequestOptions): void {
-    debug('mitm event:connect');
-
-    if (options.proxying) {
-      debug('proxying');
-      socket.bypass();
-    } else {
-      setOptions(socket as RegisteredSocket, options);
-      debug('socket id', (socket as RegisteredSocket).__yesno_req_id);
-    }
+  public clear() {
+    this.completedRequests = [];
+    this.inFlightRequests = [];
+    (this.interceptor as Interceptor).requestNumber = 0;
   }
 
-  private _mitmOnRequest(
-    interceptedRequest: http.IncomingMessage,
-    interceptedResponse: http.ServerResponse,
-  ): void {
-    debug('mitm event:request');
-
-    const id = this._getRequestId(interceptedRequest);
-
-    function debugReq(formatter: string, ...args: any[]): void {
-      debug(`[id:${id}] ${formatter}`, ...args);
-    }
-
-    if (!clientRequests[id]) {
-      debugReq(`Error: Missing client options for yesno req ${id}`);
-      throw new Error(`Missing client options for yesno req ${id}`);
-    }
-
-    const { clientOptions } = clientRequests[id];
-    const clientRequest: ClientRequestFull = clientRequests[id].clientRequest as ClientRequestFull;
-    const isHttps: boolean = (interceptedRequest.connection as any).encrypted;
-    const requestSerializer = new RequestSerializer(
-      clientOptions,
-      clientRequest,
-      interceptedRequest,
-      isHttps,
-    );
-    const requestIndex = this.interceptedRequests.length;
-    this.interceptedRequests.push(Date.now());
-
-    if (this.isMode(Mode.Mock)) {
-      this._mockResponse({
-        interceptedRequest,
-        interceptedResponse,
-        requestIndex,
-        requestSerializer,
-      });
-      return;
-    }
-
-    const request = isHttps ? https.request : http.request;
-    const proxiedRequest: http.ClientRequest = request({
-      ...clientOptions,
-      headers: _.omit(clientRequest.getHeaders(), YESNO_INTERNAL_HTTP_HEADER),
-      path: (clientRequest as ClientRequestFull).path,
-      proxying: true,
-    } as ProxyRequestOptions);
-
-    (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
-
-    interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
-    interceptedRequest.on('aborted', () => {
-      debugReq('Intercepted request aborted');
-      proxiedRequest.abort();
-    });
-
-    proxiedRequest.on('timeout', (e: any) => debugReq('Proxied request timeout', e));
-    proxiedRequest.on('error', (e: any) => debugReq('Proxied request error', e));
-    proxiedRequest.on('aborted', () => debugReq('Proxied request aborted'));
-    proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
-      const responseSerializer = new ResponseSerializer(proxiedResponse);
-      debugReq('proxied response (%d)', proxiedResponse.statusCode);
-      (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
-
-      proxiedResponse.on('end', () => {
-        debugReq('Response complete');
-        this.addRequestResponse(
-          requestSerializer.serialize(),
-          responseSerializer.serialize(),
-          requestIndex,
-        );
-      });
-    });
+  public getMockFilename(name: string): string {
+    return path.join(this.dir, `${name}-yesno.json`);
   }
 
-  private async _mockResponse({
+  private async mockResponse({
     interceptedRequest,
     interceptedResponse,
     requestSerializer,
-    requestIndex,
+    requestNumber,
   }: {
     interceptedRequest: http.IncomingMessage;
     interceptedResponse: http.ServerResponse;
     requestSerializer: RequestSerializer;
-    requestIndex: number;
+    requestNumber: number;
   }): Promise<void> {
     debug('Mock response');
 
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
     const serializedRequest = requestSerializer.serialize();
-    const i: number = this.interceptedRequests.length;
-    const mock = this.mocks[requestIndex - 1];
+    const i: number = this.completedRequests.length;
+    const mock = this.mocks[requestNumber];
 
     this.assertMatches(serializedRequest, mock.request, i + 1);
 
@@ -276,24 +261,29 @@ export class YesNo {
       interceptedResponse.write(mock.response.body);
     }
 
-    this.addRequestResponse(serializedRequest, mock.response, requestIndex);
+    this.recordCompleted(serializedRequest, mock.response, requestNumber);
   }
 
-  private addRequestResponse(
+  private recordCompleted(
     request: SerializedRequest,
     response: SerializedResponse,
-    requestIndex: number,
+    requestNumber: number,
   ): void {
-    const startTime = this.interceptedRequests[requestIndex] as number;
     const now = Date.now();
-    this.interceptedRequests[requestIndex] = {
-      __duration: now - startTime,
+    const url = this.formatUrl(request);
+    const duration = now - (this.inFlightRequests[requestNumber] as IInFlightRequest).startTime;
+
+    this.completedRequests[requestNumber] = {
+      __duration: duration,
       __timestamp: now,
       __version: version,
       request,
       response,
-      url: `${request.protocol}://${request.host}:${request.port}${request.path}`,
+      url,
     };
+    this.inFlightRequests[requestNumber] = null;
+
+    debug('Added request-response for %s %s (duration: %d)', request.method, url, duration);
   }
 
   private assertMatches(
@@ -308,17 +298,19 @@ export class YesNo {
 
     expect(
       currentRequest.method,
-      `YesNo: Expected request #${requestNum} to ${host} to use the ${mockRequest.method} method`,
+      `YesNo: Expected request #${requestNum} for ${host} to use the ${mockRequest.method} method`,
     ).to.eql(mockRequest.method);
 
     expect(
       currentRequest.protocol,
-      `YesNo: Expected request #${requestNum} to ${host} to be served over ${mockRequest.protocol}`,
+      `YesNo: Expected request #${requestNum} for ${host} to be served over ${
+        mockRequest.protocol
+      }`,
     ).to.eql(mockRequest.protocol);
 
     expect(
       currentRequest.port,
-      `YesNo: Expected request #${requestNum} to ${host} to be served on port ${mockRequest.port}`,
+      `YesNo: Expected request #${requestNum} for ${host} to be served on port ${mockRequest.port}`,
     ).to.eql(mockRequest.port);
 
     const nickname = `${currentRequest.method} ${currentRequest.protocol}://${
@@ -333,13 +325,7 @@ export class YesNo {
     ).to.eql(mockRequest.path);
   }
 
-  private _getRequestId(interceptedRequest: http.IncomingMessage): string {
-    const id: string = interceptedRequest.headers[YESNO_INTERNAL_HTTP_HEADER] as string;
-
-    if (!id) {
-      throw new Error('Missing internal header');
-    }
-
-    return id;
+  private formatUrl(request: SerializedRequest) {
+    return `${request.protocol}://${request.host}:${request.port}${request.path}`;
   }
 }

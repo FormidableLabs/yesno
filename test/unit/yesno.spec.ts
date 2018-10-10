@@ -19,7 +19,8 @@ describe('Yesno', () => {
 
     it('should save intercepted requests in the configured directory', async () => {
       const yesno: YesNo = new YesNo({ dir, mode: Mode.Record });
-      yesno.interceptedRequests = [
+      yesno.enable().begin(name);
+      yesno.completedRequests = [
         {
           __duration: 1,
           __timestamp: 1,
@@ -39,8 +40,8 @@ describe('Yesno', () => {
           url: 'bar',
         },
       ];
-      const expectedContents = JSON.stringify(yesno.interceptedRequests);
-      const filename = await yesno.save(name);
+      const expectedContents = JSON.stringify({ records: yesno.completedRequests }, null, 2);
+      const filename = await yesno.save();
 
       expect(filename, 'Returns the full filename').to.eql(expectedFilename);
       const contents = fs.readFileSync(filename as string).toString();

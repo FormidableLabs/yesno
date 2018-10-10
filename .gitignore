@@ -1,2 +1,5 @@
 .vscode
 dist/
+
+test/integration/tmp
+test/unit/tmp

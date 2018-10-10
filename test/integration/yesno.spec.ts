@@ -1,8 +1,9 @@
 import { expect } from 'chai';
 import * as http from 'http';
 import * as https from 'https';
+import * as path from 'path';
 import * as rp from 'request-promise';
-import { YesNo } from '../../src';
+import { ISaveFile, Mode, YesNo } from '../../src';
 import * as testServer from '../server';
 
 describe('yesno', () => {
@@ -10,27 +11,65 @@ describe('yesno', () => {
   const TEST_BODY_VALUE = 'fiz';
   let yesno: YesNo;
 
-  before(() => {
-    yesno = new YesNo({ dir: __dirname });
+  before(async () => {
+    await testServer.start();
+
+    yesno = new YesNo({ dir: path.join(__dirname, 'tmp') });
     yesno.enable();
   });
 
-  it('should send get to test server', async () => {
-    await testServer.start();
+  afterEach(() => {
+    yesno.clear();
+  });
 
+  describe('record mode', () => {
+    it('should create records locally', async () => {
+      const name = 'record-test-1';
+      yesno.begin(name, Mode.Record);
+      const now = Date.now();
+
+      await rp.get({
+        headers: {
+          'x-status-code': 299,
+          'x-timestamp': now,
+        },
+        uri: 'http://localhost:3001/get?foo=bar',
+      });
+      await rp.post({
+        body: {
+          foo: 'bar',
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      await yesno.save();
+
+      const { records }: ISaveFile = require(yesno.getMockFilename(name));
+      expect(records[0]).to.have.nested.property('request.headers.x-timestamp', now);
+      expect(records[0]).to.have.nested.property('request.host', 'localhost');
+      expect(records[0]).to.have.nested.property('request.path', '/get');
+      expect(records[0]).to.have.nested.property('request.query', 'foo=bar');
+      expect(records[0]).to.have.nested.property('request.method', 'GET');
+      expect(records[0]).to.have.nested.property('response.statusCode', 299);
+      expect(records[0]).to.have.nested.property('url', 'http://localhost:3001/get');
+    });
+  });
+
+  it('should send get to test server', async () => {
     const response: rp.RequestPromise = await rp.get({
       headers: {
         'x-test-header': TEST_HEADER_VALUE,
       },
       json: true,
+      qs: {
+        fiz: 'baz',
+      },
       uri: 'http://localhost:3001/get',
     });
 
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property(
-      'headers.x-test-header',
-      TEST_HEADER_VALUE,
-    );
+    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
   });
 
   it('should proxy HTTP GET requests', async () => {
@@ -43,10 +82,7 @@ describe('yesno', () => {
     });
 
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property(
-      'headers.x-test-header',
-      TEST_HEADER_VALUE,
-    );
+    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
   });
 
   it('should proxy HTTP POST requests', async () => {
@@ -62,10 +98,7 @@ describe('yesno', () => {
     });
 
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property(
-      'headers.x-test-header',
-      TEST_HEADER_VALUE,
-    );
+    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
     expect(response).to.have.nested.property('json.test', TEST_BODY_VALUE);
   });
 
