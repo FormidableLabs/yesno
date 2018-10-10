@@ -16,8 +16,10 @@ import {
   ResponseSerializer,
   SerializedRequest,
   SerializedRequestResponse,
+  SerializedResponse,
 } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno');
+const { version }: { version: string } = require('../package.json');
 
 interface ProxyRequestOptions extends http.RequestOptions {
   proxying?: boolean;
@@ -76,7 +78,7 @@ function setOptions(socket: RegisteredSocket, clientOptions: ProxyRequestOptions
 }
 
 export class YesNo {
-  public interceptedRequests: SerializedRequestResponse[] = [];
+  public interceptedRequests: Array<SerializedRequestResponse | number> = [];
   private mocks: SerializedRequestResponse[] = [];
   private mitm: undefined | Mitm.Mitm;
   private mode: Mode;
@@ -196,9 +198,16 @@ export class YesNo {
       interceptedRequest,
       isHttps,
     );
+    const requestIndex = this.interceptedRequests.length;
+    this.interceptedRequests.push(Date.now());
 
     if (this.isMode(Mode.Mock)) {
-      this._mockResponse(interceptedRequest, interceptedResponse, requestSerializer);
+      this._mockResponse({
+        interceptedRequest,
+        interceptedResponse,
+        requestIndex,
+        requestSerializer,
+      });
       return;
     }
 
@@ -228,25 +237,32 @@ export class YesNo {
 
       proxiedResponse.on('end', () => {
         debugReq('Response complete');
-        this.interceptedRequests.push({
-          request: requestSerializer.serialize(),
-          response: responseSerializer.serialize(),
-        });
+        this.addRequestResponse(
+          requestSerializer.serialize(),
+          responseSerializer.serialize(),
+          requestIndex,
+        );
       });
     });
   }
 
-  private async _mockResponse(
-    interceptedRequest: http.IncomingMessage,
-    interceptedResponse: http.ServerResponse,
-    requestSerializer: RequestSerializer,
-  ): Promise<void> {
+  private async _mockResponse({
+    interceptedRequest,
+    interceptedResponse,
+    requestSerializer,
+    requestIndex,
+  }: {
+    interceptedRequest: http.IncomingMessage;
+    interceptedResponse: http.ServerResponse;
+    requestSerializer: RequestSerializer;
+    requestIndex: number;
+  }): Promise<void> {
     debug('Mock response');
 
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
     const serializedRequest = requestSerializer.serialize();
     const i: number = this.interceptedRequests.length;
-    const mock = this.mocks[i];
+    const mock = this.mocks[requestIndex - 1];
 
     this.assertMatches(serializedRequest, mock.request, i + 1);
 
@@ -260,10 +276,24 @@ export class YesNo {
       interceptedResponse.write(mock.response.body);
     }
 
-    this.interceptedRequests.push({
-      request: serializedRequest,
-      response: mock.response,
-    });
+    this.addRequestResponse(serializedRequest, mock.response, requestIndex);
+  }
+
+  private addRequestResponse(
+    request: SerializedRequest,
+    response: SerializedResponse,
+    requestIndex: number,
+  ): void {
+    const startTime = this.interceptedRequests[requestIndex] as number;
+    const now = Date.now();
+    this.interceptedRequests[requestIndex] = {
+      __duration: now - startTime,
+      __timestamp: now,
+      __version: version,
+      request,
+      response,
+      url: `${request.protocol}://${request.host}:${request.port}${request.path}`,
+    };
   }
 
   private assertMatches(
@@ -277,9 +307,9 @@ export class YesNo {
     const { host } = currentRequest;
 
     expect(
-      currentRequest.protocol,
+      currentRequest.method,
       `YesNo: Expected request #${requestNum} to ${host} to use the ${mockRequest.method} method`,
-    ).to.eql(mockRequest.protocol);
+    ).to.eql(mockRequest.method);
 
     expect(
       currentRequest.protocol,
@@ -301,14 +331,6 @@ export class YesNo {
       currentRequest.path,
       `YesNo: Expected request #${requestNum} "${nickname}" to have path ${mockRequest.path}`,
     ).to.eql(mockRequest.path);
-
-    // @todo check query and hash
-    // @todo check headers
-
-    expect(
-      currentRequest.body,
-      `YesNo: Request #${requestNum} "${nickname}${mockRequest.path}" has unexpected body`,
-    ).to.eql(mockRequest.body);
   }
 
   private _getRequestId(interceptedRequest: http.IncomingMessage): string {

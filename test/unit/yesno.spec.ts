@@ -19,20 +19,26 @@ describe('Yesno', () => {
 
     it('should save intercepted requests in the configured directory', async () => {
       const yesno: YesNo = new YesNo({ dir, mode: Mode.Record });
-      yesno.interceptedRequests = [{
-        request: {
-          headers: {},
-          host: 'mock.com',
-          method: 'GET',
-          path: '/',
-          port: 80,
-          protocol: 'http',
+      yesno.interceptedRequests = [
+        {
+          __duration: 1,
+          __timestamp: 1,
+          __version: 'foo',
+          request: {
+            headers: {},
+            host: 'mock.com',
+            method: 'GET',
+            path: '/',
+            port: 80,
+            protocol: 'http',
+          },
+          response: {
+            headers: {},
+            statusCode: 200,
+          },
+          url: 'bar',
         },
-        response: {
-          headers: {},
-          statusCode: 200,
-        },
-      }];
+      ];
       const expectedContents = JSON.stringify(yesno.interceptedRequests);
       const filename = await yesno.save(name);
 

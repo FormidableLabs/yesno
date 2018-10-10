@@ -12,11 +12,12 @@ HTTP assertions
 ```javascript
 describe('facebook', () => {
   before(() => {
-    yesno = new Yesno();
+    yesno = new YesNo();
     yesno.enable();
   });
 
   describe('#getProfile', async () => {
+    yesno.start();
     // Depending on configuration of Yesno, this request will either
     // A. Hit the live service
     // or B. Play back from the mocks
@@ -35,6 +36,8 @@ describe('facebook', () => {
       'id', 
       yes.response(1).body.id
     )
+
+    yesno.save();
   });
 });
 ```

@@ -12,6 +12,10 @@ const debug = require('debug')('yesno:http-serializer');
 /* tslint:disable:max-classes-per-file */
 
 export interface SerializedRequestResponse {
+  __version: string;
+  __timestamp: number;
+  __duration: number;
+  url: string;
   request: SerializedRequest;
   response: SerializedResponse;
 }
