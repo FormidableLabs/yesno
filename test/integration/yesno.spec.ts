@@ -22,10 +22,13 @@ describe('yesno', () => {
     yesno.clear();
   });
 
-  describe('record mode', () => {
+  after(() => {
+    yesno.disable();
+  });
+
+  describe('#save', () => {
     it('should create records locally', async () => {
       const name = 'record-test-1';
-      yesno.begin(name, Mode.Record);
       const now = Date.now();
 
       await rp.get({
@@ -43,7 +46,8 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/post',
       });
 
-      await yesno.save();
+      expect(yesno.intercepted()).to.have.length(2);
+      await yesno.save(name);
 
       const { records }: ISaveFile = require(yesno.getMockFilename(name));
       expect(records[0]).to.have.nested.property('request.headers.x-timestamp', now);
@@ -59,7 +63,9 @@ describe('yesno', () => {
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';
-      await yesno.useDir(path.join(__dirname, 'mocks')).begin(name, Mode.Mock);
+      yesno.dir = path.join(__dirname, 'mocks');
+      await yesno.mock(name);
+
       const now = Date.now();
 
       const response1 = await rp.get({
@@ -80,8 +86,6 @@ describe('yesno', () => {
       const { records }: ISaveFile = require(yesno.getMockFilename(name));
       expect(response1).to.eql(records[0].response.body);
       expect(response2).to.eql(records[1].response.body);
-
-      await yesno.save();
     });
   });
 

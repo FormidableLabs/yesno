@@ -29,19 +29,9 @@ export enum Mode {
    */
   Mock,
   /**
-   * Spy on request/response then generate mocks
-   */
-  Record,
-  /**
    * Spy on request/response
    */
   Spy,
-  /**
-   * Do nothing. HTTP & TCP will be completely unmodified.
-   *
-   * Note that all assertions will throw exceptions if YesNo is off.
-   */
-  Off,
 }
 export interface YesNoOptions {
   /**
@@ -63,6 +53,12 @@ export interface ISaveFile {
   records: SerializedRequestResponse[];
 }
 
+export interface IQueryIntercepted {
+  url?: string | RegExp;
+  request?: { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
+  response?: { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
+}
+
 // tslint:disable-next-line:max-classes-per-file
 export class YesNo {
   /**
@@ -71,6 +67,9 @@ export class YesNo {
    * B. Saved to disk if in record mode
    */
   public completedRequests: SerializedRequestResponse[] = [];
+
+  public mode: Mode;
+  public dir: string;
 
   /**
    * Proxied requests which have not yet responded. When completed
@@ -82,9 +81,6 @@ export class YesNo {
    * Serialized records loaded from disk.
    */
   private mocks: SerializedRequestResponse[] = [];
-
-  private mode: Mode;
-  private dir: string;
   private currentName: string | undefined;
   private interceptor: Interceptor | undefined;
 
@@ -141,33 +137,39 @@ export class YesNo {
       throw new YesNoError('Cannot disable if not enabled');
     }
 
+    this.clear();
     this.interceptor.disable();
     this.interceptor = undefined;
   }
 
-  public async begin(name: string, mode?: Mode): Promise<void> {
-    if (!this.interceptor) {
-      throw new YesNoError('Cannot begin until enabled');
-    }
+  public async mock(name: string): Promise<SerializedRequestResponse[]> {
+    this.setMode(Mode.Mock);
+    this.mocks = await this.load(name);
 
-    this.currentName = name;
+    return this.mocks;
+  }
 
-    if (mode !== undefined) {
-      this.mode = mode;
+  public spy() {
+    this.setMode(Mode.Spy);
+  }
+
+  public setMode(mode: Mode) {
+    this.mode = mode;
+
+    if (this.interceptor) {
       this.interceptor.proxy(!this.isMode(Mode.Mock));
-    }
-
-    if (this.isMode(Mode.Mock)) {
-      await this.load(this.currentName);
     }
   }
 
   /**
    * Save intercepted request/response if we're in record mode.
    * Clears local copy of intercepted request.
+   *
+   * @param name Filename
+   * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
    */
-  public save(): Promise<string | void> {
+  public save(name: string, dir?: string): Promise<string | void> {
     const interceptedRequests = this.completedRequests;
     const inFlightRequests = this.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
@@ -185,26 +187,21 @@ export class YesNo {
 
     // Should we clear here?
 
-    if (!this.isMode(Mode.Record)) {
-      debug('Not in record mode, will not persist records');
+    if (this.isMode(Mode.Mock)) {
+      debug('No need to save in mock mode');
       return Promise.resolve();
     }
 
-    debug('Saving %s...', this.currentName);
+    debug('Saving %s...', name);
 
     return new Promise((resolve, reject) => {
       const payload: ISaveFile = { records: interceptedRequests };
       const contents = JSON.stringify(payload, null, 2);
-      const filename = this.getMockFilename(this.currentName as string);
+      const filename = this.getMockFilename(name, dir);
       debug('Saving %d records to %s', interceptedRequests.length, filename);
 
       writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
     });
-  }
-
-  public useDir(dir: string): YesNo {
-    this.dir = dir;
-    return this;
   }
 
   public isMode(mode: Mode): boolean {
@@ -218,26 +215,83 @@ export class YesNo {
     (this.interceptor as Interceptor).requestNumber = 0;
   }
 
-  public getMockFilename(name: string): string {
-    return path.join(this.dir, `${name}-yesno.json`);
+  public getMockFilename(name: string, dir: string = this.dir): string {
+    return path.join(dir, `${name}-yesno.json`);
   }
 
-  private load(name: string): Promise<SerializedRequestResponse[] | void> {
-    if (!this.isMode(Mode.Mock)) {
-      return Promise.reject(new YesNoError('Cannot load mocks outside mock mode'));
+  /**
+   * Get all intercepted request/response which match the provided query
+   *
+   * Match against the URL if query is a string or regexp.
+   * Otherwise perform a partial match against each serialized request response
+   * @param query
+   */
+  public intercepted(query?: string | RegExp | IQueryIntercepted) {
+    if (!query) {
+      return this.completedRequests;
     }
 
+    if (_.isString(query) || _.isRegExp(query)) {
+      query = { url: query };
+    }
+
+    return this.completedRequests.filter(this.doesMatchInterceptedFn(query));
+  }
+
+  /**
+   * Load request/response mocks from disk
+   * @param name Mock name
+   * @param dir Override directory for mock
+   */
+  private load(name: string, dir: string = this.dir): Promise<SerializedRequestResponse[]> {
+    const filename = this.getMockFilename(name, dir);
+
+    debug('Loading mocks from', filename);
+    return this.loadMocks(filename);
+  }
+
+  private doesMatchInterceptedFn(
+    query: IQueryIntercepted,
+  ): (intercepted: SerializedRequestResponse) => boolean {
+    const equalityOrRegExp = (reqResValue: any, queryValue: any) => {
+      if (queryValue instanceof RegExp) {
+        return queryValue.test(reqResValue);
+      } else {
+        return queryValue === reqResValue;
+      }
+    };
+
+    return (intercepted: SerializedRequestResponse): boolean => {
+      let isMatch = true;
+
+      if (query.url) {
+        isMatch = isMatch && equalityOrRegExp(intercepted.url, query.url);
+      }
+
+      if (query.request) {
+        isMatch = isMatch && _.isMatchWith(intercepted.request, query.request, equalityOrRegExp);
+      }
+
+      if (query.response) {
+        isMatch = isMatch && _.isMatchWith(intercepted.response, query.response, equalityOrRegExp);
+      }
+
+      return isMatch;
+    };
+  }
+
+  private loadMocks(filename: string): Promise<SerializedRequestResponse[]> {
     return new Promise((resolve, reject) => {
-      const filename = path.join(this.dir, `${name}-yesno.json`);
-      debug('Loading mocks from', filename);
+      if (!this.isMode(Mode.Mock)) {
+        throw new YesNoError('Cannot load mocks outside mock mode');
+      }
 
       readFile(filename, (e: Error, data: Buffer) => {
         if (e) {
           return reject(e);
         }
 
-        this.mocks = (JSON.parse(data.toString()) as ISaveFile).records;
-        resolve(this.mocks);
+        resolve((JSON.parse(data.toString()) as ISaveFile).records);
       });
     });
   }
