@@ -93,6 +93,10 @@ describe('yesno', () => {
         await yesno.intercepted({ request: { headers: { 'x-foo': 'bar' } } }),
         'Match by a nested request property',
       ).to.have.lengthOf(1);
+      expect(
+        await yesno.intercepted({ request: { headers: { 'x-foo': 'bar', 'x-fiz': 'baz' } } }),
+        'All properties must match ',
+      ).to.have.lengthOf(0);
     });
   });
 

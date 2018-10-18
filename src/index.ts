@@ -138,11 +138,16 @@ export class YesNo {
       throw new YesNoError('Cannot disable if not enabled');
     }
 
+    // If running in "cli" mode, could prompt to save mocks now...
     this.clear();
     this.interceptor.disable();
     this.interceptor = undefined;
   }
 
+  /**
+   * Begin mock mode. Will load mocks with given name.
+   * @param name Unique name for mocks
+   */
   public async mock(name: string): Promise<SerializedRequestResponse[]> {
     this.setMode(Mode.Mock);
     this.mocks = await this.load(name);
@@ -150,6 +155,9 @@ export class YesNo {
     return this.mocks;
   }
 
+  /**
+   * Begin spy mode.
+   */
   public spy() {
     this.setMode(Mode.Spy);
   }
@@ -212,10 +220,18 @@ export class YesNo {
     });
   }
 
+  /**
+   * Determine the current mode
+   */
   public isMode(mode: Mode): boolean {
     return this.mode === mode;
   }
 
+  /**
+   * Clear all stateful information about requests.
+   *
+   * If used in a test suite, this should be called after each test.
+   */
   public clear() {
     this.completedRequests = [];
     this.inFlightRequests = [];
@@ -223,6 +239,9 @@ export class YesNo {
     (this.interceptor as Interceptor).requestNumber = 0;
   }
 
+  /**
+   * Get the generated filename for a mock name.
+   */
   public getMockFilename(name: string, dir: string): string {
     return path.join(dir, `${name}-yesno.json`);
   }
@@ -249,7 +268,7 @@ export class YesNo {
   /**
    * Load request/response mocks from disk
    * @param name Mock name
-   * @param dir Override directory for mock
+   * @param dir Override default directory
    */
   public load(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
     dir = dir || this.dir;
@@ -262,6 +281,13 @@ export class YesNo {
     return this.loadMocks(filename);
   }
 
+  /**
+   * Curried function to determine whether a query matches an intercepted request.
+   *
+   * Query objects must be a deep partial match against the intercepted request.
+   *
+   * RegEx values are tested for match.
+   */
   private doesMatchInterceptedFn(
     query: IQueryIntercepted,
   ): (intercepted: SerializedRequestResponse) => boolean {
