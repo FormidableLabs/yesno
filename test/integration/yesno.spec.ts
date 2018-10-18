@@ -100,6 +100,28 @@ describe('yesno', () => {
     });
   });
 
+  describe('#redact', () => {
+    it('should allow passing an array of values to redact', async () => {
+      await rp.post({
+        body: {
+          password: 'secret',
+          username: 'hulkhoganhero',
+        },
+        headers: {
+          'x-status-code': 500,
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      expect(yesno.intercepted()[0]).to.have.nested.property('request.body.password', 'secret');
+
+      yesno.redact(yesno.intercepted(), 'request.body.password');
+
+      expect(yesno.intercepted()[0]).to.have.nested.property('request.body.password', '***');
+    });
+  });
+
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';

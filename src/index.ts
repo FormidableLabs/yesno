@@ -7,6 +7,7 @@ import Mitm = require('mitm');
 import { EOL } from 'os';
 import * as path from 'path';
 import * as readable from 'readable-stream';
+import { DEFAULT_REDACT_SYMBOL } from './consts';
 import {
   RequestSerializer,
   SerializedRequest,
@@ -42,6 +43,7 @@ export interface YesNoOptions {
    * Default directory to locate and persist intercepted request/response
    */
   dir?: string;
+  redactSymbol?: string;
 }
 
 interface IInFlightRequest {
@@ -81,13 +83,15 @@ export class YesNo {
    * Serialized records loaded from disk.
    */
   private mocks: SerializedRequestResponse[] = [];
-  private currentName: string | undefined;
+  private redactSymbol: string;
   private interceptor: Interceptor | undefined;
 
   constructor(options?: YesNoOptions) {
-    const { mode = Mode.Spy, dir }: YesNoOptions = options || {};
+    const { mode = Mode.Spy, redactSymbol = DEFAULT_REDACT_SYMBOL, dir }: YesNoOptions =
+      options || {};
     this.mode = mode;
     this.dir = dir;
+    this.redactSymbol = redactSymbol;
   }
 
   public enable(): YesNo {
@@ -279,6 +283,14 @@ export class YesNo {
     const filename = this.getMockFilename(name, dir);
 
     return this.loadMocks(filename);
+  }
+
+  public redact(
+    records: SerializedRequestResponse[],
+    property: string | string[],
+    redactSymbol?: string | ((value: any) => any),
+  ): void {
+    redactSymbol = redactSymbol || this.redactSymbol;
   }
 
   /**
