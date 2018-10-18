@@ -98,6 +98,31 @@ describe('yesno', () => {
         'All properties must match ',
       ).to.have.lengthOf(0);
     });
+
+    it('should treat JSON request or response bodies as objects', async () => {
+      await rp.post({
+        body: {
+          nested: {
+            foobar: 'fizbaz',
+          },
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      await rp.post({
+        body: '{ "foo": "bar" }',
+        uri: 'http://localhost:3001/post',
+      });
+
+      const interceptedJSON = yesno.intercepted()[0];
+      const interceptedNotJSON = yesno.intercepted()[1];
+      expect(interceptedJSON).to.have.nested.property('request.body.nested.foobar', 'fizbaz');
+      expect(interceptedNotJSON, 'Non-json left as a string').to.have.nested.property(
+        'request.body',
+        '{ "foo": "bar" }',
+      );
+    });
   });
 
   describe('#redact', () => {

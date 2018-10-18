@@ -7,7 +7,7 @@ import {
 } from 'http';
 import * as _ from 'lodash';
 import { Transform } from 'stream';
-import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON, YESNO_INTERNAL_HTTP_HEADER } from './consts';
 const debug = require('debug')('yesno:http-serializer');
 /* tslint:disable:max-classes-per-file */
 
@@ -21,13 +21,19 @@ export interface SerializedRequestResponse {
 }
 
 export interface SerializedResponse {
-  body?: string;
+  /**
+   * JSON bodies will be parsed to objects
+   */
+  body?: string | object;
   headers: IncomingHttpHeaders;
   statusCode: number;
 }
 
 export interface SerializedRequest {
-  body?: string;
+  /**
+   * JSON bodies will be parsed to objects
+   */
+  body?: string | object;
   headers: OutgoingHttpHeaders;
   host: string;
   path: string;
@@ -43,6 +49,24 @@ export interface ClientRequestFull extends ClientRequest {
     defaultPort?: number;
   };
   path: string;
+}
+
+function serializeJSON(
+  headers: OutgoingHttpHeaders | IncomingHttpHeaders,
+  body?: string,
+): undefined | string | object {
+  const isJSON = headers[HEADER_CONTENT_TYPE] === MIME_TYPE_JSON;
+
+  if (isJSON) {
+    try {
+      body = JSON.parse(body as string);
+    } catch (e) {
+      // Don't throw, just log and continue with unparsed body
+      debug('Failed to parse JSON body', body);
+    }
+  }
+
+  return body;
 }
 
 export class RequestSerializer extends Transform implements SerializedRequest {
@@ -82,7 +106,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
 
   public _transform(chunk: Buffer, encoding: string, done: () => void) {
     this.body = this.body || '';
-    this.body += chunk.toString();
+    this.body += chunk.toString(); // @todo Do we really need to convert to string for each chunk?
 
     this.push(chunk);
     done();
@@ -90,7 +114,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
 
   public serialize(): SerializedRequest {
     return {
-      body: this.body,
+      body: serializeJSON(this.headers, this.body),
       headers: this.headers,
       host: this.host,
       method: this.method,
@@ -125,7 +149,7 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
 
   public serialize(): SerializedResponse {
     return {
-      body: this.body,
+      body: serializeJSON(this.headers, this.body),
       headers: this.headers,
       statusCode: this.statusCode,
     };

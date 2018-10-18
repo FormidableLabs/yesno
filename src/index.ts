@@ -55,10 +55,13 @@ export interface ISaveFile {
   records: SerializedRequestResponse[];
 }
 
+type RequestQuery = { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
+type ResponseQuery = { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
+
 export interface IQueryIntercepted {
   url?: string | RegExp;
-  request?: { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
-  response?: { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
+  request?: RequestQuery;
+  response?: ResponseQuery;
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -257,7 +260,7 @@ export class YesNo {
    * Otherwise perform a partial match against each serialized request response
    * @param query
    */
-  public intercepted(query?: string | RegExp | IQueryIntercepted) {
+  public intercepted(query?: string | RegExp | IQueryIntercepted): SerializedRequestResponse[] {
     if (!query) {
       return this.completedRequests;
     }
@@ -267,6 +270,16 @@ export class YesNo {
     }
 
     return this.completedRequests.filter(this.doesMatchInterceptedFn(query));
+  }
+
+  // @todo Implement - map to `this#intercepted()`
+  public requested(query?: string | RegExp | RequestQuery): SerializedRequestResponse[] {
+    return this.completedRequests;
+  }
+
+  // @todo Implement - map to `this#intercepted()`
+  public responded(query?: string | RegExp | ResponseQuery): SerializedRequestResponse[] {
+    return this.completedRequests;
   }
 
   /**
