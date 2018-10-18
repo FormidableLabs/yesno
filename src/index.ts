@@ -41,7 +41,7 @@ export interface YesNoOptions {
   /**
    * Default directory to locate and persist intercepted request/response
    */
-  dir: string;
+  dir?: string;
 }
 
 interface IInFlightRequest {
@@ -69,7 +69,7 @@ export class YesNo {
   public completedRequests: SerializedRequestResponse[] = [];
 
   public mode: Mode;
-  public dir: string;
+  public dir?: string;
 
   /**
    * Proxied requests which have not yet responded. When completed
@@ -84,7 +84,8 @@ export class YesNo {
   private currentName: string | undefined;
   private interceptor: Interceptor | undefined;
 
-  constructor({ mode = Mode.Spy, dir }: YesNoOptions) {
+  constructor(options?: YesNoOptions) {
+    const { mode = Mode.Spy, dir }: YesNoOptions = options || {};
     this.mode = mode;
     this.dir = dir;
   }
@@ -170,6 +171,13 @@ export class YesNo {
    * @returns Full filename of saved JSON if generated
    */
   public save(name: string, dir?: string): Promise<string | void> {
+    dir = dir || this.dir;
+    if (dir === undefined) {
+      return Promise.reject(
+        new YesNoError('Cannot save intercepted requests without configured dir'),
+      );
+    }
+
     const interceptedRequests = this.completedRequests;
     const inFlightRequests = this.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
@@ -197,7 +205,7 @@ export class YesNo {
     return new Promise((resolve, reject) => {
       const payload: ISaveFile = { records: interceptedRequests };
       const contents = JSON.stringify(payload, null, 2);
-      const filename = this.getMockFilename(name, dir);
+      const filename = this.getMockFilename(name, dir as string);
       debug('Saving %d records to %s', interceptedRequests.length, filename);
 
       writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
@@ -215,7 +223,7 @@ export class YesNo {
     (this.interceptor as Interceptor).requestNumber = 0;
   }
 
-  public getMockFilename(name: string, dir: string = this.dir): string {
+  public getMockFilename(name: string, dir: string): string {
     return path.join(dir, `${name}-yesno.json`);
   }
 
@@ -243,19 +251,26 @@ export class YesNo {
    * @param name Mock name
    * @param dir Override directory for mock
    */
-  private load(name: string, dir: string = this.dir): Promise<SerializedRequestResponse[]> {
+  public load(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
+    dir = dir || this.dir;
+    if (dir === undefined) {
+      return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
+    }
+
     const filename = this.getMockFilename(name, dir);
 
-    debug('Loading mocks from', filename);
     return this.loadMocks(filename);
   }
 
   private doesMatchInterceptedFn(
     query: IQueryIntercepted,
   ): (intercepted: SerializedRequestResponse) => boolean {
-    const equalityOrRegExp = (reqResValue: any, queryValue: any) => {
+    const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
       if (queryValue instanceof RegExp) {
         return queryValue.test(reqResValue);
+      } else if (_.isPlainObject(queryValue)) {
+        // Add a depth limit?
+        return _.isMatchWith(reqResValue, queryValue, equalityOrRegExpDeep);
       } else {
         return queryValue === reqResValue;
       }
@@ -265,15 +280,17 @@ export class YesNo {
       let isMatch = true;
 
       if (query.url) {
-        isMatch = isMatch && equalityOrRegExp(intercepted.url, query.url);
+        isMatch = isMatch && equalityOrRegExpDeep(intercepted.url, query.url);
       }
 
       if (query.request) {
-        isMatch = isMatch && _.isMatchWith(intercepted.request, query.request, equalityOrRegExp);
+        isMatch =
+          isMatch && _.isMatchWith(intercepted.request, query.request, equalityOrRegExpDeep);
       }
 
       if (query.response) {
-        isMatch = isMatch && _.isMatchWith(intercepted.response, query.response, equalityOrRegExp);
+        isMatch =
+          isMatch && _.isMatchWith(intercepted.response, query.response, equalityOrRegExpDeep);
       }
 
       return isMatch;
@@ -281,11 +298,9 @@ export class YesNo {
   }
 
   private loadMocks(filename: string): Promise<SerializedRequestResponse[]> {
-    return new Promise((resolve, reject) => {
-      if (!this.isMode(Mode.Mock)) {
-        throw new YesNoError('Cannot load mocks outside mock mode');
-      }
+    debug('Loading mocks from', filename);
 
+    return new Promise((resolve, reject) => {
       readFile(filename, (e: Error, data: Buffer) => {
         if (e) {
           return reject(e);

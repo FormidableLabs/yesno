@@ -9,16 +9,21 @@ describe('Yesno', () => {
   describe('#save', () => {
     const name = 'mock-save';
     const expectedFilename = path.join(dir, `${name}-yesno.json`);
+    let yesno: YesNo;
 
     afterEach(() => {
       const files = fs.readdirSync(dir);
       files.forEach((file) => {
         fs.unlinkSync(path.join(dir, file));
       });
+
+      if (yesno) {
+        yesno.disable();
+      }
     });
 
     it('should save intercepted requests in the configured directory', async () => {
-      const yesno: YesNo = new YesNo({ dir });
+      yesno = new YesNo({ dir });
       yesno.enable();
 
       yesno.completedRequests = [
@@ -50,5 +55,15 @@ describe('Yesno', () => {
     });
 
     it('should parse a JSON body');
+  });
+
+  describe('#intercepted', () => {
+    let yesno: YesNo;
+
+    beforeEach(() => {
+      yesno = new YesNo();
+    });
+
+    it('should allow the user to retrieve completed requests by url');
   });
 });

@@ -3,7 +3,8 @@ import * as http from 'http';
 import * as https from 'https';
 import * as path from 'path';
 import * as rp from 'request-promise';
-import { ISaveFile, Mode, YesNo } from '../../src';
+import { YesNo } from '../../src';
+import { SerializedRequestResponse } from '../../src/http-serializer';
 import * as testServer from '../server';
 
 describe('yesno', () => {
@@ -49,7 +50,7 @@ describe('yesno', () => {
       expect(yesno.intercepted()).to.have.length(2);
       await yesno.save(name);
 
-      const { records }: ISaveFile = require(yesno.getMockFilename(name));
+      const records: SerializedRequestResponse[] = await yesno.load(name);
       expect(records[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(records[0]).to.have.nested.property('request.host', 'localhost');
       expect(records[0]).to.have.nested.property('request.path', '/get');
@@ -57,6 +58,41 @@ describe('yesno', () => {
       expect(records[0]).to.have.nested.property('request.method', 'GET');
       expect(records[0]).to.have.nested.property('response.statusCode', 299);
       expect(records[0]).to.have.nested.property('url', 'http://localhost:3001/get');
+    });
+  });
+
+  describe('#intercepted', () => {
+    it('should allow querying for the various requests made', async () => {
+      yesno.spy();
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      await rp.post({
+        headers: {
+          'x-status-code': 500,
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      expect(
+        await yesno.intercepted(),
+        'Returns all intercepted requests by default',
+      ).to.have.lengthOf(2);
+      expect(await yesno.intercepted(/\/get/), 'Match URL by RegExp').to.have.lengthOf(1);
+      expect(
+        await yesno.intercepted({ response: { statusCode: 500 } }),
+        'Match by a response property',
+      ).to.have.lengthOf(1);
+      expect(
+        await yesno.intercepted({ request: { headers: { 'x-foo': 'bar' } } }),
+        'Match by a nested request property',
+      ).to.have.lengthOf(1);
     });
   });
 
@@ -83,7 +119,7 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/post',
       });
 
-      const { records }: ISaveFile = require(yesno.getMockFilename(name));
+      const records: SerializedRequestResponse[] = await yesno.load(name);
       expect(response1).to.eql(records[0].response.body);
       expect(response2).to.eql(records[1].response.body);
     });
