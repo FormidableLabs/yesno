@@ -141,11 +141,18 @@ describe('yesno', () => {
       });
 
       const toRedact = 'request.body.password';
-      expect(yesno.intercepted()[0]).to.have.nested.property(toRedact, 'secret');
       const intercepted = yesno.intercepted();
+      expect(intercepted[0]).to.have.nested.property(toRedact, 'secret');
       const redacted = yesno.redact(yesno.intercepted(), toRedact);
+
       expect(redacted[0]).to.have.nested.property(toRedact, '*****');
-      expect(_.omit(redacted[0], toRedact)).to.eql(_.omit(intercepted[0], toRedact));
+      expect(_.omit(redacted[0], toRedact), 'Non matching properties are unchanged').to.eql(
+        _.omit(intercepted[0], toRedact),
+      );
+      expect(intercepted[0], 'The intercepted requests are not mutated').to.have.nested.property(
+        toRedact,
+        'secret',
+      );
     });
   });
 
