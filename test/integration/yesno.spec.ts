@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as http from 'http';
 import * as https from 'https';
+import * as _ from 'lodash';
 import * as path from 'path';
 import * as rp from 'request-promise';
 import { YesNo } from '../../src';
@@ -126,7 +127,7 @@ describe('yesno', () => {
   });
 
   describe('#redact', () => {
-    it('should allow passing an array of values to redact', async () => {
+    it('should allow redacting a single nested property', async () => {
       await rp.post({
         body: {
           password: 'secret',
@@ -139,11 +140,12 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/post',
       });
 
-      expect(yesno.intercepted()[0]).to.have.nested.property('request.body.password', 'secret');
-
-      yesno.redact(yesno.intercepted(), 'request.body.password');
-
-      expect(yesno.intercepted()[0]).to.have.nested.property('request.body.password', '***');
+      const toRedact = 'request.body.password';
+      expect(yesno.intercepted()[0]).to.have.nested.property(toRedact, 'secret');
+      const intercepted = yesno.intercepted();
+      const redacted = yesno.redact(yesno.intercepted(), toRedact);
+      expect(redacted[0]).to.have.nested.property(toRedact, '*****');
+      expect(_.omit(redacted[0], toRedact)).to.eql(_.omit(intercepted[0], toRedact));
     });
   });
 

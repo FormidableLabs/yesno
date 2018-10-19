@@ -12,35 +12,41 @@ const debug = require('debug')('yesno:http-serializer');
 /* tslint:disable:max-classes-per-file */
 
 export interface SerializedRequestResponse {
-  __version: string;
-  __timestamp: number;
-  __duration: number;
-  url: string;
-  request: SerializedRequest;
-  response: SerializedResponse;
+  readonly __version: string;
+  readonly __timestamp: number;
+  /**
+   * Duration of request in milliseconds
+   */
+  readonly __duration: number;
+  /**
+   * Fully qualified URL _less_ the port
+   */
+  readonly url: string;
+  readonly request: SerializedRequest;
+  readonly response: SerializedResponse;
 }
 
 export interface SerializedResponse {
   /**
    * JSON bodies will be parsed to objects
    */
-  body?: string | object;
-  headers: IncomingHttpHeaders;
-  statusCode: number;
+  readonly body?: string | object;
+  readonly headers: IncomingHttpHeaders;
+  readonly statusCode: number;
 }
 
 export interface SerializedRequest {
   /**
    * JSON bodies will be parsed to objects
    */
-  body?: string | object;
-  headers: OutgoingHttpHeaders;
-  host: string;
-  path: string;
-  method: string;
-  port: number;
-  query?: string;
-  protocol: 'http' | 'https';
+  readonly body?: string | object;
+  readonly headers: OutgoingHttpHeaders;
+  readonly host: string;
+  readonly path: string;
+  readonly method: string;
+  readonly port: number;
+  readonly query?: string;
+  readonly protocol: 'http' | 'https';
 }
 
 // Some properties are not present in the TS definition
