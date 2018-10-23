@@ -197,29 +197,16 @@ export class YesNo implements IQueryable {
 
   private createInterceptor() {
     const interceptor = new Interceptor({ mitm: Mitm(), shouldProxy: !this.isMode(Mode.Mock) });
-    interceptor.on(
-      'intercept',
-      ({
-        requestSerializer,
-        interceptedRequest,
-        interceptedResponse,
-        requestNumber,
-      }: IInterceptEvent) => {
-        this.ctx.inFlightRequests[requestNumber] = {
-          requestSerializer,
-          startTime: Date.now(),
-        };
+    interceptor.on('intercept', (event: IInterceptEvent) => {
+      this.ctx.inFlightRequests[event.requestNumber] = {
+        requestSerializer: event.requestSerializer,
+        startTime: Date.now(),
+      };
 
-        if (this.isMode(Mode.Mock)) {
-          this.mockResponse({
-            interceptedRequest,
-            interceptedResponse,
-            requestNumber,
-            requestSerializer,
-          });
-        }
-      },
-    );
+      if (this.isMode(Mode.Mock)) {
+        this.mockResponse(event);
+      }
+    });
 
     interceptor.on(
       'proxied',
@@ -265,50 +252,43 @@ export class YesNo implements IQueryable {
     });
   }
 
-  private mockResponse(options: {
-    interceptedRequest: http.IncomingMessage;
-    interceptedResponse: http.ServerResponse;
-    requestSerializer: RequestSerializer;
-    requestNumber: number;
-  }): Promise<void> {
-    const { requestNumber, requestSerializer } = options;
-    debug('Mock response');
-
-    const serializedRequestNoBody = requestSerializer.serialize();
-    const mock = this.ctx.loadedMocks[requestNumber];
-
-    if (!mock) {
-      throw new YesNoError(`No mock found for request #${requestNumber}`);
-    }
-
-    // Assertion must happen before promise -
-    // mitm does not support promise rejections on "request" event
-    mocks.assertMatches(serializedRequestNoBody, mock.request, requestNumber);
-
-    return this.pipeMockResponse({ ...options, mock });
-  }
-
-  private async pipeMockResponse({
-    mock,
+  private async mockResponse({
+    clientRequest,
     interceptedRequest,
     interceptedResponse,
     requestSerializer,
     requestNumber,
-  }: {
-    mock: SerializedRequestResponse;
-    interceptedRequest: http.IncomingMessage;
-    interceptedResponse: http.ServerResponse;
-    requestSerializer: RequestSerializer;
-    requestNumber: number;
-  }) {
-    await (readable as any).pipeline(interceptedRequest, requestSerializer);
+  }: IInterceptEvent): Promise<void> {
+    debug('Mock response');
+    try {
+      await (readable as any).pipeline(interceptedRequest, requestSerializer);
 
-    const serializedRequest = requestSerializer.serialize();
-    interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
-    interceptedResponse.write(mock.response.body);
-    interceptedResponse.end();
+      const serializedRequest = requestSerializer.serialize();
+      const mock = this.ctx.loadedMocks[requestNumber];
 
-    this.recordCompleted(serializedRequest, mock.response, requestNumber);
+      if (!mock) {
+        throw new YesNoError(`No mock found for request #${requestNumber}`);
+      }
+
+      // Assertion must happen before promise -
+      // mitm does not support promise rejections on "request" event
+      mocks.assertMatches(serializedRequest, mock.request, requestNumber);
+
+      interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
+      interceptedResponse.write(mock.response.body);
+      interceptedResponse.end();
+
+      this.recordCompleted(serializedRequest, mock.response, requestNumber);
+    } catch (e) {
+      if (!(e instanceof YesNoError)) {
+        debug('Mock response failed unexpectedly', e);
+        e.message = `YesNo: Mock response failed: ${e.message}`;
+      } else {
+        debug('Mock response failed', e.message);
+      }
+
+      clientRequest.emit('error', e);
+    }
   }
 
   private recordCompleted(

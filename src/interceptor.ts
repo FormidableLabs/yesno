@@ -29,6 +29,7 @@ interface ProxyRequestOptions extends http.RequestOptions {
 }
 
 export interface IInterceptEvent {
+  clientRequest: http.ClientRequest;
   interceptedRequest: http.IncomingMessage;
   interceptedResponse: http.ServerResponse;
   requestNumber: number;
@@ -146,11 +147,12 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     this.requestNumber++;
 
     this.emit('intercept', {
+      clientRequest,
       interceptedRequest,
       interceptedResponse,
       requestNumber,
       requestSerializer,
-    });
+    } as IInterceptEvent);
 
     if (!this.shouldProxy) {
       return;

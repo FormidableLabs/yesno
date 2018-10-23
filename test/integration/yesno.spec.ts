@@ -63,7 +63,7 @@ describe('yesno', () => {
   });
 
   describe('#mock', () => {
-    it('should return the matching mock response', async () => {
+    it('should reject for host mismatch', async () => {
       await yesno.mock('mock-post');
 
       await expect(
