@@ -21,4 +21,10 @@ export default class Context {
    * the value is set to "null" but the index is preserved.
    */
   public inFlightRequests: Array<IInFlightRequest | null> = [];
+
+  public clear() {
+    this.interceptedRequestsCompleted = [];
+    this.inFlightRequests = [];
+    this.loadedMocks = [];
+  }
 }
