@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "npm run lint && npm run unit && npm run integration",
+    "test": "npm run lint && npm run coverage",
+    "coverage": "nyc -- npm run tests",
+    "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "unit": "mocha --timeout 2000 --recursive test/unit/**/*.spec.ts",
     "integration": "mocha --timeout 5000 --recursive test/integration/**/*.spec.ts"
@@ -30,6 +32,7 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sinon": "^6.1.5",

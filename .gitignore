@@ -3,3 +3,4 @@ dist/
 
 test/integration/tmp
 test/unit/tmp
+.nyc_output/
