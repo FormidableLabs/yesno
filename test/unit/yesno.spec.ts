@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Mode, YesNo } from '../../src';
+import yesno = require('../../src');
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
@@ -9,7 +9,6 @@ describe('Yesno', () => {
   describe('#save', () => {
     const name = 'mock-save';
     const expectedFilename = path.join(dir, `${name}-yesno.json`);
-    let yesno: YesNo;
 
     afterEach(() => {
       const files = fs.readdirSync(dir);
@@ -23,10 +22,9 @@ describe('Yesno', () => {
     });
 
     it('should save intercepted requests in the configured directory', async () => {
-      yesno = new YesNo({ dir });
-      yesno.enable();
+      yesno.enable({ dir });
 
-      yesno.interceptedRequestsCompleted = [
+      (yesno as any).interceptedRequestsCompleted = [
         {
           __duration: 1,
           __id: 'foobar',
@@ -47,11 +45,7 @@ describe('Yesno', () => {
           url: 'bar',
         },
       ];
-      const expectedContents = JSON.stringify(
-        { records: yesno.interceptedRequestsCompleted },
-        null,
-        2,
-      );
+      const expectedContents = JSON.stringify({ records: yesno.intercepted() }, null, 2);
       const filename = await yesno.save(name);
 
       expect(filename, 'Returns the full filename').to.eql(expectedFilename);
@@ -63,12 +57,6 @@ describe('Yesno', () => {
   });
 
   describe('#intercepted', () => {
-    let yesno: YesNo;
-
-    beforeEach(() => {
-      yesno = new YesNo();
-    });
-
     it('should allow the user to retrieve completed requests by url');
   });
 });

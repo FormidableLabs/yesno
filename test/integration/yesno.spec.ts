@@ -4,20 +4,18 @@ import * as https from 'https';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as rp from 'request-promise';
-import { YesNo } from '../../src';
+import yesno = require('../../src');
 import { SerializedRequestResponse } from '../../src/http-serializer';
 import * as testServer from '../server';
 
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
-  let yesno: YesNo;
 
   before(async () => {
     await testServer.start();
 
-    yesno = new YesNo({ dir: path.join(__dirname, 'tmp') });
-    yesno.enable();
+    yesno.enable({ dir: path.join(__dirname, 'tmp') });
   });
 
   afterEach(() => {
@@ -51,14 +49,14 @@ describe('yesno', () => {
       expect(yesno.intercepted()).to.have.length(2);
       await yesno.save(name);
 
-      const records: SerializedRequestResponse[] = await yesno.load(name);
-      expect(records[0]).to.have.nested.property('request.headers.x-timestamp', now);
-      expect(records[0]).to.have.nested.property('request.host', 'localhost');
-      expect(records[0]).to.have.nested.property('request.path', '/get');
-      expect(records[0]).to.have.nested.property('request.query', 'foo=bar');
-      expect(records[0]).to.have.nested.property('request.method', 'GET');
-      expect(records[0]).to.have.nested.property('response.statusCode', 299);
-      expect(records[0]).to.have.nested.property('url', 'http://localhost:3001/get');
+      const mocks: SerializedRequestResponse[] = await yesno.mock(name);
+      expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
+      expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
+      expect(mocks[0]).to.have.nested.property('request.path', '/get');
+      expect(mocks[0]).to.have.nested.property('request.query', 'foo=bar');
+      expect(mocks[0]).to.have.nested.property('request.method', 'GET');
+      expect(mocks[0]).to.have.nested.property('response.statusCode', 299);
+      expect(mocks[0]).to.have.nested.property('url', 'http://localhost:3001/get');
     });
   });
 
@@ -164,8 +162,7 @@ describe('yesno', () => {
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';
-      yesno.dir = path.join(__dirname, 'mocks');
-      await yesno.mock(name);
+      const mocks = await yesno.mock(name, path.join(__dirname, 'mocks'));
 
       const now = Date.now();
 
@@ -184,9 +181,8 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/post',
       });
 
-      const records: SerializedRequestResponse[] = await yesno.load(name);
-      expect(response1).to.eql(records[0].response.body);
-      expect(response2).to.eql(records[1].response.body);
+      expect(response1).to.eql(mocks[0].response.body);
+      expect(response2).to.eql(mocks[1].response.body);
     });
   });
 

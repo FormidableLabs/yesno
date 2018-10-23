@@ -1,11 +1,18 @@
-## Principles
+
+## API
+
+### `yesno.enable(options:)`
+
+## Planning
+
+### Principles
 
 1. We should have a strong guarantee that our unit tests do not hit external services
 2. We should have a mechanism to asset libraries which are tightly coupled to external services (APIs, databases) actually work against those services, without having to solely rely on integration tests with those services.
 3. Mocked behavior of HTTP connections should be as close to real behavior as possible
 4. Mocks should require minimal manual work
 
-## Examples
+### Examples
 
 HTTP assertions
 
