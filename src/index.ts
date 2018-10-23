@@ -26,6 +26,8 @@ class YesNoError extends Error {
   }
 }
 
+type RedactSymbol = string | ((value: any, path: string) => string);
+
 export enum Mode {
   /**
    * Intercept requests and respond with local mocks
@@ -57,8 +59,14 @@ export interface ISaveFile {
   records: SerializedRequestResponse[];
 }
 
+interface IQueryable {
+  redact: (property: string | string[], symbol: RedactSymbol) => void;
+  intercepted: () => SerializedRequestResponse[];
+  mocks: () => SerializedRequestResponse[];
+}
+
 // tslint:disable-next-line:max-classes-per-file
-export class MatchingRecordsCollection {
+export class MatchingRecordsCollection implements IQueryable {
   private readonly yesno: YesNo;
   private readonly query: IQueryRecords;
 
@@ -68,27 +76,24 @@ export class MatchingRecordsCollection {
   }
 
   public intercepted(): SerializedRequestResponse[] {
-    return this.filter(this.yesno.completedRequests, this.query);
+    return this.filter(this.yesno.interceptedRequestsCompleted, this.query);
   }
 
   public mocks(): SerializedRequestResponse[] {
-    return this.filter(this.yesno.mocks, this.query);
+    return this.filter(this.yesno.loadedMocks, this.query);
   }
 
-  public redact(
-    property: string | string[],
-    redactSymbol?: string | ((value: any, path: string) => string),
-  ): void {
+  public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
     redactSymbol = redactSymbol || this.yesno.redactSymbol;
     const redactedRecords = redact(this.intercepted(), property, redactSymbol);
 
-    const newCompleted = [...this.yesno.completedRequests];
+    const newCompleted = [...this.yesno.interceptedRequestsCompleted];
     redactedRecords.forEach((redactedRecord) => {
       newCompleted.forEach((interceptedRecord, i) => {
         newCompleted[i] = redactedRecord;
       });
     });
-    this.yesno.completedRequests = newCompleted;
+    this.yesno.interceptedRequestsCompleted = newCompleted;
   }
 
   // @todo Move out of class
@@ -101,13 +106,13 @@ export class MatchingRecordsCollection {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-export class YesNo {
+export class YesNo implements IQueryable {
   /**
    * Completed serialized request-response objects. Used for:
    * A. Assertions
    * B. Saved to disk if in record mode
    */
-  public completedRequests: SerializedRequestResponse[] = [];
+  public interceptedRequestsCompleted: SerializedRequestResponse[] = [];
 
   public mode: Mode;
   public dir?: string;
@@ -115,7 +120,7 @@ export class YesNo {
   /**
    * Serialized records loaded from disk.
    */
-  public mocks: SerializedRequestResponse[] = [];
+  public loadedMocks: SerializedRequestResponse[] = [];
 
   public readonly redactSymbol: string;
   /**
@@ -193,9 +198,9 @@ export class YesNo {
    */
   public async mock(name: string): Promise<SerializedRequestResponse[]> {
     this.setMode(Mode.Mock);
-    this.mocks = await this.load(name);
+    this.loadedMocks = await this.load(name);
 
-    return this.mocks;
+    return this.loadedMocks;
   }
 
   /**
@@ -211,6 +216,10 @@ export class YesNo {
     if (this.interceptor) {
       this.interceptor.proxy(!this.isMode(Mode.Mock));
     }
+  }
+
+  public mocks(): SerializedRequestResponse[] {
+    return this.loadedMocks;
   }
 
   /**
@@ -229,7 +238,7 @@ export class YesNo {
       );
     }
 
-    const interceptedRequests = this.completedRequests;
+    const interceptedRequests = this.interceptedRequestsCompleted;
     const inFlightRequests = this.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
     if (inFlightRequests.length) {
@@ -276,9 +285,9 @@ export class YesNo {
    * If used in a test suite, this should be called after each test.
    */
   public clear() {
-    this.completedRequests = [];
+    this.interceptedRequestsCompleted = [];
     this.inFlightRequests = [];
-    this.mocks = [];
+    this.loadedMocks = [];
     (this.interceptor as Interceptor).requestNumber = 0;
   }
 
@@ -304,13 +313,10 @@ export class YesNo {
   }
 
   public intercepted(): SerializedRequestResponse[] {
-    return this.completedRequests;
+    return this.interceptedRequestsCompleted;
   }
 
-  public redact(
-    property: string | string[],
-    redactSymbol?: string | ((value: any, path: string) => string),
-  ): void {
+  public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
     const collection = new MatchingRecordsCollection(this);
     collection.redact(property, redactSymbol);
   }
@@ -370,7 +376,7 @@ export class YesNo {
 
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
     const serializedRequest = requestSerializer.serialize();
-    const mock = this.mocks[requestNumber];
+    const mock = this.loadedMocks[requestNumber];
 
     if (!mock) {
       throw new YesNoError(`No mock found for request #${requestNumber}`);
@@ -400,7 +406,7 @@ export class YesNo {
     const url = this.formatUrl(request);
     const duration = now - (this.inFlightRequests[requestNumber] as IInFlightRequest).startTime;
 
-    this.completedRequests[requestNumber] = {
+    this.interceptedRequestsCompleted[requestNumber] = {
       __duration: duration,
       __id: uuid.v4(),
       __timestamp: now,

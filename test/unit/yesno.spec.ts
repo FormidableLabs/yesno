@@ -26,9 +26,10 @@ describe('Yesno', () => {
       yesno = new YesNo({ dir });
       yesno.enable();
 
-      yesno.completedRequests = [
+      yesno.interceptedRequestsCompleted = [
         {
           __duration: 1,
+          __id: 'foobar',
           __timestamp: 1,
           __version: 'foo',
           request: {
@@ -46,7 +47,11 @@ describe('Yesno', () => {
           url: 'bar',
         },
       ];
-      const expectedContents = JSON.stringify({ records: yesno.completedRequests }, null, 2);
+      const expectedContents = JSON.stringify(
+        { records: yesno.interceptedRequestsCompleted },
+        null,
+        2,
+      );
       const filename = await yesno.save(name);
 
       expect(filename, 'Returns the full filename').to.eql(expectedFilename);
