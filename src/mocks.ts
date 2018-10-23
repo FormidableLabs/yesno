@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { IDebugger } from 'debug';
 import { readFile, writeFile } from 'fs';
+import { EOL } from 'os';
 import * as path from 'path';
 import { YesNoError } from './errors';
 import { SerializedRequest, SerializedRequestResponse } from './http-serializer';
@@ -11,51 +12,57 @@ export interface ISaveFile {
 }
 
 export function assertMatches(
-  currentRequest: SerializedRequest,
+  interceptedRequest: SerializedRequest,
   mockRequest: SerializedRequest,
   requestNum: number,
 ): void {
-  expect(currentRequest.host, `YesNo: Expected different host for request #${requestNum}`).to.eql(
-    mockRequest.host,
-  );
-  const { host } = currentRequest;
+  expect(
+    interceptedRequest.host,
+    `YesNo: Expected different host for request #${requestNum}`,
+  ).to.eql(mockRequest.host);
+  const { host } = interceptedRequest;
 
   expect(
-    currentRequest.method,
+    interceptedRequest.method,
     `YesNo: Expected request #${requestNum} for ${host} to use the ${mockRequest.method} method`,
   ).to.eql(mockRequest.method);
 
   expect(
-    currentRequest.protocol,
+    interceptedRequest.protocol,
     `YesNo: Expected request #${requestNum} for ${host} to be served over ${mockRequest.protocol}`,
   ).to.eql(mockRequest.protocol);
 
   expect(
-    currentRequest.port,
+    interceptedRequest.port,
     `YesNo: Expected request #${requestNum} for ${host} to be served on port ${mockRequest.port}`,
   ).to.eql(mockRequest.port);
 
-  const nickname = `${currentRequest.method} ${currentRequest.protocol}://${currentRequest.host}:${
-    currentRequest.port
-  }`;
-
-  // @todo check auth part
+  const nickname = `${interceptedRequest.method} ${interceptedRequest.protocol}://${
+    interceptedRequest.host
+  }:${interceptedRequest.port}`;
 
   expect(
-    currentRequest.path,
+    interceptedRequest.path,
     `YesNo: Expected request #${requestNum} "${nickname}" to have path ${mockRequest.path}`,
   ).to.eql(mockRequest.path);
 }
 
 export function load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
-  const filename = getMockFilename(name, dir);
+  return loadFile(getMockFilename(name, dir));
+}
+
+export function loadFile(filename: string): Promise<SerializedRequestResponse[]> {
   debug('Loading mocks from', filename);
 
   return new Promise((resolve, reject) => {
     readFile(filename, (e: Error, data: Buffer) => {
       if (e) {
         if ((e as any).code === 'ENOENT') {
-          return reject(new YesNoError(`Mock file does not exist: ${e.message}`));
+          return reject(
+            new YesNoError(
+              `${helpMessageMissingMock(filename)}${EOL}${EOL}Original error: ${e.message}`,
+            ),
+          );
         }
 
         return reject(e);
@@ -71,14 +78,24 @@ export function save(
   dir: string,
   records: SerializedRequestResponse[],
 ): Promise<string> {
+  return saveFile(getMockFilename(name, dir), records);
+}
+
+export function saveFile(filename: string, records: SerializedRequestResponse[]): Promise<string> {
+  debug('Saving %d records to %s', records.length, filename);
+
   return new Promise((resolve, reject) => {
     const payload: ISaveFile = { records };
     const contents = JSON.stringify(payload, null, 2);
-    const filename = getMockFilename(name, dir as string);
-    debug('Saving %d records to %s', records.length, filename);
 
     writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
   });
+}
+
+function helpMessageMissingMock(filename: string): string {
+  const { name } = path.parse(filename);
+  // tslint:disable-next-line:max-line-length
+  return `Mock file for "${name}" does not exist. To generate the missing file now you may run the command:${EOL}${EOL}./node_modules/.bin/yesno generate "${filename}"`;
 }
 
 /**

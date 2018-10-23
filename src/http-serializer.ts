@@ -7,8 +7,10 @@ import {
 } from 'http';
 import * as _ from 'lodash';
 import { Transform } from 'stream';
+import uuid = require('uuid');
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON, YESNO_INTERNAL_HTTP_HEADER } from './consts';
 const debug = require('debug')('yesno:http-serializer');
+const { version }: { version: string } = require('../package.json');
 /* tslint:disable:max-classes-per-file */
 
 export interface SerializedRequestResponse {
@@ -161,4 +163,28 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
       statusCode: this.statusCode,
     };
   }
+}
+
+export function formatUrl(request: SerializedRequest): string {
+  return `${request.protocol}://${request.host}:${request.port}${request.path}`;
+}
+
+export function createRecord({
+  request,
+  response,
+  duration,
+}: {
+  request: SerializedRequest;
+  response: SerializedResponse;
+  duration: number;
+}): SerializedRequestResponse {
+  return {
+    __duration: duration,
+    __id: uuid.v4(),
+    __timestamp: Date.now(),
+    __version: version,
+    request,
+    response,
+    url: formatUrl(request),
+  };
 }

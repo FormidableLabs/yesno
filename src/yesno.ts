@@ -4,22 +4,22 @@ import * as _ from 'lodash';
 import Mitm = require('mitm');
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import uuid = require('uuid');
 import { DEFAULT_REDACT_SYMBOL } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import { IQueryRecords } from './helpers';
 import {
+  createRecord,
+  formatUrl,
   RequestSerializer,
   SerializedRequest,
   SerializedRequestResponse,
   SerializedResponse,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
-import { assertMatches, load, save } from './mocks';
+import * as mocks from './mocks';
 import QueryableRequestsCollection, { IQueryable, RedactSymbol } from './queryable-collection';
 const debug: IDebugger = require('debug')('yesno');
-const { version }: { version: string } = require('../package.json');
 
 export enum Mode {
   /**
@@ -125,14 +125,12 @@ export class YesNo implements IQueryable {
       return Promise.resolve();
     }
 
-    const interceptedRequests = this.ctx.interceptedRequestsCompleted;
     const inFlightRequests = this.ctx.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
     if (inFlightRequests.length) {
       const urls = inFlightRequests
         .map(
-          ({ requestSerializer }) =>
-            `${requestSerializer.method}${this.formatUrl(requestSerializer)}`,
+          ({ requestSerializer }) => `${requestSerializer.method}${formatUrl(requestSerializer)}`,
         )
         .join(EOL);
       throw new YesNoError(
@@ -142,7 +140,7 @@ export class YesNo implements IQueryable {
 
     debug('Saving %s...', name);
 
-    return save(name, dir, this.ctx.interceptedRequestsCompleted);
+    return mocks.save(name, dir, this.ctx.interceptedRequestsCompleted);
   }
 
   /**
@@ -212,16 +210,14 @@ export class YesNo implements IQueryable {
           startTime: Date.now(),
         };
 
-        if (!this.isMode(Mode.Mock)) {
-          return;
+        if (this.isMode(Mode.Mock)) {
+          this.mockResponse({
+            interceptedRequest,
+            interceptedResponse,
+            requestNumber,
+            requestSerializer,
+          });
         }
-
-        this.mockResponse({
-          interceptedRequest,
-          interceptedResponse,
-          requestNumber,
-          requestSerializer,
-        });
       },
     );
 
@@ -258,7 +254,7 @@ export class YesNo implements IQueryable {
       return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
     }
 
-    return load(name, dir);
+    return mocks.load(name, dir);
   }
 
   private getCollection(query?: IQueryRecords): QueryableRequestsCollection {
@@ -269,35 +265,45 @@ export class YesNo implements IQueryable {
     });
   }
 
-  private async mockResponse({
-    interceptedRequest,
-    interceptedResponse,
-    requestSerializer,
-    requestNumber,
-  }: {
+  private mockResponse(options: {
     interceptedRequest: http.IncomingMessage;
     interceptedResponse: http.ServerResponse;
     requestSerializer: RequestSerializer;
     requestNumber: number;
   }): Promise<void> {
+    const { requestNumber, requestSerializer } = options;
     debug('Mock response');
 
-    await (readable as any).pipeline(interceptedRequest, requestSerializer);
-    const serializedRequest = requestSerializer.serialize();
+    const serializedRequestNoBody = requestSerializer.serialize();
     const mock = this.ctx.loadedMocks[requestNumber];
 
     if (!mock) {
       throw new YesNoError(`No mock found for request #${requestNumber}`);
     }
 
-    assertMatches(serializedRequest, mock.request, requestNumber);
+    // Assertion must happen before promise -
+    // mitm does not support promise rejections on "request" event
+    mocks.assertMatches(serializedRequestNoBody, mock.request, requestNumber);
 
-    // interceptedResponse.statusCode = mock.response.statusCode;
-    // for (const entry of Object.entries(mock.response.headers)) {
-    //   const [header, value] = entry;
-    //   interceptedResponse.setHeader(header, value as string | string[] | number);
-    // }
+    return this.pipeMockResponse({ ...options, mock });
+  }
 
+  private async pipeMockResponse({
+    mock,
+    interceptedRequest,
+    interceptedResponse,
+    requestSerializer,
+    requestNumber,
+  }: {
+    mock: SerializedRequestResponse;
+    interceptedRequest: http.IncomingMessage;
+    interceptedResponse: http.ServerResponse;
+    requestSerializer: RequestSerializer;
+    requestNumber: number;
+  }) {
+    await (readable as any).pipeline(interceptedRequest, requestSerializer);
+
+    const serializedRequest = requestSerializer.serialize();
     interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
     interceptedResponse.write(mock.response.body);
     interceptedResponse.end();
@@ -310,25 +316,12 @@ export class YesNo implements IQueryable {
     response: SerializedResponse,
     requestNumber: number,
   ): void {
-    const now = Date.now();
-    const url = this.formatUrl(request);
-    const duration = now - (this.ctx.inFlightRequests[requestNumber] as IInFlightRequest).startTime;
-
-    this.ctx.interceptedRequestsCompleted[requestNumber] = {
-      __duration: duration,
-      __id: uuid.v4(),
-      __timestamp: now,
-      __version: version,
-      request,
-      response,
-      url,
-    };
+    const duration =
+      Date.now() - (this.ctx.inFlightRequests[requestNumber] as IInFlightRequest).startTime;
+    const record = createRecord({ request, response, duration });
+    this.ctx.interceptedRequestsCompleted[requestNumber] = record;
     this.ctx.inFlightRequests[requestNumber] = null;
 
-    debug('Added request-response for %s %s (duration: %d)', request.method, url, duration);
-  }
-
-  private formatUrl(request: SerializedRequest) {
-    return `${request.protocol}://${request.host}:${request.port}${request.path}`;
+    debug('Added request-response for %s %s (duration: %d)', request.method, record.url, duration);
   }
 }

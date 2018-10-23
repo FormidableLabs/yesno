@@ -62,6 +62,23 @@ describe('yesno', () => {
     });
   });
 
+  describe('#mock', () => {
+    it('should return the matching mock response', async () => {
+      await yesno.mock('mock-post');
+
+      await expect(
+        // Doesn't work... failure is elsewhere!
+        rp.post({
+          body: {
+            foo: 'bar',
+          },
+          json: true,
+          uri: 'http://localhost:3001/post',
+        }),
+      ).to.be.rejectedWith(/Expected different host for request/);
+    });
+  });
+
   describe('#intercepted', () => {
     it('should allow querying for the various requests made', async () => {
       yesno.spy();
