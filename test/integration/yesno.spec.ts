@@ -6,14 +6,15 @@ import * as path from 'path';
 import * as rp from 'request-promise';
 import yesno from '../../src';
 import { SerializedRequestResponse } from '../../src/http-serializer';
-import * as testServer from '../server';
+import * as testServer from '../test-server';
 
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
+  let server: http.Server;
 
   before(async () => {
-    await testServer.start();
+    server = await testServer.start();
 
     yesno.enable({ dir: path.join(__dirname, 'tmp') });
   });
@@ -24,6 +25,7 @@ describe('yesno', () => {
 
   after(() => {
     yesno.disable();
+    server.close();
   });
 
   describe('#save', () => {

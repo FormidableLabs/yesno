@@ -1,8 +1,9 @@
 import { json as jsonParser } from 'body-parser';
 import express from 'express';
+import { Server } from 'http';
 const debug = require('debug')('yesno:test-server');
 
-export function start(port: number = 3001): Promise<express.Application> {
+export function start(port: number = 3001): Promise<Server> {
   const app = express();
   app.use(jsonParser());
 
@@ -19,9 +20,9 @@ export function start(port: number = 3001): Promise<express.Application> {
   });
 
   return new Promise((resolve) => {
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       debug('Test server running on port %d', port);
-      resolve(app);
+      resolve(server);
     });
   });
 }

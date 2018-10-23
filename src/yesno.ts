@@ -60,7 +60,7 @@ export class YesNo implements IQueryable {
   public mode: Mode = Mode.Spy;
   public redactSymbol: string = DEFAULT_REDACT_SYMBOL;
   public dir?: string;
-  private interceptor: Interceptor | undefined;
+  private interceptor?: Interceptor;
   private readonly ctx: Context;
 
   constructor(ctx: Context) {
