@@ -7,7 +7,9 @@ import Mitm = require('mitm');
 import { EOL } from 'os';
 import * as path from 'path';
 import * as readable from 'readable-stream';
+import uuid = require('uuid');
 import { DEFAULT_REDACT_SYMBOL } from './consts';
+import { doesMatchInterceptedFn, IQueryRecords, redact } from './helpers';
 import {
   RequestSerializer,
   SerializedRequest,
@@ -55,13 +57,47 @@ export interface ISaveFile {
   records: SerializedRequestResponse[];
 }
 
-type RequestQuery = { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
-type ResponseQuery = { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
+// tslint:disable-next-line:max-classes-per-file
+export class MatchingRecordsCollection {
+  private readonly yesno: YesNo;
+  private readonly query: IQueryRecords;
 
-export interface IQueryIntercepted {
-  url?: string | RegExp;
-  request?: RequestQuery;
-  response?: ResponseQuery;
+  constructor(yesno: YesNo, query: IQueryRecords = {}) {
+    this.yesno = yesno;
+    this.query = query;
+  }
+
+  public intercepted(): SerializedRequestResponse[] {
+    return this.filter(this.yesno.completedRequests, this.query);
+  }
+
+  public mocks(): SerializedRequestResponse[] {
+    return this.filter(this.yesno.mocks, this.query);
+  }
+
+  public redact(
+    property: string | string[],
+    redactSymbol?: string | ((value: any, path: string) => string),
+  ): void {
+    redactSymbol = redactSymbol || this.yesno.redactSymbol;
+    const redactedRecords = redact(this.intercepted(), property, redactSymbol);
+
+    const newCompleted = [...this.yesno.completedRequests];
+    redactedRecords.forEach((redactedRecord) => {
+      newCompleted.forEach((interceptedRecord, i) => {
+        newCompleted[i] = redactedRecord;
+      });
+    });
+    this.yesno.completedRequests = newCompleted;
+  }
+
+  // @todo Move out of class
+  private filter(
+    records: SerializedRequestResponse[],
+    query: IQueryRecords,
+  ): SerializedRequestResponse[] {
+    return records.filter(doesMatchInterceptedFn(query));
+  }
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -77,16 +113,16 @@ export class YesNo {
   public dir?: string;
 
   /**
+   * Serialized records loaded from disk.
+   */
+  public mocks: SerializedRequestResponse[] = [];
+
+  public readonly redactSymbol: string;
+  /**
    * Proxied requests which have not yet responded. When completed
    * the value is set to "null" but the index is preserved.
    */
   private inFlightRequests: Array<IInFlightRequest | null> = [];
-
-  /**
-   * Serialized records loaded from disk.
-   */
-  private mocks: SerializedRequestResponse[] = [];
-  private redactSymbol: string;
   private interceptor: Interceptor | undefined;
 
   constructor(options?: YesNoOptions) {
@@ -260,27 +296,34 @@ export class YesNo {
    * Otherwise perform a partial match against each serialized request response
    * @param query
    */
-  public intercepted(query?: string | RegExp | IQueryIntercepted): SerializedRequestResponse[] {
-    if (!query) {
-      return this.completedRequests;
-    }
+  public matching(query: string | RegExp | IQueryRecords): MatchingRecordsCollection {
+    const normalizedQuery: IQueryRecords =
+      _.isString(query) || _.isRegExp(query) ? { url: query } : query;
 
-    if (_.isString(query) || _.isRegExp(query)) {
-      query = { url: query };
-    }
-
-    return this.completedRequests.filter(this.doesMatchInterceptedFn(query));
+    return new MatchingRecordsCollection(this, normalizedQuery);
   }
 
-  // @todo Implement - map to `this#intercepted()`
-  public requested(query?: string | RegExp | RequestQuery): SerializedRequestResponse[] {
+  public intercepted(): SerializedRequestResponse[] {
     return this.completedRequests;
   }
 
-  // @todo Implement - map to `this#intercepted()`
-  public responded(query?: string | RegExp | ResponseQuery): SerializedRequestResponse[] {
-    return this.completedRequests;
+  public redact(
+    property: string | string[],
+    redactSymbol?: string | ((value: any, path: string) => string),
+  ): void {
+    const collection = new MatchingRecordsCollection(this);
+    collection.redact(property, redactSymbol);
   }
+
+  // // @todo Implement - map to `this#intercepted()`
+  // public requested(query?: string | RegExp | RequestQuery): SerializedRequestResponse[] {
+  //   return this.completedRequests;
+  // }
+
+  // // @todo Implement - map to `this#intercepted()`
+  // public responded(query?: string | RegExp | ResponseQuery): SerializedRequestResponse[] {
+  //   return this.completedRequests;
+  // }
 
   /**
    * Load request/response mocks from disk
@@ -296,104 +339,6 @@ export class YesNo {
     const filename = this.getMockFilename(name, dir);
 
     return this.loadMocks(filename);
-  }
-
-  /**
-   * Redact properties on the serialized request/response records.
-   *
-   * Use a `.` to reference a nested property and square brackets to reference an array
-   *
-   * ```
-   *  redact({ a: { b: [{ c: 1}] } }), 'a.b[].c')
-   * ```
-   *
-   * There is no syntax to reference an array value by index.
-   *
-   * Performs a DFS upon each record.
-   * @todo Benchmark & investigate alternatives
-   * @param records
-   * @param property  Property or array of properties to redact. Add `[]` to indicate array.
-   * @param redactSymbol Symbol to use for redacted properties or function to compute.
-   */
-  public redact(
-    records: SerializedRequestResponse[],
-    property: string | string[],
-    redactSymbol?: string | ((value: any, path: string) => string),
-  ): SerializedRequestResponse[] {
-    redactSymbol = redactSymbol || this.redactSymbol;
-    const properties = _.isArray(property) ? property : [property];
-    const redact = (propPath: string, node: any, currentPath = ''): any => {
-      if (currentPath && currentPath === propPath) {
-        return _.isFunction(redactSymbol) ? redactSymbol(node, propPath) : (redactSymbol as string);
-      }
-
-      if (currentPath && !propPath.includes(currentPath)) {
-        return node;
-      }
-
-      if (_.isPlainObject(node)) {
-        return _.mapValues(node as object, (nextNode, key) => {
-          const pathForNextNode = currentPath ? `${currentPath}.${key}` : key;
-          return redact(propPath, nextNode, pathForNextNode);
-        });
-      }
-
-      if (_.isArray(node)) {
-        currentPath += '[]';
-
-        return node.map((nextNode) => redact(propPath, nextNode, currentPath));
-      }
-
-      return node;
-    };
-
-    return records.map((record) => {
-      return properties.reduce((redacted, propertyToRedact) => {
-        return redact(propertyToRedact, redacted);
-      }, record);
-    });
-  }
-
-  /**
-   * Curried function to determine whether a query matches an intercepted request.
-   *
-   * Query objects must be a deep partial match against the intercepted request.
-   *
-   * RegEx values are tested for match.
-   */
-  private doesMatchInterceptedFn(
-    query: IQueryIntercepted,
-  ): (intercepted: SerializedRequestResponse) => boolean {
-    const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
-      if (queryValue instanceof RegExp) {
-        return queryValue.test(reqResValue);
-      } else if (_.isPlainObject(queryValue)) {
-        // Add a depth limit?
-        return _.isMatchWith(reqResValue, queryValue, equalityOrRegExpDeep);
-      } else {
-        return queryValue === reqResValue;
-      }
-    };
-
-    return (intercepted: SerializedRequestResponse): boolean => {
-      let isMatch = true;
-
-      if (query.url) {
-        isMatch = isMatch && equalityOrRegExpDeep(intercepted.url, query.url);
-      }
-
-      if (query.request) {
-        isMatch =
-          isMatch && _.isMatchWith(intercepted.request, query.request, equalityOrRegExpDeep);
-      }
-
-      if (query.response) {
-        isMatch =
-          isMatch && _.isMatchWith(intercepted.response, query.response, equalityOrRegExpDeep);
-      }
-
-      return isMatch;
-    };
   }
 
   private loadMocks(filename: string): Promise<SerializedRequestResponse[]> {
@@ -457,6 +402,7 @@ export class YesNo {
 
     this.completedRequests[requestNumber] = {
       __duration: duration,
+      __id: uuid.v4(),
       __timestamp: now,
       __version: version,
       request,

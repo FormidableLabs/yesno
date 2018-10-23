@@ -81,21 +81,18 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/post',
       });
 
+      expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(2);
+      expect(yesno.matching(/\/get/).intercepted(), 'Match URL by RegExp').to.have.lengthOf(1);
       expect(
-        await yesno.intercepted(),
-        'Returns all intercepted requests by default',
-      ).to.have.lengthOf(2);
-      expect(await yesno.intercepted(/\/get/), 'Match URL by RegExp').to.have.lengthOf(1);
-      expect(
-        await yesno.intercepted({ response: { statusCode: 500 } }),
+        yesno.matching({ response: { statusCode: 500 } }).intercepted(),
         'Match by a response property',
       ).to.have.lengthOf(1);
       expect(
-        await yesno.intercepted({ request: { headers: { 'x-foo': 'bar' } } }),
+        yesno.matching({ request: { headers: { 'x-foo': 'bar' } } }).intercepted(),
         'Match by a nested request property',
       ).to.have.lengthOf(1);
       expect(
-        await yesno.intercepted({ request: { headers: { 'x-foo': 'bar', 'x-fiz': 'baz' } } }),
+        yesno.matching({ request: { headers: { 'x-foo': 'bar', 'x-fiz': 'baz' } } }).intercepted(),
         'All properties must match ',
       ).to.have.lengthOf(0);
     });
@@ -143,17 +140,25 @@ describe('yesno', () => {
       const toRedact = 'request.body.password';
       const intercepted = yesno.intercepted();
       expect(intercepted[0]).to.have.nested.property(toRedact, 'secret');
-      const redacted = yesno.redact(yesno.intercepted(), toRedact);
+      yesno.redact(toRedact);
 
-      expect(redacted[0]).to.have.nested.property(toRedact, '*****');
-      expect(_.omit(redacted[0], toRedact), 'Non matching properties are unchanged').to.eql(
-        _.omit(intercepted[0], toRedact),
-      );
+      expect(yesno.intercepted()[0]).to.have.nested.property(toRedact, '*****');
+      expect(
+        _.omit(yesno.intercepted()[0], toRedact),
+        'Non matching properties are unchanged',
+      ).to.eql(_.omit(intercepted[0], toRedact));
       expect(intercepted[0], 'The intercepted requests are not mutated').to.have.nested.property(
         toRedact,
         'secret',
       );
     });
+
+    // it('should allow new syntax', () => {
+    //   // yesno.matching(query: IQuery): IQueryBuilder => {}
+    //   yesno.matching(query).redact('request.body.foobar');
+    //   yesno.matching(query).intercepted(); // Replace yesno.intercepte()?
+    //   yesno.matching(query).mocks();
+    // });
   });
 
   describe('mock mode', () => {
