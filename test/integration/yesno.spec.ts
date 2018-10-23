@@ -4,7 +4,7 @@ import * as https from 'https';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as rp from 'request-promise';
-import yesno = require('../../src');
+import yesno from '../../src';
 import { SerializedRequestResponse } from '../../src/http-serializer';
 import * as testServer from '../server';
 

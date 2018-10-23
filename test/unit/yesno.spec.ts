@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import yesno = require('../../src');
+import yesno from '../../src';
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
