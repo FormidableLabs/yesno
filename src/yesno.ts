@@ -2,7 +2,7 @@ import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import { DEFAULT_REDACT_SYMBOL } from './consts';
+import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, DEFAULT_REDACT_SYMBOL } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import { IQueryRecords } from './helpers';
@@ -35,6 +35,7 @@ export interface YesNoOptions {
    * Default directory to locate and persist intercepted request/response
    */
   dir?: string;
+  ports?: number[];
   redactSymbol?: string;
 }
 
@@ -55,12 +56,13 @@ export class YesNo implements IQueryable {
    * Enable intercepting requests
    */
   public enable(options?: YesNoOptions): YesNo {
-    const { redactSymbol = DEFAULT_REDACT_SYMBOL, dir }: YesNoOptions = options || {};
+    const { redactSymbol = DEFAULT_REDACT_SYMBOL, ports = [], dir }: YesNoOptions = options || {};
     this.dir = dir;
     this.redactSymbol = redactSymbol;
+    const portsWithDefaults = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, ...ports];
 
-    debug('Enabling intercept');
-    this.interceptor.enable();
+    debug('Enabling intercept on ports', ports);
+    this.interceptor.enable(portsWithDefaults);
 
     return this;
   }

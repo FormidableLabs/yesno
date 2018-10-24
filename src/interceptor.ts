@@ -8,11 +8,13 @@ import Mitm from 'mitm';
 import { Socket } from 'net';
 import * as readable from 'readable-stream';
 import { v4 as uuidv4 } from 'uuid';
-import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import { YesNoError } from './errors';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 
 const debug: IDebugger = require('debug')('yesno:proxy');
+
+const DEFAULT_PORTS = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS];
 
 interface ClientRequestTracker {
   [key: string]: {
@@ -54,6 +56,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   private clientRequests: ClientRequestTracker = {};
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
+  private ports = DEFAULT_PORTS;
 
   /**
    * Begin intercepting requests on instantiation
@@ -67,7 +70,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     this.shouldProxy = shouldProxy;
   }
 
-  public enable(): void {
+  public enable(ports = DEFAULT_PORTS): void {
     if (this.mitm || this.origOnSocket) {
       debug('Interceptor already enabled. Do nothing.');
       return;
@@ -75,6 +78,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
 
     const self = this;
     this.mitm = Mitm();
+    this.ports = ports;
     this.origOnSocket = ClientRequest.prototype.onSocket;
 
     ClientRequest.prototype.onSocket = _.flowRight(
@@ -93,6 +97,9 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
 
     this.mitm.on('connect', this.mitmOnConnect.bind(this) as Mitm.SocketConnectCallback);
     this.mitm.on('request', this.mitmOnRequest.bind(this));
+    this.mitm.on('connection', (server) => {
+      server.on('error', (err) => debug('Server error:', err));
+    });
   }
 
   /**
@@ -115,6 +122,13 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
    */
   private mitmOnConnect(socket: Mitm.BypassableSocket, options: ProxyRequestOptions): void {
     debug('New socket connection');
+    const { port } = options;
+
+    if (!port || -1 === this.ports.indexOf(parseInt(String(port), 10))) {
+      debug('Ignoring socket on port %d', port);
+      socket.bypass();
+      return;
+    }
 
     if (options.proxying) {
       debug('Bypassing intercept...');

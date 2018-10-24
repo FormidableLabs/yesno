@@ -15,7 +15,7 @@ describe('yesno', () => {
 
   before(async () => {
     server = await testServer.start();
-    yesno.enable({ dir: path.join(__dirname, 'tmp') });
+    yesno.enable({ ports: [3001], dir: path.join(__dirname, 'tmp') });
   });
 
   afterEach(() => {

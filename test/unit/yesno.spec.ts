@@ -1,9 +1,11 @@
 import { expect } from 'chai';
+import { on } from 'cluster';
 import * as fs from 'fs';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
 import * as testServer from '../test-server';
+const net = require('net');
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
@@ -41,6 +43,19 @@ describe('Yesno', () => {
     server.close();
   });
 
+  describe.skip('#enable', () => {
+    it('should not mock TCP connections', (done) => {
+      yesno.enable();
+      requestTestServer();
+      const socket = net.connect({ host: 'google.com', port: 80 });
+      socket.write('foo!');
+      socket.on('error', done);
+      socket.on('data', (data: any) => {
+        done();
+      });
+    });
+  });
+
   describe('#disable', () => {
     it('should restore normal HTTP functionality after mocking', async () => {
       const startingRequestCount = server.getRequestCount();
@@ -48,7 +63,7 @@ describe('Yesno', () => {
       expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
 
       await yesno
-        .enable()
+        .enable({ ports: [3001] })
         .mock()
         .load('mock-localhost-get', mocksDir);
       await requestTestServer();
@@ -59,7 +74,7 @@ describe('Yesno', () => {
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
       await yesno
-        .enable()
+        .enable({ ports: [3001] })
         .mock()
         .load('mock-localhost-get', mocksDir);
       await requestTestServer();
@@ -70,7 +85,7 @@ describe('Yesno', () => {
   describe('#mock', () => {
     beforeEach(async () => {
       await yesno
-        .enable({ dir: mocksDir })
+        .enable({ ports: [3001], dir: mocksDir })
         .mock()
         .load('mock-test');
     });
