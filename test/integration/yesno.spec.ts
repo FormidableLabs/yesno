@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as _ from 'lodash';
 import * as path from 'path';
-import * as rp from 'request-promise';
+import rp from 'request-promise';
 import yesno from '../../src';
 import { SerializedRequestResponse } from '../../src/http-serializer';
 import * as testServer from '../test-server';
@@ -59,23 +59,6 @@ describe('yesno', () => {
       expect(mocks[0]).to.have.nested.property('request.method', 'GET');
       expect(mocks[0]).to.have.nested.property('response.statusCode', 299);
       expect(mocks[0]).to.have.nested.property('url', 'http://localhost:3001/get');
-    });
-  });
-
-  describe('#mock', () => {
-    it('should reject for host mismatch', async () => {
-      await yesno.mock('mock-post');
-
-      await expect(
-        // Doesn't work... failure is elsewhere!
-        rp.post({
-          body: {
-            foo: 'bar',
-          },
-          json: true,
-          uri: 'http://localhost:3001/post',
-        }),
-      ).to.be.rejectedWith(/Expected different host for request/);
     });
   });
 

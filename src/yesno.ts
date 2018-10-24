@@ -59,31 +59,31 @@ export class YesNo implements IQueryable {
   /**
    * Enable intercepting requests
    */
-  public enable(options?: YesNoOptions): void {
-    if (this.interceptor) {
-      throw new YesNoError('Cannot enable if already enabled');
-    }
-
+  public enable(options?: YesNoOptions): YesNo {
     const { mode = Mode.Spy, redactSymbol = DEFAULT_REDACT_SYMBOL, dir }: YesNoOptions =
       options || {};
     this.mode = mode;
     this.dir = dir;
     this.redactSymbol = redactSymbol;
 
-    debug('Enabling intercept');
-    this.interceptor = this.createInterceptor();
+    if (!this.interceptor) {
+      debug('Enabling intercept');
+      this.interceptor = this.createInterceptor();
+    }
+
+    return this;
   }
 
   /**
    * Disable intercepting requests
    */
   public disable(): void {
-    if (!this.interceptor) {
-      throw new YesNoError('Cannot disable if not enabled');
+    if (!this.isEnabled()) {
+      throw new YesNoError('Not enabled');
     }
 
     this.clear();
-    this.interceptor.disable();
+    (this.interceptor as Interceptor).disable();
     this.interceptor = undefined;
   }
 
@@ -92,8 +92,13 @@ export class YesNo implements IQueryable {
    * @param name Unique name for mocks
    */
   public async mock(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
+    if (!this.isEnabled()) {
+      throw new YesNoError('Not enabled');
+    }
+
     this.setMode(Mode.Mock);
     this.ctx.loadedMocks = await this.load(name, dir);
+    debug('Loaded %d mocks', this.ctx.loadedMocks.length);
 
     return this.ctx.loadedMocks;
   }
@@ -102,6 +107,10 @@ export class YesNo implements IQueryable {
    * Spy on intercepted requests
    */
   public spy() {
+    if (!this.isEnabled()) {
+      throw new YesNoError('Not enabled');
+    }
+
     this.setMode(Mode.Spy);
   }
 
@@ -250,6 +259,10 @@ export class YesNo implements IQueryable {
       defaultRedactSymbol: this.redactSymbol,
       query,
     });
+  }
+
+  private isEnabled(): boolean {
+    return !!this.interceptor;
   }
 
   private async mockResponse({
