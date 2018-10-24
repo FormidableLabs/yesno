@@ -50,7 +50,8 @@ describe('yesno', () => {
       expect(yesno.intercepted()).to.have.length(2);
       await yesno.save(name);
 
-      const mocks: SerializedRequestResponse[] = await yesno.mock(name);
+      await yesno.load(name);
+      const mocks: SerializedRequestResponse[] = yesno.mocks();
       expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
       expect(mocks[0]).to.have.nested.property('request.path', '/get');
@@ -151,19 +152,12 @@ describe('yesno', () => {
         'secret',
       );
     });
-
-    // it('should allow new syntax', () => {
-    //   // yesno.matching(query: IQuery): IQueryBuilder => {}
-    //   yesno.matching(query).redact('request.body.foobar');
-    //   yesno.matching(query).intercepted(); // Replace yesno.intercepte()?
-    //   yesno.matching(query).mocks();
-    // });
   });
 
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';
-      const mocks = await yesno.mock(name, path.join(__dirname, 'mocks'));
+      const mocks = await yesno.mock().load(name, path.join(__dirname, 'mocks'));
 
       const now = Date.now();
 

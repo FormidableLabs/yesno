@@ -34,16 +34,45 @@ describe('Yesno', () => {
   });
 
   afterEach(() => {
-    yesno.clear();
+    yesno.disable();
   });
 
   after(() => {
     server.close();
   });
 
+  describe('#disable', () => {
+    it('should restore normal HTTP functionality after mocking', async () => {
+      const startingRequestCount = server.getRequestCount();
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
+
+      await yesno
+        .enable()
+        .mock()
+        .load('mock-localhost-get', mocksDir);
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
+
+      yesno.disable();
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
+
+      await yesno
+        .enable()
+        .mock()
+        .load('mock-localhost-get', mocksDir);
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Mocked again').to.eql(startingRequestCount + 2);
+    });
+  });
+
   describe('#mock', () => {
     beforeEach(async () => {
-      await yesno.enable({ dir: mocksDir }).mock('mock-test');
+      await yesno
+        .enable({ dir: mocksDir })
+        .mock()
+        .load('mock-test');
     });
 
     afterEach(() => {
@@ -83,22 +112,6 @@ describe('Yesno', () => {
       await expect(mockedRequest({ uri: 'http://example.com/my/foobar' })).to.be.rejectedWith(
         /Request does not match mock. Expected request #0 "POST http:\/\/example.com:80" to have path "\/my\/path", not "\/my\/foobar"/,
       );
-    });
-  });
-
-  describe('#disable', () => {
-    it('should restore normal HTTP functionality after mocking', async () => {
-      const startingRequestCount = server.getRequestCount();
-      await requestTestServer();
-      expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
-
-      await yesno.enable().mock('mock-localhost-get', mocksDir);
-      await requestTestServer();
-      expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
-
-      await yesno.disable();
-      await requestTestServer();
-      expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 2);
     });
   });
 

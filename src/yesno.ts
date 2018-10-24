@@ -68,36 +68,49 @@ export class YesNo implements IQueryable {
    * Disable intercepting requests
    */
   public disable(): void {
-    if (!this.isEnabled()) {
-      throw new YesNoError('Not enabled');
-    }
-
+    debug('Disabling intercept');
     this.clear();
     this.interceptor.disable();
+  }
+
+  /**
+   * Spy on intercepted requests
+   */
+  public spy(): YesNo {
+    this.setMode(Mode.Spy);
+    return this;
   }
 
   /**
    * Mock responses for intecepted requests
    * @param name Unique name for mocks
    */
-  public async mock(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
+  public mock(): YesNo {
     this.setMode(Mode.Mock);
-    this.ctx.loadedMocks = await this.load(name, dir);
-    debug('Loaded %d mocks', this.ctx.loadedMocks.length);
+    return this;
+  }
+
+  /**
+   * Load request/response mocks from disk
+   * @param name Mock name
+   * @param dir Override default directory
+   */
+  public async load(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
+    debug('Loading mocks');
+    dir = dir || this.dir;
+    if (dir === undefined) {
+      return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
+    }
+
+    this.ctx.loadedMocks = await mocks.load(name, dir);
 
     return this.ctx.loadedMocks;
   }
 
   /**
-   * Spy on intercepted requests
-   */
-  public spy(): void {
-    this.setMode(Mode.Spy);
-  }
-
-  /**
    * Save intercepted requests _if_ we're in Spy mode.
    *
+   * @todo Use the same name/dir as the loaded mocks IF available...?
    * @param name Filename
    * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
@@ -218,20 +231,6 @@ export class YesNo implements IQueryable {
     if (this.interceptor) {
       this.interceptor.proxy(!this.isMode(Mode.Mock));
     }
-  }
-
-  /**
-   * Load request/response mocks from disk
-   * @param name Mock name
-   * @param dir Override default directory
-   */
-  private load(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
-    dir = dir || this.dir;
-    if (dir === undefined) {
-      return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
-    }
-
-    return mocks.load(name, dir);
   }
 
   private getCollection(query?: IQueryRecords): QueryableRequestsCollection {
