@@ -14,7 +14,8 @@ import {
   SerializedResponse,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
-import * as mocks from './mocks';
+import * as mocking from './mocking';
+import { IHttpMock } from './mocking';
 import QueryableRequestsCollection, { IQueryable, RedactSymbol } from './queryable-collection';
 const debug: IDebugger = require('debug')('yesno');
 
@@ -85,8 +86,13 @@ export class YesNo implements IQueryable {
    * Mock responses for intecepted requests
    * @param name Unique name for mocks
    */
-  public mock(): YesNo {
+  public mock(mocks?: IHttpMock[]): YesNo {
     this.setMode(Mode.Mock);
+
+    if (mocks) {
+      this.setMocks(mocks.map(mocking.hydrateHttpMock));
+    }
+
     return this;
   }
 
@@ -102,7 +108,7 @@ export class YesNo implements IQueryable {
       return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
     }
 
-    this.ctx.loadedMocks = await mocks.load(name, dir);
+    this.setMocks(await mocking.load(name, dir));
 
     return this.ctx.loadedMocks;
   }
@@ -143,7 +149,7 @@ export class YesNo implements IQueryable {
 
     debug('Saving %s...', name);
 
-    return mocks.save(name, dir, this.ctx.interceptedRequestsCompleted);
+    return mocking.save(name, dir, this.ctx.interceptedRequestsCompleted);
   }
 
   /**
@@ -189,6 +195,10 @@ export class YesNo implements IQueryable {
    */
   public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
     return this.getCollection().redact(property, redactSymbol);
+  }
+
+  private setMocks(mocks: SerializedRequestResponse[]): void {
+    this.ctx.loadedMocks = mocks;
   }
 
   /**
@@ -265,7 +275,7 @@ export class YesNo implements IQueryable {
 
       // Assertion must happen before promise -
       // mitm does not support promise rejections on "request" event
-      mocks.assertMatches(serializedRequest, mock.request, requestNumber);
+      mocking.assertMatches(serializedRequest, mock.request, requestNumber);
 
       interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
       interceptedResponse.write(mock.response.body);

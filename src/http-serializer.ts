@@ -7,8 +7,10 @@ import {
 } from 'http';
 import * as _ from 'lodash';
 import { Transform } from 'stream';
+import * as url from 'url';
 import uuid = require('uuid');
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON, YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { YesNoError } from './errors';
 const debug = require('debug')('yesno:http-serializer');
 const { version }: { version: string } = require('../package.json');
 /* tslint:disable:max-classes-per-file */
@@ -27,6 +29,13 @@ export interface SerializedRequestResponse {
   readonly url: string;
   readonly request: SerializedRequest;
   readonly response: SerializedResponse;
+}
+
+interface SerializedUrl {
+  host: string;
+  path: string;
+  protocol: string;
+  port: number;
 }
 
 export interface SerializedResponse {
@@ -167,6 +176,23 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
 
 export function formatUrl(request: SerializedRequest): string {
   return `${request.protocol}://${request.host}:${request.port}${request.path}`;
+}
+
+export function serializeUrl(uri: string): SerializedUrl {
+  const parsed = url.parse(uri);
+  const protocol = (parsed.protocol as 'http' | 'https') || 'http';
+  const port = parsed.port ? parseInt(parsed.port, 10) : protocol === 'https' ? 443 : 80;
+
+  if (!parsed.host) {
+    throw new YesNoError(`Cannot serialize ${uri}, missing host`);
+  }
+
+  return {
+    host: parsed.host,
+    path: parsed.path || '/',
+    port,
+    protocol,
+  };
 }
 
 export function createRecord({

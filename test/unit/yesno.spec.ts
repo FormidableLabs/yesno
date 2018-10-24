@@ -84,6 +84,52 @@ describe('Yesno', () => {
       expect(response).to.eql('mock body');
     });
 
+    it('should allow providing mocks', async () => {
+      yesno.mock([
+        {
+          request: {
+            host: 'localhost',
+            method: 'GET',
+            path: '/get',
+            port: 3001,
+            protocol: 'http',
+          },
+          response: {
+            body: 'foobar',
+            statusCode: 200,
+          },
+        },
+      ]);
+
+      expect(yesno.intercepted()).to.have.lengthOf(0);
+      const response = await requestTestServer();
+      expect(response).to.eql('foobar');
+      expect(yesno.intercepted()).to.have.lengthOf(1);
+    });
+
+    it('should allow providing mocks with JSON response bodies as objects', async () => {
+      yesno.mock([
+        {
+          request: {
+            host: 'localhost',
+            method: 'GET',
+            path: '/get',
+            port: 3001,
+            protocol: 'http',
+          },
+          response: {
+            body: { foo: 'bar' },
+            statusCode: 200,
+          },
+        },
+      ]);
+
+      expect(yesno.intercepted()).to.have.lengthOf(0);
+      const response = await requestTestServer({ json: true });
+      expect(response).to.eql({ foo: 'bar' });
+      expect(yesno.intercepted()).to.have.lengthOf(1);
+    });
+
     it('should reject for host mismatch', async () => {
       await expect(mockedRequest({ uri: 'http://foobar.com/my/path' })).to.be.rejectedWith(
         /YesNo: Request does not match mock. Expected host "example.com" for request #0, received "foobar.com"/,
