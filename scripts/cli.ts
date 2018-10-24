@@ -16,6 +16,7 @@ function createMockRequestResponse(): SerializedRequestResponse {
       protocol: 'https',
     },
     response: {
+      body: '',
       headers: {
         'x-yesno': 'generated mock',
       },

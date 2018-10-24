@@ -9,6 +9,7 @@ import { Socket } from 'net';
 import * as readable from 'readable-stream';
 import { v4 as uuidv4 } from 'uuid';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { YesNoError } from './errors';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 
 const debug: IDebugger = require('debug')('yesno:proxy');
@@ -49,20 +50,31 @@ interface IInterceptEvents {
 
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
-  private mitm: Mitm.Mitm;
   private shouldProxy: boolean;
   private clientRequests: ClientRequestTracker = {};
-  private origOnSocket: (socket: Socket) => void;
+  private mitm?: Mitm.Mitm;
+  private origOnSocket?: (socket: Socket) => void;
 
   /**
    * Begin intercepting requests on instantiation
    */
-  constructor({ mitm, shouldProxy = true }: { mitm: Mitm.Mitm; shouldProxy: boolean }) {
+  constructor({ shouldProxy = true }: { shouldProxy: boolean }) {
     super();
+    this.shouldProxy = shouldProxy;
+  }
+
+  public proxy(shouldProxy: boolean): void {
+    this.shouldProxy = shouldProxy;
+  }
+
+  public enable(): void {
+    if (this.mitm || this.origOnSocket) {
+      debug('Interceptor already enabled. Do nothing.');
+      return;
+    }
 
     const self = this;
-    this.mitm = mitm;
-    this.shouldProxy = shouldProxy;
+    this.mitm = Mitm();
     this.origOnSocket = ClientRequest.prototype.onSocket;
 
     ClientRequest.prototype.onSocket = _.flowRight(
@@ -83,16 +95,17 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     this.mitm.on('request', this.mitmOnRequest.bind(this));
   }
 
-  public proxy(shouldProxy: boolean): void {
-    this.shouldProxy = shouldProxy;
-  }
-
   /**
    * Disable request interception
    */
   public disable() {
-    this.mitm.disable();
+    if (!this.mitm || !this.origOnSocket) {
+      debug('Interceptor already disabled. Do nothing.');
+      return;
+    }
+
     ClientRequest.prototype.onSocket = this.origOnSocket;
+    this.mitm.disable();
   }
 
   /**

@@ -33,7 +33,7 @@ export interface SerializedResponse {
   /**
    * JSON bodies will be parsed to objects
    */
-  readonly body?: string | object;
+  readonly body: string | object;
   readonly headers: IncomingHttpHeaders;
   readonly statusCode: number;
 }
@@ -136,7 +136,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
 }
 
 export class ResponseSerializer extends Transform implements SerializedResponse {
-  public body?: string;
+  public body: string | object;
   public headers: IncomingHttpHeaders = {};
   public statusCode: number;
   private data: Buffer[] = [];
@@ -144,12 +144,12 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
   constructor(clientResponse: IncomingMessage) {
     super();
 
+    this.body = '';
     this.statusCode = clientResponse.statusCode as number;
     this.headers = clientResponse.headers;
   }
 
   public _transform(chunk: Buffer, encoding: string, done: () => void) {
-    this.body = this.body || '';
     this.body += chunk.toString();
 
     this.push(chunk);
@@ -158,7 +158,7 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
 
   public serialize(): SerializedResponse {
     return {
-      body: serializeJSON(this.headers, this.body),
+      body: serializeJSON(this.headers, this.body as string) as string | object,
       headers: this.headers,
       statusCode: this.statusCode,
     };

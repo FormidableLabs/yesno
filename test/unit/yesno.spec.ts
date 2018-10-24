@@ -3,24 +3,47 @@ import * as fs from 'fs';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
+import * as testServer from '../test-server';
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
+  const mocksDir = path.join(__dirname, 'mocks');
+  let server: testServer.ITestServer;
+
+  function requestTestServer(options: object = {}) {
+    return rp({
+      method: 'GET',
+      uri: 'http://localhost:3001/get',
+      ...options,
+    });
+  }
+
+  function mockedRequest(options: object = {}) {
+    return rp({
+      headers: {
+        'x-fiz': 'baz',
+      },
+      method: 'POST',
+      uri: 'http://example.com/my/path',
+      ...options,
+    });
+  }
+
+  before(async () => {
+    server = await testServer.start();
+  });
+
+  afterEach(() => {
+    yesno.clear();
+  });
+
+  after(() => {
+    server.close();
+  });
 
   describe('#mock', () => {
-    function mockedRequest(options: object = {}) {
-      return rp({
-        headers: {
-          'x-fiz': 'baz',
-        },
-        method: 'POST',
-        uri: 'http://example.com/my/path',
-        ...options,
-      });
-    }
-
     beforeEach(async () => {
-      await yesno.enable().mock('mock-test', path.join(__dirname, 'mocks'));
+      await yesno.enable({ dir: mocksDir }).mock('mock-test');
     });
 
     afterEach(() => {
@@ -63,6 +86,22 @@ describe('Yesno', () => {
     });
   });
 
+  describe('#disable', () => {
+    it('should restore normal HTTP functionality after mocking', async () => {
+      const startingRequestCount = server.getRequestCount();
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
+
+      await yesno.enable().mock('mock-localhost-get', mocksDir);
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
+
+      await yesno.disable();
+      await requestTestServer();
+      expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 2);
+    });
+  });
+
   describe('#save', () => {
     const name = 'mock-save';
     const expectedFilename = path.join(dir, `${name}-yesno.json`);
@@ -73,13 +112,11 @@ describe('Yesno', () => {
         fs.unlinkSync(path.join(dir, file));
       });
 
-      if (yesno) {
-        yesno.disable();
-      }
+      yesno.disable();
     });
 
     it('should save intercepted requests in the configured directory', async () => {
-      yesno.enable({ dir });
+      yesno.enable({ dir }).spy();
 
       (yesno as any).interceptedRequestsCompleted = [
         {

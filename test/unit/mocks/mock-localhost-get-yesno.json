@@ -1,0 +1,26 @@
+{
+  "records": [
+    {
+      "__duration": 0,
+      "__id": "1ae8735f-7ac2-4b4b-91b5-72c554d3f52e",
+      "__timestamp": 1540404357697,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {},
+        "host": "localhost",
+        "method": "GET",
+        "path": "/get",
+        "port": 3001,
+        "protocol": "http"
+      },
+      "response": {
+        "body": "",
+        "headers": {
+          "x-yesno": "generated mock"
+        },
+        "statusCode": 200
+      },
+      "url": "https://localhost:3000/"
+    }
+  ]
+}

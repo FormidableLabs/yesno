@@ -11,11 +11,10 @@ import * as testServer from '../test-server';
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
-  let server: http.Server;
+  let server: testServer.ITestServer;
 
   before(async () => {
     server = await testServer.start();
-
     yesno.enable({ dir: path.join(__dirname, 'tmp') });
   });
 

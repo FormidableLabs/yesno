@@ -1,7 +1,5 @@
 import { IDebugger } from 'debug';
-import * as http from 'http';
 import * as _ from 'lodash';
-import Mitm = require('mitm');
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
 import { DEFAULT_REDACT_SYMBOL } from './consts';
@@ -11,7 +9,6 @@ import { IQueryRecords } from './helpers';
 import {
   createRecord,
   formatUrl,
-  RequestSerializer,
   SerializedRequest,
   SerializedRequestResponse,
   SerializedResponse,
@@ -34,10 +31,6 @@ export enum Mode {
 
 export interface YesNoOptions {
   /**
-   * Test mode
-   */
-  mode?: Mode;
-  /**
    * Default directory to locate and persist intercepted request/response
    */
   dir?: string;
@@ -46,30 +39,27 @@ export interface YesNoOptions {
 
 // tslint:disable-next-line:max-classes-per-file
 export class YesNo implements IQueryable {
-  public mode: Mode = Mode.Spy;
   public redactSymbol: string = DEFAULT_REDACT_SYMBOL;
   public dir?: string;
-  private interceptor?: Interceptor;
+  private mode: Mode = Mode.Spy;
+  private interceptor: Interceptor;
   private readonly ctx: Context;
 
   constructor(ctx: Context) {
     this.ctx = ctx;
+    this.interceptor = this.createInterceptor();
   }
 
   /**
    * Enable intercepting requests
    */
   public enable(options?: YesNoOptions): YesNo {
-    const { mode = Mode.Spy, redactSymbol = DEFAULT_REDACT_SYMBOL, dir }: YesNoOptions =
-      options || {};
-    this.mode = mode;
+    const { redactSymbol = DEFAULT_REDACT_SYMBOL, dir }: YesNoOptions = options || {};
     this.dir = dir;
     this.redactSymbol = redactSymbol;
 
-    if (!this.interceptor) {
-      debug('Enabling intercept');
-      this.interceptor = this.createInterceptor();
-    }
+    debug('Enabling intercept');
+    this.interceptor.enable();
 
     return this;
   }
@@ -83,8 +73,7 @@ export class YesNo implements IQueryable {
     }
 
     this.clear();
-    (this.interceptor as Interceptor).disable();
-    this.interceptor = undefined;
+    this.interceptor.disable();
   }
 
   /**
@@ -92,10 +81,6 @@ export class YesNo implements IQueryable {
    * @param name Unique name for mocks
    */
   public async mock(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
-    if (!this.isEnabled()) {
-      throw new YesNoError('Not enabled');
-    }
-
     this.setMode(Mode.Mock);
     this.ctx.loadedMocks = await this.load(name, dir);
     debug('Loaded %d mocks', this.ctx.loadedMocks.length);
@@ -106,11 +91,7 @@ export class YesNo implements IQueryable {
   /**
    * Spy on intercepted requests
    */
-  public spy() {
-    if (!this.isEnabled()) {
-      throw new YesNoError('Not enabled');
-    }
-
+  public spy(): void {
     this.setMode(Mode.Spy);
   }
 
@@ -205,7 +186,7 @@ export class YesNo implements IQueryable {
   }
 
   private createInterceptor() {
-    const interceptor = new Interceptor({ mitm: Mitm(), shouldProxy: !this.isMode(Mode.Mock) });
+    const interceptor = new Interceptor({ shouldProxy: !this.isMode(Mode.Mock) });
     interceptor.on('intercept', (event: IInterceptEvent) => {
       this.ctx.inFlightRequests[event.requestNumber] = {
         requestSerializer: event.requestSerializer,

@@ -3,9 +3,19 @@ import express from 'express';
 import { Server } from 'http';
 const debug = require('debug')('yesno:test-server');
 
-export function start(port: number = 3001): Promise<Server> {
+export interface ITestServer extends Server {
+  getRequestCount: () => number;
+}
+
+export function start(port: number = 3001): Promise<ITestServer> {
+  let requestCount: number = 0;
   const app = express();
   app.use(jsonParser());
+
+  app.use((req, res, next) => {
+    requestCount++;
+    next();
+  });
 
   app.get('/get', ({ headers }: express.Request, res: express.Response) => {
     debug('Received GET request');
@@ -22,7 +32,8 @@ export function start(port: number = 3001): Promise<Server> {
   return new Promise((resolve) => {
     const server = app.listen(port, () => {
       debug('Test server running on port %d', port);
-      resolve(server);
+      (server as any).getRequestCount = () => requestCount;
+      resolve(server as ITestServer);
     });
   });
 }
