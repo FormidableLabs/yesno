@@ -106,6 +106,8 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
 
     ClientRequest.prototype.onSocket = this.origOnSocket;
     this.mitm.disable();
+    this.mitm = undefined;
+    this.origOnSocket = undefined;
   }
 
   /**
