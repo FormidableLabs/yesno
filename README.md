@@ -1,73 +1,132 @@
+# YesNo
+
+YesNo is an HTTP testing library that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests, allowing you to easily write assertions against requests or use them to generate mocks.
+
+## Installing
+
+```
+npm i --save-dev yesno
+```
+
+## Usage
+
+### Spy on requests
+
+```javascript
+const { yesno } = require('yesno');
+const { expect } = require('chai');
+const fbApi = require('./fb-api');
+
+describe('api', () => {
+  it('should get users', async () => {
+    yesno.enable().spy();
+    const users = await fbApi.getUsers();
+    const intercepted = yesno.intercepted();
+
+    expect(intercepted).have.lengthOf(1);
+    expect(intercepted[0]).have.nested.property('url', 'https://api.facebook.com/users');
+    expect(users).to.eql(intercepted[0].response.body.users);
+  });
+});
+```
+
+### Generate mocks from intercepted requests
+
+```javascript
+const { yesno } = require('yesno');
+const { expect } = require('chai');
+const fbApi = require('./fb-api');
+
+describe('api', () => {
+  it('should get users', async () => {
+    yesno.enable({ dir: `${__dirname}/mocks` }).spy();
+    await fbApi.getUsers();
+
+    yesno.save('api-get-users');
+  });
+});
+```
+
+Sometimes we need to remove sensitive information from the requests before saving the records to disk. We can use `matching` in conjunction with `redact` to remove these properties from our intercepted requests.
+
+```javascript
+yesno.enable({ dir: `${__dirname}/mocks` }).spy();
+apiKey = await fbApi.authenticate();
+await fbApi.getUsers(apiKey);
+
+yesno.matching(/facebook.com\/auth/).redact('response.body.token');
+yesno.matching(/facebook.com\/users/).redact('request.headers.auth');
+
+await yesno.save('api-get-users');
+```
+
+### Load mocks from disk
+
+```javascript
+const { yesno } = require('yesno');
+const { expect } = require('chai');
+const fbApi = require('./fb-api');
+
+describe('api', () => {
+  it('should get users', async () => {
+    yesno.enable({ dir: `${__dirname}/mocks` }).mock();
+    const mocks = await yesno.load('api-get-users');
+
+    const users = await fbApi.getUsers();
+
+    expect(users).to.eql(mocks[0].response.body.users);
+  });
+});
+```
+
+### Define mocks in code
+
+```javascript
+const { yesno } = require('yesno');
+const { expect } = require('chai');
+const fbApi = require('./fb-api');
+
+describe('api', () => {
+  it('should get users', async () => {
+    const mocks = [{
+      request: {
+        method: 'POST',
+        path: '/users',
+        host: 'facebook.com',
+        protocol: 'https'
+      },
+      response: {
+        body: {
+          users: 'foobar'
+        },
+        statusCode: 200
+      }
+    }];
+    yesno.enable({ dir: `${__dirname}/mocks` }).mock();
+
+    const users = await fbApi.getUsers();
+
+    expect(users).to.eql(mocks[0].response.body.users);
+  });
+});
+```
 
 ## API
 
-### `yesno.enable(options:)`
+#### YesNo
 
-## Planning
+- [`yesno.enable(options: IYesNoOptions): void`](link);
+- [`yesno.disable(): void`](link);
+- [`yesno.clear(): void`](link);
+- [`yesno.spy(): void`](link);
+- [`yesno.mock(mocks?: IHttpMock[]): void`](link);
+- [`yesno.load(name: string, dir: string): Promise<IHttpMock[]>`](link);
+- [`yesno.save(name: string, dir: string): Promise<void>`](link);
+- [`yesno.matching(query: string | RegExp | IMatch): QueryableRequestsCollection`](link);
 
-### Principles
+#### QueryableRequestsCollection
 
-1. We should have a strong guarantee that our unit tests do not hit external services
-2. We should have a mechanism to asset libraries which are tightly coupled to external services (APIs, databases) actually work against those services, without having to solely rely on integration tests with those services.
-3. Mocked behavior of HTTP connections should be as close to real behavior as possible
-4. Mocks should require minimal manual work
-
-### Examples
-
-HTTP assertions
-
-```javascript
-describe('facebook', () => {
-  before(() => {
-    yesno = new YesNo();
-    yesno.enable();
-  });
-
-  describe('#getProfile', async () => {
-    yesno.start();
-    // Depending on configuration of Yesno, this request will either
-    // A. Hit the live service
-    // or B. Play back from the mocks
-    // Yesno will intercept the request regardless, so that we
-    // can write the assertions below.
-    const profile = await facebook.getProfile();
-
-    // Assert HTTP behavior correct
-    expect(yesno).http.to.have.requestCount(1);
-    expect(yesno).http.request(1).to.have.method.post;
-    expect(yesno).http.request(1).url.to.match(/profile/);
-    expect(yesno).http.request(1).to.have.status(200);
-
-    // Assert data correlates to HTTP request/response
-    expect(profile).to.have.property(
-      'id', 
-      yes.response(1).body.id
-    )
-
-    yesno.save();
-  });
-});
-```
-
-Future work: Extensions for any TCP based protocol (not sure if feasible)
-```javascript
-describe('User', () => {
-  before(() => {
-    yesno = new Yesno({ extensions: [yesno.postgres] });
-    yesno.enable();
-  });
-
-  describe('#find', async () => {
-    const user = await User.find({ id: 1 });
-
-    expect(yesno).postgres.to.have.queryCount(1);
-    expect(yesno).postgres.query(1).to.match(/SELECT * FROM USERS/);
-
-    // Assert data correlates to HTTP request/response
-    expect(user).to.have.property(
-      'id', 
-      yes.response(1).rows[0].id
-    )
-  });
-});
-```
+- [`collection.mocks(): void`](link);
+- [`collection.intercepted(): void`](link);
+- [`collection.redact(): void`](link);
+- [`collection.doesMatchMock(): void`](link);
