@@ -1,3 +1,4 @@
+import { DEFAULT_REDACT_SYMBOL } from './consts';
 import Context from './context';
 import { doesMatchInterceptedFn, IQueryRecords, redact } from './helpers';
 import { SerializedRequestResponse } from './http-serializer';
@@ -12,19 +13,16 @@ export interface IQueryable {
 
 interface IQueryableRequestsCollectionParams {
   context: Context;
-  defaultRedactSymbol: RedactSymbol;
   query?: IQueryRecords;
 }
 
 export default class QueryableRequestsCollection implements IQueryable {
   private readonly ctx: Context;
   private readonly query: IQueryRecords;
-  private readonly defaultRedactSymbol: RedactSymbol;
 
-  constructor({ context, defaultRedactSymbol, query = {} }: IQueryableRequestsCollectionParams) {
+  constructor({ context, query = {} }: IQueryableRequestsCollectionParams) {
     this.ctx = context;
     this.query = query;
-    this.defaultRedactSymbol = defaultRedactSymbol;
   }
 
   public intercepted(): SerializedRequestResponse[] {
@@ -36,7 +34,7 @@ export default class QueryableRequestsCollection implements IQueryable {
   }
 
   public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
-    redactSymbol = redactSymbol || this.defaultRedactSymbol;
+    redactSymbol = redactSymbol || DEFAULT_REDACT_SYMBOL;
     const redactedRecords = redact(this.intercepted(), property, redactSymbol);
 
     const newCompleted = [...this.ctx.interceptedRequestsCompleted];

@@ -30,41 +30,19 @@ export enum Mode {
   Spy,
 }
 
-export interface YesNoOptions {
-  /**
-   * Default directory to locate and persist intercepted request/response
-   */
-  dir?: string;
+export interface IInterceptOptions {
   ports?: number[];
-  redactSymbol?: string;
 }
 
 // tslint:disable-next-line:max-classes-per-file
 export class YesNo implements IQueryable {
-  public redactSymbol: string = DEFAULT_REDACT_SYMBOL;
-  public dir?: string;
   private mode: Mode = Mode.Spy;
-  private interceptor: Interceptor;
+  private readonly interceptor: Interceptor;
   private readonly ctx: Context;
 
   constructor(ctx: Context) {
     this.ctx = ctx;
     this.interceptor = this.createInterceptor();
-  }
-
-  /**
-   * Enable intercepting requests
-   */
-  public enable(options?: YesNoOptions): YesNo {
-    const { redactSymbol = DEFAULT_REDACT_SYMBOL, ports = [], dir }: YesNoOptions = options || {};
-    this.dir = dir;
-    this.redactSymbol = redactSymbol;
-    const portsWithDefaults = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, ...ports];
-
-    debug('Enabling intercept on ports', ports);
-    this.interceptor.enable(portsWithDefaults);
-
-    return this;
   }
 
   /**
@@ -79,16 +57,18 @@ export class YesNo implements IQueryable {
   /**
    * Spy on intercepted requests
    */
-  public spy(): YesNo {
+  public spy(options?: IInterceptOptions): YesNo {
+    this.enable(options);
     this.setMode(Mode.Spy);
+
     return this;
   }
 
   /**
    * Mock responses for intecepted requests
-   * @param name Unique name for mocks
    */
-  public mock(mocks?: IHttpMock[]): YesNo {
+  public mock(mocks: IHttpMock[], options?: IInterceptOptions): YesNo {
+    this.enable(options);
     this.setMode(Mode.Mock);
 
     if (mocks) {
@@ -103,12 +83,8 @@ export class YesNo implements IQueryable {
    * @param name Mock name
    * @param dir Override default directory
    */
-  public async load(name: string, dir?: string): Promise<SerializedRequestResponse[]> {
+  public async load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
     debug('Loading mocks');
-    dir = dir || this.dir;
-    if (dir === undefined) {
-      return Promise.reject(new YesNoError('Cannot load mock without configured dir'));
-    }
 
     this.setMocks(await mocking.load(name, dir));
 
@@ -123,8 +99,7 @@ export class YesNo implements IQueryable {
    * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
    */
-  public save(name: string, dir?: string): Promise<string | void> {
-    dir = dir || this.dir;
+  public save(name: string, dir: string): Promise<string | void> {
     if (dir === undefined) {
       return Promise.reject(
         new YesNoError('Cannot save intercepted requests without configured dir'),
@@ -199,6 +174,19 @@ export class YesNo implements IQueryable {
     return this.getCollection().redact(property, redactSymbol);
   }
 
+  /**
+   * Enable intercepting requests
+   */
+  private enable(options?: IInterceptOptions): YesNo {
+    const { ports = [] }: IInterceptOptions = options || {};
+    const portsWithDefaults = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, ...ports];
+
+    debug('Enabling intercept on ports', ports);
+    this.interceptor.enable(portsWithDefaults);
+
+    return this;
+  }
+
   private setMocks(mocks: SerializedRequestResponse[]): void {
     this.ctx.loadedMocks = mocks;
   }
@@ -248,13 +236,8 @@ export class YesNo implements IQueryable {
   private getCollection(query?: IQueryRecords): QueryableRequestsCollection {
     return new QueryableRequestsCollection({
       context: this.ctx,
-      defaultRedactSymbol: this.redactSymbol,
       query,
     });
-  }
-
-  private isEnabled(): boolean {
-    return !!this.interceptor;
   }
 
   private async mockResponse({

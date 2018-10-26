@@ -1,11 +1,9 @@
 import { expect } from 'chai';
-import { on } from 'cluster';
 import * as fs from 'fs';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
 import * as testServer from '../test-server';
-const net = require('net');
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
@@ -43,29 +41,13 @@ describe('Yesno', () => {
     server.close();
   });
 
-  describe.skip('#enable', () => {
-    it('should not mock TCP connections', (done) => {
-      yesno.enable();
-      requestTestServer();
-      const socket = net.connect({ host: 'google.com', port: 80 });
-      socket.write('foo!');
-      socket.on('error', done);
-      socket.on('data', (data: any) => {
-        done();
-      });
-    });
-  });
-
   describe('#disable', () => {
     it('should restore normal HTTP functionality after mocking', async () => {
       const startingRequestCount = server.getRequestCount();
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
 
-      await yesno
-        .enable({ ports: [3001] })
-        .mock()
-        .load('mock-localhost-get', mocksDir);
+      yesno.mock(await yesno.load('mock-localhost-get', mocksDir), { ports: [3001] });
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
 
@@ -73,10 +55,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
-      await yesno
-        .enable({ ports: [3001] })
-        .mock()
-        .load('mock-localhost-get', mocksDir);
+      await yesno.mock(await yesno.load('mock-localhost-get', mocksDir), { ports: [3001] });
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked again').to.eql(startingRequestCount + 2);
     });
@@ -84,10 +63,7 @@ describe('Yesno', () => {
 
   describe('#mock', () => {
     beforeEach(async () => {
-      await yesno
-        .enable({ ports: [3001], dir: mocksDir })
-        .mock()
-        .load('mock-test');
+      await yesno.mock(await yesno.load('mock-test', mocksDir), { ports: [3001] });
     });
 
     afterEach(() => {
@@ -190,7 +166,7 @@ describe('Yesno', () => {
     });
 
     it('should save intercepted requests in the configured directory', async () => {
-      yesno.enable({ dir }).spy();
+      yesno.spy();
 
       (yesno as any).interceptedRequestsCompleted = [
         {
@@ -214,7 +190,7 @@ describe('Yesno', () => {
         },
       ];
       const expectedContents = JSON.stringify({ records: yesno.intercepted() }, null, 2);
-      const filename = await yesno.save(name);
+      const filename = await yesno.save(name, dir);
 
       expect(filename, 'Returns the full filename').to.eql(expectedFilename);
       const contents = fs.readFileSync(filename as string).toString();

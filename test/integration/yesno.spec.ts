@@ -11,11 +11,15 @@ import * as testServer from '../test-server';
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
+  const tmpDir = path.join(__dirname, 'tmp');
   let server: testServer.ITestServer;
 
   before(async () => {
     server = await testServer.start();
-    yesno.enable({ ports: [3001], dir: path.join(__dirname, 'tmp') });
+  });
+
+  beforeEach(() => {
+    yesno.spy({ ports: [3001] });
   });
 
   afterEach(() => {
@@ -48,9 +52,9 @@ describe('yesno', () => {
       });
 
       expect(yesno.intercepted()).to.have.length(2);
-      await yesno.save(name);
+      await yesno.save(name, tmpDir);
 
-      await yesno.load(name);
+      await yesno.load(name, tmpDir);
       const mocks: SerializedRequestResponse[] = yesno.mocks();
       expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
@@ -157,7 +161,8 @@ describe('yesno', () => {
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';
-      const mocks = await yesno.mock().load(name, path.join(__dirname, 'mocks'));
+      const mocks = await yesno.load(name, path.join(__dirname, 'mocks'));
+      yesno.mock(mocks, { ports: [3001] });
 
       const now = Date.now();
 
