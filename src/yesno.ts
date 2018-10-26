@@ -2,11 +2,11 @@ import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, DEFAULT_REDACT_SYMBOL } from './consts';
+import { ISerializedHttpPartialDeepMatch } from './comparator';
+import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtered-http-collection';
-import { IQueryRecords } from './helpers';
 import {
   createRecord,
   formatUrl,
@@ -92,12 +92,6 @@ export class YesNo implements IFiltered {
    * @returns Full filename of saved JSON if generated
    */
   public save(name: string, dir: string): Promise<string | void> {
-    if (dir === undefined) {
-      return Promise.reject(
-        new YesNoError('Cannot save intercepted requests without configured dir'),
-      );
-    }
-
     if (this.isMode(Mode.Mock)) {
       debug('No need to save in mock mode');
       return Promise.resolve();
@@ -138,8 +132,10 @@ export class YesNo implements IFiltered {
    * Otherwise perform a partial match against each serialized request response
    * @param query
    */
-  public matching(query: string | RegExp | IQueryRecords): FilteredHttpCollection {
-    const normalizedQuery: IQueryRecords =
+  public matching(
+    query: string | RegExp | ISerializedHttpPartialDeepMatch,
+  ): FilteredHttpCollection {
+    const normalizedQuery: ISerializedHttpPartialDeepMatch =
       _.isString(query) || _.isRegExp(query) ? { url: query } : query;
 
     return this.getCollection(normalizedQuery);
@@ -225,7 +221,7 @@ export class YesNo implements IFiltered {
     }
   }
 
-  private getCollection(query?: IQueryRecords): FilteredHttpCollection {
+  private getCollection(query?: ISerializedHttpPartialDeepMatch): FilteredHttpCollection {
     return new FilteredHttpCollection({
       context: this.ctx,
       query,

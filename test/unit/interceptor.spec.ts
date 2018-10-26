@@ -1,13 +1,16 @@
-import Interceptor from '../../src/interceptor';
-
 describe('Interceptor', () => {
   describe('#enable', () => {
     it('should enable HTTP request intercepting');
     it('should be configurable by port');
+    it('should bypass requests on other ports');
+    it('should abort the proxied request if the intercepted request is aborted');
+    it('should emit an error on the intercepted request if the proxied request errors');
+    it('should timeout the intercepted request if the proxied request times out');
   });
 
   describe('#disable', () => {
     it('should disable HTTP request intercepting');
+    it('should take no action if already disabled');
   });
 
   describe('event "intercept"', () => {

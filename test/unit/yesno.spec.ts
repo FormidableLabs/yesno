@@ -64,6 +64,8 @@ describe('Yesno', () => {
   describe('#spy', () => {
     it('should enable the interceptor');
     it('should give us access to intercepted requests');
+    it('should handle timeouts');
+    it('should handle invalid SSL');
   });
 
   describe('#mock', () => {
@@ -126,6 +128,9 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 
+    it('should reject a request for which no mock has been provided');
+    it('should handle unexpected errors');
+
     it('should reject for host mismatch', async () => {
       await expect(mockedRequest({ uri: 'http://foobar.com/my/path' })).to.be.rejectedWith(
         /YesNo: Request does not match mock. Expected host "example.com" for request #0, received "foobar.com"/,
@@ -171,6 +176,8 @@ describe('Yesno', () => {
     });
 
     it('should save intercepted requests');
+    it('should throw an error if there are any in flight requests');
+    it('should take no action in mock mode (if not provided requests)');
     it('should allow setting the full filename');
     it('should allow providing the records');
     it('should support application/json');
@@ -194,7 +201,7 @@ describe('Yesno', () => {
   });
 
   describe('#mocks', () => {
-    it('should call FilteredHttpCollection#redact() with no query');
+    it('should call FilteredHttpCollection#mocks() with no query');
   });
 
   describe('#redact', () => {

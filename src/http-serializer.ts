@@ -96,7 +96,6 @@ export class RequestSerializer extends Transform implements SerializedRequest {
   public method: string;
   public port: number;
   public protocol: 'http' | 'https';
-  private data: Buffer[] = [];
 
   constructor(
     originalClientOpts: RequestOptions,
@@ -176,23 +175,6 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
 
 export function formatUrl(request: SerializedRequest): string {
   return `${request.protocol}://${request.host}:${request.port}${request.path}`;
-}
-
-export function serializeUrl(uri: string): SerializedUrl {
-  const parsed = url.parse(uri);
-  const protocol = (parsed.protocol as 'http' | 'https') || 'http';
-  const port = parsed.port ? parseInt(parsed.port, 10) : protocol === 'https' ? 443 : 80;
-
-  if (!parsed.host) {
-    throw new YesNoError(`Cannot serialize ${uri}, missing host`);
-  }
-
-  return {
-    host: parsed.host,
-    path: parsed.path || '/',
-    port,
-    protocol,
-  };
 }
 
 export function createRecord({

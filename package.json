@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run lint && npm run coverage",
-    "coverage": "nyc -- npm run tests",
+    "coverage": "nyc --reporter=html -- npm run tests",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "unit": "mocha --timeout 2000 --recursive test/unit/**/*.spec.ts",
