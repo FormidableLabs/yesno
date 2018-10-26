@@ -61,6 +61,11 @@ describe('Yesno', () => {
     });
   });
 
+  describe('#spy', () => {
+    it('should enable the interceptor');
+    it('should give us access to intercepted requests');
+  });
+
   describe('#mock', () => {
     beforeEach(async () => {
       await yesno.mock(await yesno.load('mock-test', mocksDir), { ports: [3001] });
@@ -165,42 +170,34 @@ describe('Yesno', () => {
       yesno.restore();
     });
 
-    it('should save intercepted requests in the configured directory', async () => {
-      yesno.spy();
+    it('should save intercepted requests');
+    it('should allow setting the full filename');
+    it('should allow providing the records');
+    it('should support application/json');
+    it('should support x-www-form-url-encoded');
+    it('should support binary');
+    it('should support form-data');
+  });
 
-      (yesno as any).interceptedRequestsCompleted = [
-        {
-          __duration: 1,
-          __id: 'foobar',
-          __timestamp: 1,
-          __version: 'foo',
-          request: {
-            headers: {},
-            host: 'mock.com',
-            method: 'GET',
-            path: '/',
-            port: 80,
-            protocol: 'http',
-          },
-          response: {
-            headers: {},
-            statusCode: 200,
-          },
-          url: 'bar',
-        },
-      ];
-      const expectedContents = JSON.stringify({ records: yesno.intercepted() }, null, 2);
-      const filename = await yesno.save(name, dir);
-
-      expect(filename, 'Returns the full filename').to.eql(expectedFilename);
-      const contents = fs.readFileSync(filename as string).toString();
-      expect(contents, 'Contents are JSON').to.eql(expectedContents);
-    });
-
-    it('should parse a JSON body');
+  describe('#load', () => {
+    it('should load serialized requests by name & dir');
+    it('should load serialized requests by filename');
+    it('should support application/json');
+    it('should support x-www-form-url-encoded');
+    it('should support binary');
+    it('should support form-data');
+    it('should throw an error if a record is not formatted correctly');
   });
 
   describe('#intercepted', () => {
-    it('should allow the user to retrieve completed requests by url');
+    it('should call FilteredHttpCollection#intercepted() with no query');
+  });
+
+  describe('#mocks', () => {
+    it('should call FilteredHttpCollection#redact() with no query');
+  });
+
+  describe('#redact', () => {
+    it('should call FilteredHttpCollection#redact() with no query');
   });
 });

@@ -7,13 +7,7 @@ import { EOL } from 'os';
 import * as path from 'path';
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON } from './consts';
 import { YesNoError } from './errors';
-import {
-  createRecord,
-  formatUrl,
-  SerializedRequest,
-  SerializedRequestResponse,
-  SerializedResponse,
-} from './http-serializer';
+import { createRecord, SerializedRequest, SerializedRequestResponse } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:mocks');
 
 export interface ISaveFile {

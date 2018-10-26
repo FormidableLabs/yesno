@@ -5,22 +5,22 @@ import { SerializedRequestResponse } from './http-serializer';
 
 export type RedactSymbol = string | ((value: any, path: string) => string);
 
-export interface IQueryable {
+export interface IFiltered {
   redact: (property: string | string[], symbol: RedactSymbol) => void;
   intercepted: () => SerializedRequestResponse[];
   mocks: () => SerializedRequestResponse[];
 }
 
-interface IQueryableRequestsCollectionParams {
+interface IFilteredHttpCollectionParams {
   context: Context;
   query?: IQueryRecords;
 }
 
-export default class QueryableRequestsCollection implements IQueryable {
+export default class FilteredHttpCollection implements IFiltered {
   private readonly ctx: Context;
   private readonly query: IQueryRecords;
 
-  constructor({ context, query = {} }: IQueryableRequestsCollectionParams) {
+  constructor({ context, query = {} }: IFilteredHttpCollectionParams) {
     this.ctx = context;
     this.query = query;
   }

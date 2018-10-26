@@ -5,6 +5,7 @@ import * as readable from 'readable-stream';
 import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, DEFAULT_REDACT_SYMBOL } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
+import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtered-http-collection';
 import { IQueryRecords } from './helpers';
 import {
   createRecord,
@@ -16,7 +17,6 @@ import {
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
 import * as mocking from './mocking';
 import { IHttpMock } from './mocking';
-import QueryableRequestsCollection, { IQueryable, RedactSymbol } from './queryable-collection';
 const debug: IDebugger = require('debug')('yesno');
 
 export enum Mode {
@@ -35,7 +35,7 @@ export interface IInterceptOptions {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-export class YesNo implements IQueryable {
+export class YesNo implements IFiltered {
   private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
   private readonly ctx: Context;
@@ -138,7 +138,7 @@ export class YesNo implements IQueryable {
    * Otherwise perform a partial match against each serialized request response
    * @param query
    */
-  public matching(query: string | RegExp | IQueryRecords): QueryableRequestsCollection {
+  public matching(query: string | RegExp | IQueryRecords): FilteredHttpCollection {
     const normalizedQuery: IQueryRecords =
       _.isString(query) || _.isRegExp(query) ? { url: query } : query;
 
@@ -225,8 +225,8 @@ export class YesNo implements IQueryable {
     }
   }
 
-  private getCollection(query?: IQueryRecords): QueryableRequestsCollection {
-    return new QueryableRequestsCollection({
+  private getCollection(query?: IQueryRecords): FilteredHttpCollection {
+    return new FilteredHttpCollection({
       context: this.ctx,
       query,
     });

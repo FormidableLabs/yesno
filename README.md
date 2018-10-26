@@ -297,6 +297,10 @@ export interface SerializedRequest {
 }
 ```
 
+### CLI
+
+TODO
+
 ### Roadmap
 
 YesNo is still a work in progress. The below features are planned or in consideration.
