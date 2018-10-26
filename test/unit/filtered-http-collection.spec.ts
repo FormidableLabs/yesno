@@ -1,5 +1,5 @@
 import Context from '../../src/context';
-import FilteredHttpCollection from '../../src/filtered-http-collection';
+import FilteredHttpCollection from '../../src/filtering/collection';
 
 describe('FilteredHttpCollection', () => {
   describe('#intercepted', () => {

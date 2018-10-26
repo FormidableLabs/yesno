@@ -176,6 +176,8 @@ YesNo is written in [TypeScript](link) and uses its type syntax where possible i
 
 ### `YesNo`
 
+The `yesno` instance additionally implements all the methods `FilteredHttpCollection` interface (essentially running those methods with no filtering query).
+
 ##### `yesno.spy(options?: IInterceptOptions): void`
 
 

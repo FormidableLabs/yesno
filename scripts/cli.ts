@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
 import { createRecord, SerializedRequestResponse } from '../src/http-serializer';
-import * as mocks from '../src/mocking';
+import * as mocks from '../src/file';
 const { version }: { version: string } = require('../package.json');
 
 function createMockRequestResponse(): SerializedRequestResponse {

@@ -2,11 +2,14 @@ import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import { ISerializedHttpPartialDeepMatch } from './comparator';
 import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
-import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtered-http-collection';
+import * as mocking from './file';
+import { IHttpMock } from './file';
+import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtering/collection';
+import * as comparator from './filtering/comparator';
+import { ISerializedHttpPartialDeepMatch } from './filtering/filter';
 import {
   createRecord,
   formatUrl,
@@ -15,8 +18,6 @@ import {
   SerializedResponse,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
-import * as mocking from './mocking';
-import { IHttpMock } from './mocking';
 const debug: IDebugger = require('debug')('yesno');
 
 export enum Mode {
@@ -248,7 +249,7 @@ export class YesNo implements IFiltered {
 
       // Assertion must happen before promise -
       // mitm does not support promise rejections on "request" event
-      mocking.assertMatches(serializedRequest, mock.request, requestNumber);
+      comparator.byUrl(serializedRequest, mock.request, requestNumber);
 
       interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
       interceptedResponse.write(mock.response.body);

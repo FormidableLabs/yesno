@@ -3,7 +3,7 @@ import {
   SerializedRequest,
   SerializedRequestResponse,
   SerializedResponse,
-} from './http-serializer';
+} from '../http-serializer';
 
 type RequestQuery = { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
 type ResponseQuery = { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
@@ -14,6 +14,13 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
+export function filter(
+  records: SerializedRequestResponse[],
+  query: ISerializedHttpPartialDeepMatch,
+): SerializedRequestResponse[] {
+  return records.filter(doesMatchInterceptedFn(query));
+}
+
 /**
  * Curried function to determine whether a query matches an intercepted request.
  *
@@ -21,7 +28,7 @@ export interface ISerializedHttpPartialDeepMatch {
  *
  * RegEx values are tested for match.
  */
-export function doesMatchInterceptedFn(
+function doesMatchInterceptedFn(
   query: ISerializedHttpPartialDeepMatch,
 ): (intercepted: SerializedRequestResponse) => boolean {
   const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
