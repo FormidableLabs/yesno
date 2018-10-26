@@ -57,25 +57,19 @@ export class YesNo implements IQueryable {
   /**
    * Spy on intercepted requests
    */
-  public spy(options?: IInterceptOptions): YesNo {
+  public spy(options?: IInterceptOptions): void {
     this.enable(options);
     this.setMode(Mode.Spy);
-
-    return this;
   }
 
   /**
    * Mock responses for intecepted requests
    */
-  public mock(mocks: IHttpMock[], options?: IInterceptOptions): YesNo {
+  public mock(mocks: IHttpMock[], options?: IInterceptOptions): void {
     this.enable(options);
     this.setMode(Mode.Mock);
 
-    if (mocks) {
-      this.setMocks(mocks.map(mocking.hydrateHttpMock));
-    }
-
-    return this;
+    this.setMocks(mocks.map(mocking.hydrateHttpMock));
   }
 
   /**
@@ -86,9 +80,7 @@ export class YesNo implements IQueryable {
   public async load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
     debug('Loading mocks');
 
-    this.setMocks(await mocking.load(name, dir));
-
-    return this.ctx.loadedMocks;
+    return mocking.load(name, dir);
   }
 
   /**

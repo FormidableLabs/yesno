@@ -54,8 +54,7 @@ describe('yesno', () => {
       expect(yesno.intercepted()).to.have.length(2);
       await yesno.save(name, tmpDir);
 
-      await yesno.load(name, tmpDir);
-      const mocks: SerializedRequestResponse[] = yesno.mocks();
+      const mocks = await yesno.load(name, tmpDir);
       expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
       expect(mocks[0]).to.have.nested.property('request.path', '/get');
