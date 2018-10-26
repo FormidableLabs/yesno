@@ -52,7 +52,7 @@ interface IInterceptEvents {
 
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
-  private shouldProxy: boolean;
+  private shouldProxy: boolean = true;
   private clientRequests: ClientRequestTracker = {};
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
@@ -61,8 +61,9 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   /**
    * Begin intercepting requests on instantiation
    */
-  constructor({ shouldProxy = true }: { shouldProxy: boolean }) {
+  constructor(options?: { shouldProxy: boolean }) {
     super();
+    const { shouldProxy = true } = options || {};
     this.shouldProxy = shouldProxy;
   }
 
@@ -175,6 +176,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     const requestNumber = this.requestNumber;
     this.requestNumber++;
 
+    debugReq('Emitting "intercept"');
     this.emit('intercept', {
       clientRequest,
       interceptedRequest,
@@ -212,6 +214,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
 
       proxiedResponse.on('end', () => {
+        debugReq('Emitting "proxied"');
         this.emit('proxied', {
           requestNumber,
           requestSerializer,

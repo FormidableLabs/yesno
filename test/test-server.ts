@@ -3,11 +3,13 @@ import express from 'express';
 import { Server } from 'http';
 const debug = require('debug')('yesno:test-server');
 
+export const PORT = 3001;
+
 export interface ITestServer extends Server {
   getRequestCount: () => number;
 }
 
-export function start(port: number = 3001): Promise<ITestServer> {
+export function start(port: number = PORT): Promise<ITestServer> {
   let requestCount: number = 0;
   const app = express();
   app.use(jsonParser());
@@ -20,13 +22,13 @@ export function start(port: number = 3001): Promise<ITestServer> {
   app.get('/get', ({ headers }: express.Request, res: express.Response) => {
     debug('Received GET request');
     res.status(headers['x-status-code'] ? parseInt(headers['x-status-code'] as string, 10) : 200);
-    res.send({ headers, message: 'Get' });
+    res.send({ headers, method: 'GET', path: '/get' });
   });
 
   app.post('/post', ({ headers, body }: express.Request, res: express.Response) => {
     debug('Received POST request');
     res.status(headers['x-status-code'] ? parseInt(headers['x-status-code'] as string, 10) : 200);
-    res.send({ headers, body });
+    res.send({ headers, body, method: 'POST', path: '/post' });
   });
 
   return new Promise((resolve) => {

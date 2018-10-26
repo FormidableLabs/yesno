@@ -13,6 +13,7 @@ type ComparatorFn = (
 ) => boolean;
 
 // @todo Do not bother using chai
+// @todo Change to return type `Either<Error, SerializedRequest>`
 export const byUrl: ComparatorFn = (interceptedRequest, mockRequest, { requestIndex }): boolean => {
   try {
     expect(
