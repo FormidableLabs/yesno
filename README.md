@@ -8,8 +8,6 @@ YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/
 
 ## Installation
 
-[_Currently unavailable on NPM. Install from Github._]
-
 ```
 npm i --save-dev yesno-http
 ```
@@ -25,7 +23,7 @@ If, for example, your test setup differenties between integration and unit tests
 When you call `yesno.spy()` YesNo will intercept requests, storing a serialized request which you can retrieve at any time.
 
 ```javascript
-const { yesno } = require('yesno');
+const { yesno } = require('yesno-http');
 const { expect } = require('chai');
 const fbApi = require('./fb-api');
 
@@ -53,7 +51,7 @@ _Note:_ By [default](link) YesNo only intercepts requests for ports 80 (HTTP) & 
 Sometimes we
 
 ```javascript
-const { yesno } = require('yesno');
+const { yesno } = require('yesno-http');
 const { expect } = require('chai');
 const fbApi = require('./fb-api');
 
@@ -73,7 +71,7 @@ describe('api', () => {
 When you `mock` requests you must provide YesNo with mocks for all expected requests. YesNo responds to the Nth intercepted request with the Nth mock. If the URL of the intercepted request does not match the mock the client request will fail.
 
 ```javascript
-const { yesno } = require('yesno');
+const { yesno } = require('yesno-http');
 const { expect } = require('chai');
 const fbApi = require('./fb-api');
 
@@ -95,7 +93,7 @@ describe('api', () => {
 The `mock` method simply accepts an array of `ISerializedHttpMock` objects, so we can choose to define our mocks inline as well.
 
 ```javascript
-const { yesno } = require('yesno');
+const { yesno } = require('yesno-http');
 const { expect } = require('chai');
 const fbApi = require('./fb-api');
 
@@ -204,12 +202,14 @@ If you're using YesNo in a test suite it's advisable to run this method after ev
 ##### `yesno.save(name: string, dir: string): Promise<void>`
 ##### `yesno.save(options: IFileOptions & ISaveOptions): Promise<void>`
 
-Save mocks to disk...
+Save serialized HTTP requests to disk. Will save currently intercepted requests unless records are provided to method. 
+
+This method will throw an error if there are any in flight requests.
 
 ##### `yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
-Load mocks from disk...
+Load mocks from disk. Mocks will be returned. To use mocks you must pass them to `yesno.mock()`.
 
 ##### `yesno.filter(matcher: HttpFilter): FilteredHttpCollection`
 
@@ -251,20 +251,30 @@ yesno.filter((serialized, i) => {
 
 ##### `collection.mocks(): ISerializedHttp[]`
 
-Get mocks...
+Return the mocks defined within the collection.
 
 ##### `collection.intercepted(): ISerializedHttp[]`
 
-Get intercepted...
+Return the intercepted requests defined within the collection.
 
 ##### `collection.redact(property: string | string[], symbol?: string): void`
 ##### `collection.redact(property: string | string[], replace?: (value: any, property: string) => any): void`
 
-Redact properties on intercepted...
+Redact properties on intercepted requests within the collection.
 
 ##### `collection.comparator((intercepted: ISerializedRequest, mock: ISerializedRequest) => boolean): void`
 
-Custom comparator to determine if mock matches intercepted...
+Provide a custom comparator to use with mocks within the collection. The comparator is used to determine whether an intercepted request matches a mock. YesNo ships with the comparators `comparators.url`, `comparators.body`, `comparators.headers`. By default YesNo will use `comparators.url`.
+
+You can compose comparators to mix and match behavior:
+
+```javascript
+const { comparators } = require('yesno-http');
+const { flow } = require('lodash'); // Composition helper
+
+const compareAuthHeader = (intercepted, mock) => intercepted.headers.authorization === mock.headers.authorization;
+yesno.filter(/auth/).comparator(flow(comparators.url, compareAuthHeader));
+```
 
 #### ISerializedHttp
 

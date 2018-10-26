@@ -7,12 +7,10 @@ import {
 } from 'http';
 import * as _ from 'lodash';
 import { Transform } from 'stream';
-import * as url from 'url';
 import uuid = require('uuid');
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON, YESNO_INTERNAL_HTTP_HEADER } from './consts';
-import { YesNoError } from './errors';
 const debug = require('debug')('yesno:http-serializer');
-const { version }: { version: string } = require('../package.json');
+const SCHEMA_VERSION = '1.0.0';
 /* tslint:disable:max-classes-per-file */
 
 export interface SerializedRequestResponse {
@@ -190,7 +188,7 @@ export function createRecord({
     __duration: duration,
     __id: uuid.v4(),
     __timestamp: Date.now(),
-    __version: version,
+    __version: SCHEMA_VERSION,
     request,
     response,
     url: formatUrl(request),
