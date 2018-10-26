@@ -5,8 +5,7 @@ import * as readable from 'readable-stream';
 import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
-import * as mocking from './file';
-import { IHttpMock } from './file';
+import * as file from './file';
 import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtering/collection';
 import * as comparator from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch } from './filtering/filter';
@@ -35,7 +34,6 @@ export interface IInterceptOptions {
   ports?: number[];
 }
 
-// tslint:disable-next-line:max-classes-per-file
 export class YesNo implements IFiltered {
   private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
@@ -67,11 +65,11 @@ export class YesNo implements IFiltered {
    * Mock responses for intecepted requests
    * @todo Reset the request counter?
    */
-  public mock(mocks: IHttpMock[], options?: IInterceptOptions): void {
+  public mock(mocks: file.IHttpMock[], options?: IInterceptOptions): void {
     this.enable(options);
     this.setMode(Mode.Mock);
 
-    this.setMocks(mocks.map(mocking.hydrateHttpMock));
+    this.setMocks(mocks.map(file.hydrateHttpMock));
   }
 
   /**
@@ -82,7 +80,7 @@ export class YesNo implements IFiltered {
   public async load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
     debug('Loading mocks');
 
-    return mocking.load(name, dir);
+    return file.load(name, dir);
   }
 
   /**
@@ -114,7 +112,7 @@ export class YesNo implements IFiltered {
 
     debug('Saving %s...', name);
 
-    return mocking.save(name, dir, this.ctx.interceptedRequestsCompleted);
+    return file.save(name, dir, this.ctx.interceptedRequestsCompleted);
   }
 
   /**

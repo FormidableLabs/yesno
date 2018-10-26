@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import * as assert from 'assert';
 import { YesNoError } from '../errors';
 import { SerializedRequest } from '../http-serializer';
 
@@ -15,50 +15,54 @@ type ComparatorFn = (
 // @todo Do not bother using chai
 // @todo Change to return type `Either<Error, SerializedRequest>`
 export const byUrl: ComparatorFn = (interceptedRequest, mockRequest, { requestIndex }): boolean => {
-  try {
-    expect(
-      interceptedRequest.host,
-      `Expected host "${mockRequest.host}" for request #${requestIndex}, received "${
-        interceptedRequest.host
-      }"`,
-    ).to.eql(mockRequest.host);
-    const { host } = interceptedRequest;
-
-    expect(
-      interceptedRequest.method,
-      `Expected request #${requestIndex} for ${host} to HTTP method "${mockRequest.method}", not "${
-        interceptedRequest.method
-      }"`,
-    ).to.eql(mockRequest.method);
-
-    expect(
-      interceptedRequest.protocol,
-      `Expected request #${requestIndex} for ${host} to use "${
-        mockRequest.protocol
-      }" protocol, not "${interceptedRequest.protocol}"`,
-    ).to.eql(mockRequest.protocol);
-
-    expect(
-      interceptedRequest.port,
-      `Expected request #${requestIndex} for ${host} to be served on port "${
-        mockRequest.port
-      }", not "${interceptedRequest.port}"`,
-    ).to.eql(mockRequest.port);
-
-    const nickname = `${interceptedRequest.method} ${interceptedRequest.protocol}://${
+  assertEqual(
+    interceptedRequest.host,
+    mockRequest.host,
+    `Expected host "${mockRequest.host}" for request #${requestIndex}, received "${
       interceptedRequest.host
-    }:${interceptedRequest.port}`;
+    }"`,
+  );
+  const { host } = interceptedRequest;
 
-    expect(
-      interceptedRequest.path,
-      `Expected request #${requestIndex} "${nickname}" to have path "${mockRequest.path}", not "${
-        interceptedRequest.path
-      }"`,
-    ).to.eql(mockRequest.path);
-  } catch (e) {
-    const error = new YesNoError(`Request does not match mock. ${e.message}`);
-    throw error;
-  }
+  assertEqual(
+    interceptedRequest.method,
+    mockRequest.method,
+    `Expected request #${requestIndex} for ${host} to HTTP method "${mockRequest.method}", not "${
+      interceptedRequest.method
+    }"`,
+  );
+
+  assertEqual(
+    interceptedRequest.protocol,
+    mockRequest.protocol,
+    `Expected request #${requestIndex} for ${host} to use "${
+      mockRequest.protocol
+    }" protocol, not "${interceptedRequest.protocol}"`,
+  );
+
+  assertEqual(
+    interceptedRequest.port,
+    mockRequest.port,
+    `Expected request #${requestIndex} for ${host} to be served on port "${
+      mockRequest.port
+    }", not "${interceptedRequest.port}"`,
+  );
+
+  const nickname = `${interceptedRequest.method} ${interceptedRequest.protocol}://${
+    interceptedRequest.host
+  }:${interceptedRequest.port}`;
+
+  assertEqual(
+    interceptedRequest.path,
+    mockRequest.path,
+    `Expected request #${requestIndex} "${nickname}" to have path "${mockRequest.path}", not "${
+      interceptedRequest.path
+    }"`,
+  );
 
   return true;
 };
+
+function assertEqual<T>(unknown: T, known: T, message: string): void {
+  assert.strictEqual(unknown, known, new YesNoError(`Request does not match mock. ${message}`));
+}
