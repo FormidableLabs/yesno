@@ -34,14 +34,14 @@ describe('Yesno', () => {
   });
 
   afterEach(() => {
-    yesno.disable();
+    yesno.restore();
   });
 
   after(() => {
     server.close();
   });
 
-  describe('#disable', () => {
+  describe('#restore', () => {
     it('should restore normal HTTP functionality after mocking', async () => {
       const startingRequestCount = server.getRequestCount();
       await requestTestServer();
@@ -51,7 +51,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
 
-      yesno.disable();
+      yesno.restore();
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
@@ -162,7 +162,7 @@ describe('Yesno', () => {
         fs.unlinkSync(path.join(dir, file));
       });
 
-      yesno.disable();
+      yesno.restore();
     });
 
     it('should save intercepted requests in the configured directory', async () => {

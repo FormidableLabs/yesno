@@ -46,9 +46,9 @@ export class YesNo implements IQueryable {
   }
 
   /**
-   * Disable intercepting requests
+   * Restore HTTP functionality
    */
-  public disable(): void {
+  public restore(): void {
     debug('Disabling intercept');
     this.clear();
     this.interceptor.disable();

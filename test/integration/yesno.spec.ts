@@ -27,7 +27,7 @@ describe('yesno', () => {
   });
 
   after(() => {
-    yesno.disable();
+    yesno.restore();
     server.close();
   });
 
