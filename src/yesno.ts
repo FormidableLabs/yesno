@@ -65,6 +65,7 @@ export class YesNo implements IFiltered {
 
   /**
    * Mock responses for intecepted requests
+   * @todo Reset the request counter?
    */
   public mock(mocks: IHttpMock[], options?: IInterceptOptions): void {
     this.enable(options);
@@ -249,7 +250,7 @@ export class YesNo implements IFiltered {
 
       // Assertion must happen before promise -
       // mitm does not support promise rejections on "request" event
-      comparator.byUrl(serializedRequest, mock.request, requestNumber);
+      comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
 
       interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
       interceptedResponse.write(mock.response.body);

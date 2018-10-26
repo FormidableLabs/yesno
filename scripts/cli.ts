@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
+import * as file from '../src/file';
 import { createRecord, SerializedRequestResponse } from '../src/http-serializer';
-import * as mocks from '../src/file';
 const { version }: { version: string } = require('../package.json');
 
 function createMockRequestResponse(): SerializedRequestResponse {
@@ -30,6 +30,6 @@ yargs.command({
   command: 'generate <filename>',
   handler: (argv) => {
     const { filename } = argv;
-    return mocks.saveFile(filename, [createMockRequestResponse()]);
+    return file.saveFile(filename, [createMockRequestResponse()]);
   },
 }).argv;
