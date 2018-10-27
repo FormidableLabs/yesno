@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { DEFAULT_REDACT_SYMBOL } from '../consts';
 import Context from '../context';
 import { SerializedRequestResponse } from '../http-serializer';
-import { filter, ISerializedHttpPartialDeepMatch } from './filter';
+import { ISerializedHttpPartialDeepMatch, match } from './matcher';
 import { redact } from './redact';
 
 export type RedactSymbol = string | ((value: any, path: string) => string);
@@ -28,11 +28,11 @@ export default class FilteredHttpCollection implements IFiltered {
   }
 
   public intercepted(): SerializedRequestResponse[] {
-    return filter(this.ctx.interceptedRequestsCompleted, this.query);
+    return this.ctx.interceptedRequestsCompleted.filter(match(this.query));
   }
 
   public mocks(): SerializedRequestResponse[] {
-    return filter(this.ctx.loadedMocks, this.query);
+    return this.ctx.loadedMocks.filter(match(this.query));
   }
 
   public redact(property: string | string[], redactSymbol?: RedactSymbol): void {

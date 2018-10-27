@@ -1,9 +1,13 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
+import _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
+import { IHttpMock } from '../../src/file';
 import * as testServer from '../test-server';
+
+type PartialDeep<T> = { [P in keyof T]?: PartialDeep<T[P]> };
 
 describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
@@ -69,6 +73,24 @@ describe('Yesno', () => {
   });
 
   describe('#mock', () => {
+    function createMock(options: PartialDeep<IHttpMock> = {}): IHttpMock {
+      return _.merge(
+        {
+          request: {
+            host: 'localhost',
+            method: 'GET',
+            path: '/get',
+            port: 3001,
+            protocol: 'http',
+          },
+          response: {
+            body: 'foobar',
+            statusCode: 200,
+          },
+        },
+        options,
+      ) as IHttpMock;
+    }
     beforeEach(async () => {
       await yesno.mock(await yesno.load('mock-test', mocksDir), { ports: [3001] });
     });
@@ -83,21 +105,7 @@ describe('Yesno', () => {
     });
 
     it('should allow providing mocks', async () => {
-      yesno.mock([
-        {
-          request: {
-            host: 'localhost',
-            method: 'GET',
-            path: '/get',
-            port: 3001,
-            protocol: 'http',
-          },
-          response: {
-            body: 'foobar',
-            statusCode: 200,
-          },
-        },
-      ]);
+      yesno.mock([createMock()]);
 
       expect(yesno.intercepted()).to.have.lengthOf(0);
       const response = await requestTestServer();
@@ -105,26 +113,20 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 
+    it('should replace the mocks on subsequent calls but preserve existing intercepted requests');
+    it('should throw an error if a mock shape is invalid');
+
     it('should allow providing mocks with JSON response bodies as objects', async () => {
       yesno.mock([
-        {
-          request: {
-            host: 'localhost',
-            method: 'GET',
-            path: '/get',
-            port: 3001,
-            protocol: 'http',
-          },
+        createMock({
           response: {
             body: { foo: 'bar' },
-            statusCode: 200,
           },
-        },
+        }),
       ]);
 
       expect(yesno.intercepted()).to.have.lengthOf(0);
-      const response = await requestTestServer({ json: true });
-      expect(response).to.eql({ foo: 'bar' });
+      expect(await requestTestServer({ json: true })).to.eql({ foo: 'bar' });
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 

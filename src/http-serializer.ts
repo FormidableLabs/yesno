@@ -16,24 +16,10 @@ const SCHEMA_VERSION = '1.0.0';
 export interface SerializedRequestResponse {
   readonly __id: string;
   readonly __version: string;
-  readonly __timestamp: number;
-  /**
-   * Duration of request in milliseconds
-   */
-  readonly __duration: number;
-  /**
-   * Fully qualified URL _less_ the port
-   */
-  readonly url: string;
+  readonly __timestamp?: number;
+  readonly __duration?: number;
   readonly request: SerializedRequest;
   readonly response: SerializedResponse;
-}
-
-interface SerializedUrl {
-  host: string;
-  path: string;
-  protocol: string;
-  port: number;
 }
 
 export interface SerializedResponse {
@@ -90,10 +76,13 @@ export class RequestSerializer extends Transform implements SerializedRequest {
   public headers: OutgoingHttpHeaders = {};
   public host: string;
   public path: string;
-  public query: string | undefined;
   public method: string;
   public port: number;
   public protocol: 'http' | 'https';
+  /**
+   * Query part _including_ `?`
+   */
+  public query?: string;
 
   constructor(
     originalClientOpts: RequestOptions,
@@ -114,7 +103,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
     this.host = originalClientOpts.hostname || originalClientOpts.host || 'localhost';
     this.method = (interceptedServerReq.method as string).toUpperCase();
     this.path = path;
-    this.query = query;
+    this.query = query ? `?${query}` : query;
     this.protocol = isHttps ? 'https' : 'http';
     this.headers = _.omit(originalClientReq.getHeaders(), YESNO_INTERNAL_HTTP_HEADER);
   }
@@ -145,7 +134,6 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
   public body: string | object;
   public headers: IncomingHttpHeaders = {};
   public statusCode: number;
-  private data: Buffer[] = [];
 
   constructor(clientResponse: IncomingMessage) {
     super();
@@ -171,8 +159,10 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
   }
 }
 
-export function formatUrl(request: SerializedRequest): string {
-  return `${request.protocol}://${request.host}:${request.port}${request.path}`;
+export function formatUrl(request: SerializedRequest, includePort: boolean = false): string {
+  const port = includePort ? `:${request.port}` : '';
+  const query = request.query || '';
+  return `${request.protocol}://${request.host}${port}${request.path}${query}`;
 }
 
 export function createRecord({
@@ -191,6 +181,5 @@ export function createRecord({
     __version: SCHEMA_VERSION,
     request,
     response,
-    url: formatUrl(request),
   };
 }

@@ -9,8 +9,8 @@
     "coverage": "nyc --reporter=html -- npm run tests",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
-    "unit": "mocha --timeout 2000 --recursive test/unit/**/*.spec.ts",
-    "integration": "mocha --timeout 5000 --recursive test/integration/**/*.spec.ts"
+    "unit": "mocha --timeout 2000 --recursive 'test/unit/**/*.spec.ts'",
+    "integration": "mocha --timeout 5000 --recursive 'test/integration/**/*.spec.ts'"
   },
   "repository": {
     "type": "git",

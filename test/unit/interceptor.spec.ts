@@ -5,7 +5,7 @@ import Interceptor, { IInterceptEvent } from '../../src/interceptor';
 import * as testClient from '../test-client';
 import * as testServer from '../test-server';
 
-describe.only('Interceptor', () => {
+describe('Interceptor', () => {
   let server: testServer.ITestServer;
   let interceptor: Interceptor;
 

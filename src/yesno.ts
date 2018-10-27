@@ -8,7 +8,7 @@ import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtering/collection';
 import * as comparator from './filtering/comparator';
-import { ISerializedHttpPartialDeepMatch } from './filtering/filter';
+import { ISerializedHttpPartialDeepMatch } from './filtering/matcher';
 import {
   createRecord,
   formatUrl,
@@ -278,6 +278,11 @@ export class YesNo implements IFiltered {
     this.ctx.interceptedRequestsCompleted[requestNumber] = record;
     this.ctx.inFlightRequests[requestNumber] = null;
 
-    debug('Added request-response for %s %s (duration: %d)', request.method, record.url, duration);
+    debug(
+      'Added request-response for %s %s (duration: %d)',
+      request.method,
+      record.request.host,
+      duration,
+    );
   }
 }
