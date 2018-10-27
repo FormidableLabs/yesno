@@ -61,10 +61,8 @@ describe('yesno', () => {
       expect(mocks[0]).to.have.nested.property('request.query', '?foo=bar');
       expect(mocks[0]).to.have.nested.property('request.method', 'GET');
       expect(mocks[0]).to.have.nested.property('response.statusCode', 299);
-      expect(mocks[0])
-        .to.have.nested.property('response.headers')
-      expect(mocks[0])
-        .to.have.nested.property('response.body')
+      expect(mocks[0]).to.have.nested.property('response.headers');
+      expect(mocks[0]).to.have.nested.property('response.body');
     });
   });
 

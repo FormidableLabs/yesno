@@ -15,6 +15,8 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
+type MatchFn = (serialized: SerializedRequestResponse) => boolean;
+
 /**
  * Curried function to determine whether a query matches an intercepted request.
  *
@@ -23,7 +25,7 @@ export interface ISerializedHttpPartialDeepMatch {
  * RegEx values are tested for match.
  */
 export function match(
-  query: ISerializedHttpPartialDeepMatch,
+  matcherOrQuery: ISerializedHttpPartialDeepMatch | MatchFn,
 ): (intercepted: SerializedRequestResponse) => boolean {
   const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
     if (queryValue instanceof RegExp) {
@@ -36,24 +38,30 @@ export function match(
     }
   };
 
-  return (intercepted: SerializedRequestResponse): boolean => {
-    let isMatch = true;
+  const matcher = _.isFunction(matcherOrQuery)
+    ? matcherOrQuery
+    : (serialized: SerializedRequestResponse): boolean => {
+        const query = matcherOrQuery as ISerializedHttpPartialDeepMatch;
+        let isMatch = true;
 
-    if (query.url) {
-      const matchUrlNoPort = equalityOrRegExpDeep(formatUrl(intercepted.request), query.url);
-      const matchUrlPort = equalityOrRegExpDeep(formatUrl(intercepted.request, true), query.url);
-      isMatch = isMatch && (matchUrlNoPort || matchUrlPort);
-    }
+        if (query.url) {
+          const matchUrlNoPort = equalityOrRegExpDeep(formatUrl(serialized.request), query.url);
+          const matchUrlPort = equalityOrRegExpDeep(formatUrl(serialized.request, true), query.url);
+          isMatch = isMatch && (matchUrlNoPort || matchUrlPort);
+        }
 
-    if (query.request) {
-      isMatch = isMatch && _.isMatchWith(intercepted.request, query.request, equalityOrRegExpDeep);
-    }
+        if (query.request) {
+          isMatch =
+            isMatch && _.isMatchWith(serialized.request, query.request, equalityOrRegExpDeep);
+        }
 
-    if (query.response) {
-      isMatch =
-        isMatch && _.isMatchWith(intercepted.response, query.response, equalityOrRegExpDeep);
-    }
+        if (query.response) {
+          isMatch =
+            isMatch && _.isMatchWith(serialized.response, query.response, equalityOrRegExpDeep);
+        }
 
-    return isMatch;
-  };
+        return isMatch;
+      };
+
+  return matcher;
 }
