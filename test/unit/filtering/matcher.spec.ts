@@ -106,7 +106,7 @@ describe('matcher', () => {
 
   it('should test leaf nodes which are regular expressions');
 
-  it('should match a request according to a callback return value', () => {
+  it('should supporting using a callback', () => {
     expect(match(() => true)(serialized())).to.be.true;
     expect(match(() => false)(serialized())).to.be.false;
     expect(match((toMatch) => toMatch.request.path === '/my/path')(serialized())).to.be.true;
