@@ -3,7 +3,7 @@ import { DEFAULT_REDACT_SYMBOL } from '../consts';
 import Context from '../context';
 import { SerializedRequestResponse } from '../http-serializer';
 import { ISerializedHttpPartialDeepMatch, match } from './matcher';
-import { redact } from './redact';
+import { redact, Redactor } from './redact';
 
 export type RedactSymbol = string | ((value: any, path: string) => string);
 
@@ -35,9 +35,16 @@ export default class FilteredHttpCollection implements IFiltered {
     return this.ctx.loadedMocks.filter(match(this.query));
   }
 
-  public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
-    redactSymbol = redactSymbol || DEFAULT_REDACT_SYMBOL;
-    const redactedRecords = redact(this.intercepted(), property, redactSymbol);
+  public redact(
+    property: string | string[],
+    redactor: RedactSymbol | Redactor = DEFAULT_REDACT_SYMBOL,
+  ): void {
+    const properties: string[] = _.isArray(property) ? property : [property];
+    const redactorFn = _.isFunction(redactor) ? redactor : () => redactor;
+
+    const redactedRecords = this.intercepted().map((intercepted) =>
+      redact(intercepted, properties, redactorFn),
+    );
 
     const newCompleted = [...this.ctx.interceptedRequestsCompleted];
     redactedRecords.forEach((redactedRecord) => {
