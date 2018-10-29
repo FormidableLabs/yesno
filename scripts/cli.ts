@@ -1,9 +1,9 @@
 import * as yargs from 'yargs';
 import * as file from '../src/file';
-import { createRecord, SerializedRequestResponse } from '../src/http-serializer';
+import { createRecord, ISerializedHttp } from '../src/http-serializer';
 const { version }: { version: string } = require('../package.json');
 
-function createMockRequestResponse(): SerializedRequestResponse {
+function createMockRequestResponse(): ISerializedHttp {
   return createRecord({
     duration: 0,
     request: {

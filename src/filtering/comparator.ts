@@ -1,14 +1,14 @@
 import * as assert from 'assert';
 import { YesNoError } from '../errors';
-import { SerializedRequest } from '../http-serializer';
+import { ISerializedRequest } from '../http-serializer';
 
 interface IComparatorMetadata {
   requestIndex: number;
 }
 
 type ComparatorFn = (
-  intercepted: SerializedRequest,
-  mock: SerializedRequest,
+  intercepted: ISerializedRequest,
+  mock: ISerializedRequest,
   metadata: IComparatorMetadata,
 ) => boolean;
 

@@ -7,11 +7,11 @@ import { EOL } from 'os';
 import * as path from 'path';
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON } from './consts';
 import { YesNoError } from './errors';
-import { createRecord, SerializedRequest, SerializedRequestResponse } from './http-serializer';
+import { createRecord, ISerializedHttp, ISerializedRequest } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:mocks');
 
 export interface ISaveFile {
-  records: SerializedRequestResponse[];
+  records: ISerializedHttp[];
 }
 
 interface IPartialMockRequest {
@@ -35,11 +35,11 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
-export function load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
+export function load(name: string, dir: string): Promise<ISerializedHttp[]> {
   return loadFile(getMockFilename(name, dir));
 }
 
-export function loadFile(filename: string): Promise<SerializedRequestResponse[]> {
+export function loadFile(filename: string): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
   return new Promise((resolve, reject) => {
@@ -61,15 +61,11 @@ export function loadFile(filename: string): Promise<SerializedRequestResponse[]>
   });
 }
 
-export function save(
-  name: string,
-  dir: string,
-  records: SerializedRequestResponse[],
-): Promise<string> {
+export function save(name: string, dir: string, records: ISerializedHttp[]): Promise<string> {
   return saveFile(getMockFilename(name, dir), records);
 }
 
-export function saveFile(filename: string, records: SerializedRequestResponse[]): Promise<string> {
+export function saveFile(filename: string, records: ISerializedHttp[]): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
 
   return new Promise((resolve, reject) => {
@@ -86,7 +82,7 @@ function helpMessageMissingMock(filename: string): string {
   return `Mock file for "${name}" does not exist. To generate the missing file now you may run the command:${EOL}${EOL}./node_modules/.bin/yesno generate "${filename}"`;
 }
 
-export function hydrateHttpMock(mock: IHttpMock): SerializedRequestResponse {
+export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
   const { request, response } = mock;
 
   const responseHeaders = response.headers || {};

@@ -13,16 +13,16 @@ const debug = require('debug')('yesno:http-serializer');
 const SCHEMA_VERSION = '1.0.0';
 /* tslint:disable:max-classes-per-file */
 
-export interface SerializedRequestResponse {
+export interface ISerializedHttp {
   readonly __id: string;
   readonly __version: string;
   readonly __timestamp?: number;
   readonly __duration?: number;
-  readonly request: SerializedRequest;
-  readonly response: SerializedResponse;
+  readonly request: ISerializedRequest;
+  readonly response: ISerializedResponse;
 }
 
-export interface SerializedResponse {
+export interface ISerializedResponse {
   /**
    * JSON bodies will be parsed to objects
    */
@@ -31,7 +31,7 @@ export interface SerializedResponse {
   readonly statusCode: number;
 }
 
-export interface SerializedRequest {
+export interface ISerializedRequest {
   /**
    * JSON bodies will be parsed to objects
    */
@@ -71,7 +71,7 @@ function serializeJSON(
   return body;
 }
 
-export class RequestSerializer extends Transform implements SerializedRequest {
+export class RequestSerializer extends Transform implements ISerializedRequest {
   public body: string | undefined;
   public headers: OutgoingHttpHeaders = {};
   public host: string;
@@ -116,7 +116,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
     done();
   }
 
-  public serialize(): SerializedRequest {
+  public serialize(): ISerializedRequest {
     return {
       body: serializeJSON(this.headers, this.body),
       headers: this.headers,
@@ -130,7 +130,7 @@ export class RequestSerializer extends Transform implements SerializedRequest {
   }
 }
 
-export class ResponseSerializer extends Transform implements SerializedResponse {
+export class ResponseSerializer extends Transform implements ISerializedResponse {
   public body: string | object;
   public headers: IncomingHttpHeaders = {};
   public statusCode: number;
@@ -150,7 +150,7 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
     done();
   }
 
-  public serialize(): SerializedResponse {
+  public serialize(): ISerializedResponse {
     return {
       body: serializeJSON(this.headers, this.body as string) as string | object,
       headers: this.headers,
@@ -159,7 +159,7 @@ export class ResponseSerializer extends Transform implements SerializedResponse 
   }
 }
 
-export function formatUrl(request: SerializedRequest, includePort: boolean = false): string {
+export function formatUrl(request: ISerializedRequest, includePort: boolean = false): string {
   const port = includePort ? `:${request.port}` : '';
   const query = request.query || '';
   return `${request.protocol}://${request.host}${port}${request.path}${query}`;
@@ -170,10 +170,10 @@ export function createRecord({
   response,
   duration,
 }: {
-  request: SerializedRequest;
-  response: SerializedResponse;
+  request: ISerializedRequest;
+  response: ISerializedResponse;
   duration: number;
-}): SerializedRequestResponse {
+}): ISerializedHttp {
   return {
     __duration: duration,
     __id: uuid.v4(),

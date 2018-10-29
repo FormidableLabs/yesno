@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import {
   formatUrl,
-  SerializedRequest,
-  SerializedRequestResponse,
-  SerializedResponse,
+  ISerializedHttp,
+  ISerializedRequest,
+  ISerializedResponse,
 } from '../http-serializer';
 
-type RequestQuery = { [P in keyof SerializedRequest]?: SerializedRequest[P] | RegExp };
-type ResponseQuery = { [P in keyof SerializedResponse]?: SerializedResponse[P] | RegExp };
+type RequestQuery = { [P in keyof ISerializedRequest]?: ISerializedRequest[P] | RegExp };
+type ResponseQuery = { [P in keyof ISerializedResponse]?: ISerializedResponse[P] | RegExp };
 
 export interface ISerializedHttpPartialDeepMatch {
   url?: string | RegExp;
@@ -15,7 +15,7 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
-type MatchFn = (serialized: SerializedRequestResponse) => boolean;
+type MatchFn = (serialized: ISerializedHttp) => boolean;
 
 /**
  * Curried function to determine whether a query matches an intercepted request.
@@ -25,8 +25,8 @@ type MatchFn = (serialized: SerializedRequestResponse) => boolean;
  * RegEx values are tested for match.
  */
 export function match(
-  matcherOrQuery: ISerializedHttpPartialDeepMatch | MatchFn,
-): (intercepted: SerializedRequestResponse) => boolean {
+  fnOrPartialMatch: ISerializedHttpPartialDeepMatch | MatchFn,
+): (intercepted: ISerializedHttp) => boolean {
   const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
     if (queryValue instanceof RegExp) {
       return queryValue.test(reqResValue);
@@ -38,10 +38,10 @@ export function match(
     }
   };
 
-  const matcher = _.isFunction(matcherOrQuery)
-    ? matcherOrQuery
-    : (serialized: SerializedRequestResponse): boolean => {
-        const query = matcherOrQuery as ISerializedHttpPartialDeepMatch;
+  const matcher = _.isFunction(fnOrPartialMatch)
+    ? fnOrPartialMatch
+    : (serialized: ISerializedHttp): boolean => {
+        const query = fnOrPartialMatch as ISerializedHttpPartialDeepMatch;
         let isMatch = true;
 
         if (query.url) {

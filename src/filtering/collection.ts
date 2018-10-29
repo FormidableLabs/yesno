@@ -1,49 +1,46 @@
 import * as _ from 'lodash';
 import { DEFAULT_REDACT_SYMBOL } from '../consts';
 import Context from '../context';
-import { SerializedRequestResponse } from '../http-serializer';
+import { ISerializedHttp } from '../http-serializer';
 import { ISerializedHttpPartialDeepMatch, match } from './matcher';
 import { redact, Redactor } from './redact';
 
-export type RedactSymbol = string | ((value: any, path: string) => string);
-
 export interface IFiltered {
-  redact: (property: string | string[], symbol: RedactSymbol) => void;
-  intercepted: () => SerializedRequestResponse[];
-  mocks: () => SerializedRequestResponse[];
+  redact: (property: string | string[], symbol: Redactor) => void;
+  intercepted: () => ISerializedHttp[];
+  mocks: () => ISerializedHttp[];
 }
 
 interface IFilteredHttpCollectionParams {
   context: Context;
-  query?: ISerializedHttpPartialDeepMatch;
+  matcher?: ISerializedHttpPartialDeepMatch;
 }
 
 export default class FilteredHttpCollection implements IFiltered {
   private readonly ctx: Context;
-  private readonly query: ISerializedHttpPartialDeepMatch;
+  private readonly matcher: ISerializedHttpPartialDeepMatch;
 
-  constructor({ context, query = {} }: IFilteredHttpCollectionParams) {
+  constructor({ context, matcher = {} }: IFilteredHttpCollectionParams) {
     this.ctx = context;
-    this.query = query;
+    this.matcher = matcher;
   }
 
-  public intercepted(): SerializedRequestResponse[] {
-    return this.ctx.interceptedRequestsCompleted.filter(match(this.query));
+  public intercepted(): ISerializedHttp[] {
+    return this.ctx.interceptedRequestsCompleted.filter(match(this.matcher));
   }
 
-  public mocks(): SerializedRequestResponse[] {
-    return this.ctx.loadedMocks.filter(match(this.query));
+  public mocks(): ISerializedHttp[] {
+    return this.ctx.loadedMocks.filter(match(this.matcher));
   }
 
   public redact(
     property: string | string[],
-    redactor: RedactSymbol | Redactor = DEFAULT_REDACT_SYMBOL,
+    redactor: Redactor = () => DEFAULT_REDACT_SYMBOL,
   ): void {
     const properties: string[] = _.isArray(property) ? property : [property];
-    const redactorFn = _.isFunction(redactor) ? redactor : () => redactor;
 
     const redactedRecords = this.intercepted().map((intercepted) =>
-      redact(intercepted, properties, redactorFn),
+      redact(intercepted, properties, redactor),
     );
 
     const newCompleted = [...this.ctx.interceptedRequestsCompleted];

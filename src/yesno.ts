@@ -6,15 +6,16 @@ import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
-import FilteredHttpCollection, { IFiltered, RedactSymbol } from './filtering/collection';
+import FilteredHttpCollection, { IFiltered } from './filtering/collection';
 import * as comparator from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch } from './filtering/matcher';
+import { Redactor } from './filtering/redact';
 import {
   createRecord,
   formatUrl,
-  SerializedRequest,
-  SerializedRequestResponse,
-  SerializedResponse,
+  ISerializedHttp,
+  ISerializedRequest,
+  ISerializedResponse,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
 const debug: IDebugger = require('debug')('yesno');
@@ -77,7 +78,7 @@ export class YesNo implements IFiltered {
    * @param name Mock name
    * @param dir Override default directory
    */
-  public async load(name: string, dir: string): Promise<SerializedRequestResponse[]> {
+  public async load(name: string, dir: string): Promise<ISerializedHttp[]> {
     debug('Loading mocks');
 
     return file.load(name, dir);
@@ -114,6 +115,7 @@ export class YesNo implements IFiltered {
 
     return file.save(name, dir, this.ctx.interceptedRequestsCompleted);
   }
+  
 
   /**
    * Clear all stateful information about requests.
@@ -144,22 +146,22 @@ export class YesNo implements IFiltered {
   /**
    * Get all intercepted requests
    */
-  public intercepted(): SerializedRequestResponse[] {
+  public intercepted(): ISerializedHttp[] {
     return this.getCollection().intercepted();
   }
 
   /**
    * Get all loaded mocks
    */
-  public mocks(): SerializedRequestResponse[] {
+  public mocks(): ISerializedHttp[] {
     return this.getCollection().mocks();
   }
 
   /**
    * Redact property on all records
    */
-  public redact(property: string | string[], redactSymbol?: RedactSymbol): void {
-    return this.getCollection().redact(property, redactSymbol);
+  public redact(property: string | string[], redactor?: Redactor): void {
+    return this.getCollection().redact(property, redactor);
   }
 
   /**
@@ -175,7 +177,7 @@ export class YesNo implements IFiltered {
     return this;
   }
 
-  private setMocks(mocks: SerializedRequestResponse[]): void {
+  private setMocks(mocks: ISerializedHttp[]): void {
     this.ctx.loadedMocks = mocks;
   }
 
@@ -221,10 +223,10 @@ export class YesNo implements IFiltered {
     }
   }
 
-  private getCollection(query?: ISerializedHttpPartialDeepMatch): FilteredHttpCollection {
+  private getCollection(matcher?: ISerializedHttpPartialDeepMatch): FilteredHttpCollection {
     return new FilteredHttpCollection({
       context: this.ctx,
-      query,
+      matcher,
     });
   }
 
@@ -268,8 +270,8 @@ export class YesNo implements IFiltered {
   }
 
   private recordCompleted(
-    request: SerializedRequest,
-    response: SerializedResponse,
+    request: ISerializedRequest,
+    response: ISerializedResponse,
     requestNumber: number,
   ): void {
     const duration =

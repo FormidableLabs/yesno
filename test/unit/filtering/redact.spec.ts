@@ -3,10 +3,10 @@ import _ from 'lodash';
 import { DEFAULT_REDACT_SYMBOL } from '../../../src/consts';
 
 import { redact } from '../../../src/filtering/redact';
-import { SerializedRequestResponse } from '../../../src/http-serializer';
+import { ISerializedHttp } from '../../../src/http-serializer';
 
 describe('redact#redact', () => {
-  const serialized = (): SerializedRequestResponse => ({
+  const serialized = (): ISerializedHttp => ({
     __duration: 0,
     __id: 'id',
     __timestamp: 0,

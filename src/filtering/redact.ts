@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { DEFAULT_REDACT_SYMBOL } from '../../src/consts';
-import { SerializedRequestResponse } from '../http-serializer';
+import { ISerializedHttp } from '../http-serializer';
 
 export type Redactor = ((value: any, path: string) => string);
 
@@ -17,10 +17,10 @@ export function defaultRedactor(): string {
  * @param redactSymbol Symbol to use for redacted properties or function to compute.
  */
 export function redact(
-  record: SerializedRequestResponse,
+  record: ISerializedHttp,
   properties: string[],
   redactor: Redactor = defaultRedactor,
-): SerializedRequestResponse {
+): ISerializedHttp {
   const redacted = _.cloneDeep(record);
 
   properties.forEach((property) => {

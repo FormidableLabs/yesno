@@ -176,7 +176,7 @@ YesNo is written in [TypeScript](link) and uses its type syntax where possible i
 
 ### `YesNo`
 
-The `yesno` instance additionally implements all the methods `FilteredHttpCollection` interface (essentially running those methods with no filtering query).
+The `yesno` instance implements all the methods `FilteredHttpCollection` interface.
 
 ##### `yesno.spy(options?: IInterceptOptions): void`
 
@@ -259,8 +259,7 @@ Return the mocks defined within the collection.
 
 Return the intercepted requests defined within the collection.
 
-##### `collection.redact(property: string | string[], symbol?: string): void`
-##### `collection.redact(property: string | string[], replace?: (value: any, property: string) => any): void`
+##### `collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`
 
 Redact properties on intercepted requests within the collection.
 

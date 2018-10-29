@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { match } from '../../../src/filtering/matcher';
-import { SerializedRequestResponse } from '../../../src/http-serializer';
+import { ISerializedHttp } from '../../../src/http-serializer';
 
 describe('matcher', () => {
-  const serialized = (): SerializedRequestResponse => ({
+  const serialized = (): ISerializedHttp => ({
     __duration: 0,
     __id: 'id',
     __timestamp: 0,
