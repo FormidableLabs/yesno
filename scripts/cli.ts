@@ -30,6 +30,9 @@ yargs.command({
   command: 'generate <filename>',
   handler: (argv) => {
     const { filename } = argv;
-    return file.saveFile(filename, [createMockRequestResponse()]);
+    return file.save({
+      filename,
+      records: [createMockRequestResponse()],
+    });
   },
 }).argv;

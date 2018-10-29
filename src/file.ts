@@ -14,6 +14,14 @@ export interface ISaveFile {
   records: ISerializedHttp[];
 }
 
+export interface ISaveOptions {
+  records?: ISerializedHttp[];
+}
+
+export interface IFileOptions {
+  filename: string;
+}
+
 interface IPartialMockRequest {
   headers?: OutgoingHttpHeaders;
   body?: string | object;
@@ -35,11 +43,7 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
-export function load(name: string, dir: string): Promise<ISerializedHttp[]> {
-  return loadFile(getMockFilename(name, dir));
-}
-
-export function loadFile(filename: string): Promise<ISerializedHttp[]> {
+export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
   return new Promise((resolve, reject) => {
@@ -61,11 +65,7 @@ export function loadFile(filename: string): Promise<ISerializedHttp[]> {
   });
 }
 
-export function save(name: string, dir: string, records: ISerializedHttp[]): Promise<string> {
-  return saveFile(getMockFilename(name, dir), records);
-}
-
-export function saveFile(filename: string, records: ISerializedHttp[]): Promise<string> {
+export function save({ filename, records = [] }: ISaveOptions & IFileOptions): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
 
   return new Promise((resolve, reject) => {
@@ -113,6 +113,6 @@ export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
 /**
  * Get the generated filename for a mock name.
  */
-function getMockFilename(name: string, dir: string): string {
+export function getMockFilename(name: string, dir: string): string {
   return path.join(dir, `${name}-yesno.json`);
 }

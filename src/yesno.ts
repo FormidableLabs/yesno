@@ -78,12 +78,27 @@ export class YesNo implements IFiltered {
    * @param name Mock name
    * @param dir Override default directory
    */
-  public async load(name: string, dir: string): Promise<ISerializedHttp[]> {
+  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]>;
+  public async load(name: string, dir: string): Promise<ISerializedHttp[]>;
+  public async load(
+    nameOrOptions: string | file.IFileOptions,
+    dir?: string,
+  ): Promise<ISerializedHttp[]> {
     debug('Loading mocks');
+    let options = nameOrOptions;
 
-    return file.load(name, dir);
+    if (!_.isPlainObject(nameOrOptions)) {
+      if (!dir) {
+        throw new YesNoError('Must provide directory with mock name');
+      }
+
+      options = {
+        filename: file.getMockFilename(nameOrOptions as string, dir),
+      };
+    }
+
+    return file.load(options as file.IFileOptions);
   }
-
   /**
    * Save intercepted requests _if_ we're in Spy mode.
    *
@@ -92,30 +107,35 @@ export class YesNo implements IFiltered {
    * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
    */
-  public save(name: string, dir: string): Promise<string | void> {
-    if (this.isMode(Mode.Mock)) {
-      debug('No need to save in mock mode');
+  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void>;
+  public async save(name: string, dir: string): Promise<string | void>;
+  public save(
+    nameOrOptions: string | (file.ISaveOptions & file.IFileOptions),
+    dir?: string,
+  ): Promise<string | void> {
+    let options: file.IFileOptions & file.ISaveOptions;
+
+    if (!_.isPlainObject(nameOrOptions)) {
+      if (!dir) {
+        throw new YesNoError('Must provide directory with mock name');
+      }
+
+      options = {
+        filename: file.getMockFilename(nameOrOptions as string, dir),
+      };
+    } else {
+      options = nameOrOptions as file.ISaveOptions & file.IFileOptions;
+    }
+
+    if (!options.records && this.isMode(Mode.Mock)) {
+      debug('Nothing to save. No records or running in mock mode.');
       return Promise.resolve();
     }
 
-    const inFlightRequests = this.ctx.inFlightRequests.filter((x) => x) as IInFlightRequest[];
+    options.records = options.records || this.getRecordsToSave();
 
-    if (inFlightRequests.length) {
-      const urls = inFlightRequests
-        .map(
-          ({ requestSerializer }) => `${requestSerializer.method}${formatUrl(requestSerializer)}`,
-        )
-        .join(EOL);
-      throw new YesNoError(
-        `Cannot save. Still have ${inFlightRequests.length} in flight requests: ${EOL}${urls}`,
-      );
-    }
-
-    debug('Saving %s...', name);
-
-    return file.save(name, dir, this.ctx.interceptedRequestsCompleted);
+    return file.save(options);
   }
-  
 
   /**
    * Clear all stateful information about requests.
@@ -162,6 +182,23 @@ export class YesNo implements IFiltered {
    */
   public redact(property: string | string[], redactor?: Redactor): void {
     return this.getCollection().redact(property, redactor);
+  }
+
+  private getRecordsToSave(): ISerializedHttp[] {
+    const inFlightRequests = this.ctx.inFlightRequests.filter((x) => x) as IInFlightRequest[];
+
+    if (inFlightRequests.length) {
+      const urls = inFlightRequests
+        .map(
+          ({ requestSerializer }) => `${requestSerializer.method}${formatUrl(requestSerializer)}`,
+        )
+        .join(EOL);
+      throw new YesNoError(
+        `Cannot save. Still have ${inFlightRequests.length} in flight requests: ${EOL}${urls}`,
+      );
+    }
+
+    return this.ctx.interceptedRequestsCompleted;
   }
 
   /**
