@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import _ from 'lodash';
+import * as sinon from 'sinon';
 import { DEFAULT_REDACT_SYMBOL } from '../../../src/consts';
 
 import { redact } from '../../../src/filtering/redact';
@@ -35,7 +36,11 @@ describe('redact#redact', () => {
 
   it('should allow redacting multiple properties', () => {
     const original = serialized();
-    const redacted = redact(original, ['response.body', 'request.headers.x-test-header']);
+    const redacted = redact(original, [
+      'response.body',
+      'request.headers.x-test-header',
+      'response.foobar',
+    ]);
 
     expect(redacted, 'No mutation').to.not.eql(original);
     expect(redacted).to.have.nested.property('response.body', DEFAULT_REDACT_SYMBOL);
@@ -43,10 +48,17 @@ describe('redact#redact', () => {
       'request.headers.x-test-header',
       DEFAULT_REDACT_SYMBOL,
     );
+    expect(redacted, 'Missing properties have no effect').to.not.have.property('foobar');
   });
 
-  it('should allow redacting properties nested within arrays');
-  it('should ignore properties absent in the request');
-  it('should support overriding the redact symbol');
-  it('should support a callback to customize redacting');
+  it('should support providing a custom redactor', () => {
+    const mockRedactSymbol = 'REDACTED!';
+    const mockRedactor = sinon.mock().returns(mockRedactSymbol);
+
+    const redacted = redact(serialized(), ['request.body.foo.bar'], mockRedactor);
+
+    expect(mockRedactor.args).to.have.lengthOf(1);
+    expect(mockRedactor.args[0]).to.eql([false, 'request.body.foo.bar']);
+    expect(redacted).to.have.nested.property('request.body.foo.bar', mockRedactSymbol);
+  });
 });
