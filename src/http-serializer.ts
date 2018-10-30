@@ -195,8 +195,9 @@ export function createRecord({
   };
 }
 
-export function validateSerializedHttp(record: object) {
-  const result = SerializedHttp.decode(record);
+export function validateSerializedHttpArray(records: object[]) {
+  const result = t.array(SerializedHttp).decode(records);
+
   if (result.isLeft()) {
     const errs = reporter(result);
     throw new YesNoError(`Invalid serialized HTTP. (Errors: ${errs.join(', ')})`);

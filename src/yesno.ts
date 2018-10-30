@@ -16,7 +16,7 @@ import {
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
-  validateSerializedHttp,
+  validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
 const debug: IDebugger = require('debug')('yesno');
@@ -100,7 +100,7 @@ export class YesNo implements IFiltered {
 
     const records = await file.load(options as file.IFileOptions);
 
-    records.forEach((record) => validateSerializedHttp(record));
+    validateSerializedHttpArray(records);
 
     return records;
   }
