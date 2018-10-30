@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import { IDebugger } from 'debug';
 import { readFile, writeFile } from 'fs';
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as path from 'path';
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON } from './consts';
 import { YesNoError } from './errors';
-import { createRecord, ISerializedHttp, ISerializedRequest } from './http-serializer';
+import { createRecord, IHeaders, ISerializedHttp } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:mocks');
 
 export interface ISaveFile {
@@ -23,7 +22,7 @@ export interface IFileOptions {
 }
 
 interface IPartialMockRequest {
-  headers?: OutgoingHttpHeaders;
+  headers?: IHeaders;
   body?: string | object;
   port?: number;
   path?: string;
@@ -34,7 +33,7 @@ interface IPartialMockRequest {
 
 interface IPartialMockResponse {
   body?: string | object;
-  headers?: IncomingHttpHeaders;
+  headers?: IHeaders;
   statusCode: number;
 }
 
