@@ -4,6 +4,7 @@ import _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
+import { YesNoError } from '../../src/errors';
 import { IHttpMock } from '../../src/file';
 import * as testServer from '../test-server';
 
@@ -114,7 +115,15 @@ describe('Yesno', () => {
     });
 
     it('should replace the mocks on subsequent calls but preserve existing intercepted requests');
-    it('should throw an error if a mock shape is invalid');
+
+    it('should throw an error if a mock shape is invalid', () => {
+      const mocks = [createMock(), createMock()];
+      (mocks[0] as any).request.host = undefined;
+
+      expect(() => yesno.mock(mocks)).to.throw(
+        'YesNo: Invalid serialized HTTP. (Errors: Expecting Readonly<string> at 0.request.host but instead got: undefined.)',
+      );
+    });
 
     it('should allow providing mocks with JSON response bodies as objects', async () => {
       yesno.mock([

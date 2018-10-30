@@ -220,6 +220,7 @@ export class YesNo implements IFiltered {
   }
 
   private setMocks(mocks: ISerializedHttp[]): void {
+    validateSerializedHttpArray(mocks);
     this.ctx.loadedMocks = mocks;
   }
 
