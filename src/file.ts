@@ -59,7 +59,13 @@ export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
         return reject(e);
       }
 
-      resolve((JSON.parse(data.toString()) as ISaveFile).records);
+      const obj: ISaveFile = JSON.parse(data.toString());
+
+      if (!obj.records) {
+        throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
+      }
+
+      resolve(obj.records);
     });
   });
 }

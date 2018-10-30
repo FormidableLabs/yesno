@@ -1,6 +1,7 @@
 {
   "records": [
     {
+      "__id": "1",
       "__duration": 3,
       "__timestamp": 1539210298277,
       "__version": "1.0.0",
@@ -32,6 +33,7 @@
       "url": "http://localhost:3001/get"
     },
     {
+      "__id": "2",
       "__duration": 3,
       "__timestamp": 1539210298282,
       "__version": "1.0.0",

@@ -1,9 +1,11 @@
 import { ClientRequest, IncomingMessage, RequestOptions } from 'http';
 import * as t from 'io-ts';
+import { reporter } from 'io-ts-reporters';
 import * as _ from 'lodash';
 import { Transform } from 'stream';
 import uuid = require('uuid');
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON, YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { YesNoError } from './errors';
 const debug = require('debug')('yesno:http-serializer');
 const SCHEMA_VERSION = '1.0.0';
 /* tslint:disable:max-classes-per-file */
@@ -191,4 +193,12 @@ export function createRecord({
     request,
     response,
   };
+}
+
+export function validateSerializedHttp(record: object) {
+  const result = SerializedHttp.decode(record);
+  if (result.isLeft()) {
+    const errs = reporter(result);
+    throw new YesNoError(`Invalid serialized HTTP. (Errors: ${errs.join(', ')})`);
+  }
 }

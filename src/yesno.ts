@@ -16,6 +16,7 @@ import {
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
+  validateSerializedHttp,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
 const debug: IDebugger = require('debug')('yesno');
@@ -97,7 +98,11 @@ export class YesNo implements IFiltered {
       };
     }
 
-    return file.load(options as file.IFileOptions);
+    const records = await file.load(options as file.IFileOptions);
+
+    records.forEach((record) => validateSerializedHttp(record));
+
+    return records;
   }
   /**
    * Save intercepted requests _if_ we're in Spy mode.
