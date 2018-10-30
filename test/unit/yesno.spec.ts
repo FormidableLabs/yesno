@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
+import * as sinon from 'sinon';
 import yesno from '../../src';
-import { YesNoError } from '../../src/errors';
 import { IHttpMock } from '../../src/file';
 import * as testServer from '../test-server';
 
@@ -14,6 +14,10 @@ describe('Yesno', () => {
   const dir: string = path.join(__dirname, 'tmp');
   const mocksDir = path.join(__dirname, 'mocks');
   let server: testServer.ITestServer;
+
+  afterEach(() => {
+    sinon.restore();
+  });
 
   function requestTestServer(options: object = {}) {
     return rp({
@@ -71,6 +75,32 @@ describe('Yesno', () => {
     it('should give us access to intercepted requests');
     it('should handle timeouts');
     it('should handle invalid SSL');
+    it('should support application/json');
+    it('should support application/x-www-form-url-encoded');
+
+    it('should support multipart/form-data', async () => {
+      yesno.spy({ ports: [3001] });
+
+      await rp({
+        formData: {
+          fooBuffer: Buffer.from('foo-buffer'),
+          fooString: 'foobar-string',
+        },
+        method: 'POST',
+        uri: 'http://localhost:3001/post',
+      });
+
+      const intercepted = yesno.intercepted();
+      expect(intercepted).to.have.lengthOf(1);
+      expect(intercepted[0].request.body).to.match(
+        /Content-Disposition: form-data; name="fooString"\s+foobar-string/,
+      );
+      expect(intercepted[0].request.body).to.match(
+        /Content-Disposition: form-data; name="fooBuffer"\s+Content-Type: application\/octet-stream\s+foo-buffer/,
+      );
+    });
+
+    it('should support binary');
   });
 
   describe('#mock', () => {
@@ -191,10 +221,6 @@ describe('Yesno', () => {
     it('should take no action in mock mode (if not provided requests)');
     it('should allow setting the full filename');
     it('should allow providing the records');
-    it('should support application/json');
-    it('should support x-www-form-url-encoded');
-    it('should support binary');
-    it('should support form-data');
   });
 
   describe('#load', () => {
