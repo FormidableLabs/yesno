@@ -5,11 +5,11 @@ YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/
 - [Why?](#Why)
 - [Installation](#installation)
 - [Usage](#Usage)
-  - [Intercepting live requests](#link)
-  - [Providing mocks](#link)
-  - [Recording requests](#recording-mocks)
-  - [Filtering results](#link)
-  - [Customizing behavior](#link)
+  - [Intercepting live requests](#intercepting-live-requests)
+  - [Mocking responses](#mocking-responses)
+  - [Recording requests](#recording-requests)
+  - [Filtering results](#filtering-results)
+  - [Restoring HTTP behavior](#restoring-http-behavior)
 - [API](#API)
 - [CLI](#CLI)
 
@@ -160,24 +160,23 @@ describe('api', () => {
 
 ## API
 
-YesNo is written in [TypeScript](#link) and uses its type syntax where possible.
+YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its type syntax where possible.
 
-##### [`YesNo`](#YesNo)
-- [`yesno.spy(options?: IInterceptOptions): void`](#link);
-- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
-- [`yesno.restore(): void`](#link);
-- [`yesno.save(name: string, dir: string): Promise<void>`](#link) (+1 overload)
-- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#link) (+1 overload);
-- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
+##### [`YesNo`](#yesno-2)
+- [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
+- [`yesno.mock(mocks?: ISerializedHttp[] | ISerializedHttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
+- [`yesno.restore(): void`](#yesnorestore-void);
+- [`yesno.save(name: string, dir: string): Promise<void>`](#yesnosavename-string-dir-string-promisevoid) (+1 overload)
+- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#yesnoloadname-string-dir-string-promiseiserializedhttp) (+1 overload);
+- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection);
 
-##### [`FilteredHttpCollection`](#FilteredHttpCollection)
-- [`collection.mocks(): ISerializedHttp[]`](#link);
-- [`collection.intercepted(): ISerializedHttp[]`](#link);
-- [`collection.redact(): void`](#link);
-- [`collection.comparator(): void`](#link);
+##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
+- [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
+- [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
+- [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
+- [`collection.comparator(): void`](#collectioncomparatorintercepted-iserializedrequest-mock-iserializedrequest--boolean-void);
 
-##### [`ISerializedHttp`](#link)
-##### [`YesNoError`](#link)
+##### [`ISerializedHttp`](#iserializedhttp-1)
 
 ### `YesNo`
 
@@ -198,7 +197,7 @@ Enables intercept of requests if not already enabled and configures YesNo to `mo
 
 YesNo responds to the Nth intercepted request with the Nth mock. If the HTTP method & URL of the intercepted request does not match the corresponding mock then client request will fail.
 
-When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](#link) instance. Most libraries will handle this by throwing an error.
+When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](https://nodejs.org/api/http.html#http_class_http_clientrequest) instance. Most libraries will handle this by throwing an error.
 
 See also [`IInterceptOptions`](#IInterceptOptions).
 
@@ -211,7 +210,7 @@ If you're using YesNo in a test suite it's advisable to run this method after ev
 ##### `yesno.save(name: string, dir: string): Promise<void>`
 ##### `yesno.save(options: IFileOptions & ISaveOptions): Promise<void>`
 
-Save serialized HTTP requests to disk. Will save currently intercepted requests unless records are provided to method. 
+Save serialized HTTP requests to disk. Unless records are provided directly, yesno will save the currently intercepted requests.
 
 Unless providing records, this method will throw an error if there are any in flight requests to prevent users from accidentally saving before all requests have completed. (TODO: Allow forcing save)
 
