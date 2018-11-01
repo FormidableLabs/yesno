@@ -212,6 +212,13 @@ If you're using YesNo in a test suite it's advisable to run this method after ev
 
 Save serialized HTTP requests to disk. Unless records are provided directly, yesno will save the currently intercepted requests.
 
+You may provide a `filename` in the options object _or_ use the name & directory shorthand to generate a filename from a human readable string.
+
+```javascript
+const testName = 'should hit the api'
+yesno.save(testName, mocksDir) // => "./test/mocks/should-hit-the-api-yesno.json"
+```
+
 Unless providing records, this method will throw an error if there are any in flight requests to prevent users from accidentally saving before all requests have completed. (TODO: Allow forcing save)
 
 ##### `IFileOptions`
@@ -225,7 +232,9 @@ Unless providing records, this method will throw an error if there are any in fl
 ##### `yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
-Load serialized records from disk. 
+Load serialized HTTP requests from a local JSON file.
+
+Accepts the same name and directory shorthandle as `yesno.save()`.
 
 See [`IFileOptions`](#ifileoptions).
 
@@ -303,7 +312,6 @@ interface ISerializedHttp {
   readonly __version: string;
   readonly __timestamp: number;
   readonly __duration: number;
-  readonly url: string;
   readonly request: SerializedRequest;
   readonly response: SerializedResponse;
 }
