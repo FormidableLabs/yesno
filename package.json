@@ -2,27 +2,31 @@
   "name": "yesno-http",
   "version": "0.0.2",
   "description": "Easy HTTP testing",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "bin": {
-    "yesno": "./dist/scripts/cli.js"
+    "yesno": "dist/scripts/cli.js"
   },
   "scripts": {
+    "preversion": "npm run clean && npm run lint && npm run tests",
+    "version": "npm run compile",
+    "clean": "rm -rf dist",
     "compile": "tsc",
-    "prepare": "npm run compile",
+    "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
     "coverage": "nyc --reporter=html -- npm run tests",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "unit": "mocha --timeout 2000 --recursive 'test/unit/**/*.spec.ts'",
-    "integration": "mocha --timeout 5000 --recursive 'test/integration/**/*.spec.ts'"
+    "integration": "mocha --timeout 5000 --recursive 'test/integration/**/*.spec.ts'",
+    "check": "npm run lint && npm run tests"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/formidablelabs/yesno.git"
   },
   "author": "Ian Walker-Sperber",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/formidablelabs/yesno/issues"
   },

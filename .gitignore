@@ -4,3 +4,7 @@ dist/
 test/integration/tmp
 test/unit/tmp
 .nyc_output/
+.DS_Store
+node_modules
+package-lock.json
+coverage

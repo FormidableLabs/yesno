@@ -1,0 +1,7 @@
+/*
+!/dist
+dist/**/*.map
+dist/test
+!LICENSE.txt
+!HISTORY.md
+!README.md
