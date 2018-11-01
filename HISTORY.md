@@ -1,6 +1,10 @@
 History
 =======
 
+## 0.0.4
+
+Publish with yarn
+
 ## 0.0.3
 
 Refine  publish tooling
