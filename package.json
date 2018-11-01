@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ianwsperber/yesno.git"
+    "url": "git+https://github.com/formidablelabs/yesno.git"
   },
   "author": "Ian Walker-Sperber",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ianwsperber/yesno/issues"
+    "url": "https://github.com/formidablelabs/yesno/issues"
   },
-  "homepage": "https://github.com/ianwsperber/yesno#readme",
+  "homepage": "https://github.com/formidablelabs/yesno#readme",
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/chai-as-promised": "^7.1.0",
