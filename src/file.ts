@@ -119,5 +119,5 @@ export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
  * Get the generated filename for a mock name.
  */
 export function getMockFilename(name: string, dir: string): string {
-  return path.join(dir, `${name}-yesno.json`);
+  return path.join(dir, `${name.replace(/\s+/g, '-').toLowerCase()}-yesno.json`);
 }

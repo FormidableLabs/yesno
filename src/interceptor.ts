@@ -9,7 +9,6 @@ import { Socket } from 'net';
 import * as readable from 'readable-stream';
 import { v4 as uuidv4 } from 'uuid';
 import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, YESNO_INTERNAL_HTTP_HEADER } from './consts';
-import { YesNoError } from './errors';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 
 const debug: IDebugger = require('debug')('yesno:proxy');
