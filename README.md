@@ -116,7 +116,7 @@ Once requests have finished we still need assert that the requests were correct.
 
 Consider the following, where we use `yesno.matching()` to access only the intercepted user request, then assert a password was hashed.
 
-```
+```javascript
 yesno.spy();
 
 await myApi.complicatedAuthFlow(token); // Lots of HTTP requests!
@@ -130,7 +130,7 @@ expect(
 
 We can even use this syntax to selectively redact values from the serialized requests, so that we don't persist sensitive data to our mocks. This is a common problem when auth tokens are being sent back and forth between the APIs.
 
-```
+```javascript
 await myApi.complicatedAuthFlow(token); // Lots of HTTP requests!
 await myApi.updateUser(userId, rawPassword);
 
@@ -245,7 +245,7 @@ The `filter` is applied to each serialized request to filter results. If the fil
 
 Examples:
 
-```
+```javascript
 yesno.matching('https://api.example.com/users'); // Exact match on url
 yesno.matching(/example/); // Any request to Example website
 yesno.matching({ // Any POST requests to Example with status code of 500
