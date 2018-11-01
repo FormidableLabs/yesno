@@ -8,7 +8,7 @@ import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
 import * as comparator from './filtering/comparator';
-import { ISerializedHttpPartialDeepMatch } from './filtering/matcher';
+import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
 import { Redactor } from './filtering/redact';
 import {
   createRecord,
@@ -153,19 +153,17 @@ export class YesNo implements IFiltered {
   }
 
   /**
-   * Get all intercepted request/response which match the provided query
-   *
-   * Match against the URL if query is a string or regexp.
-   * Otherwise perform a partial match against each serialized request response
+   * Create a filter collection
+   * @todo Convert everything to a match fn
    * @param query
    */
   public matching(
-    query: string | RegExp | ISerializedHttpPartialDeepMatch,
+    filter: string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn,
   ): FilteredHttpCollection {
-    const normalizedQuery: ISerializedHttpPartialDeepMatch =
-      _.isString(query) || _.isRegExp(query) ? { url: query } : query;
+    const normalizedFilter: ISerializedHttpPartialDeepMatch | MatchFn =
+      _.isString(filter) || _.isRegExp(filter) ? { url: filter } : filter;
 
-    return this.getCollection(normalizedQuery);
+    return this.getCollection(normalizedFilter);
   }
 
   /**
@@ -266,7 +264,9 @@ export class YesNo implements IFiltered {
     }
   }
 
-  private getCollection(matcher?: ISerializedHttpPartialDeepMatch): FilteredHttpCollection {
+  private getCollection(
+    matcher?: ISerializedHttpPartialDeepMatch | MatchFn,
+  ): FilteredHttpCollection {
     return new FilteredHttpCollection({
       context: this.ctx,
       matcher,

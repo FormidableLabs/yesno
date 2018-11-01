@@ -222,17 +222,17 @@ This method will throw an error if there are any in flight requests.
 
 Load mocks from disk. Mocks will be returned. To use mocks you must pass them to `yesno.mock()`.
 
-##### `yesno.matching(matcher: HttpFilter): FilteredHttpCollection`
+##### `yesno.matching(filter: HttpFilter): FilteredHttpCollection`
 
 Apply a filter to subsequently access or manipulate matching mocks or intercepted requests.
 
-We define an `HttpFilter` as: `type HttpFilter = string | RegExp | IHttpMatch | (serialized: ISerializedHttp, index: number) => boolean`;
+We define an `HttpFilter` as: `type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | (serialized: ISerializedHttp, index: number) => boolean`;
 
-The `matcher` is applied to each serialized request to filter results. If the matcher is...
+The `filter` is applied to each serialized request to filter results. If the filter is...
 
 - A string: Perform an _exact_ match on URL (port optional)
 - A regular expression: Test against URL (port optional)
-- An object (`IHttpMatch`): Perform a deep partial comparison against the serialized request
+- An object (`ISerializedHttpPartialDeepMatch`): Perform a deep partial comparison against the serialized request
 - A function: A callback that receives the `ISerializedHttp` object and returns a `boolean` value of `true` to indicate match.
 
 Examples:

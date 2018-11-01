@@ -12,8 +12,5 @@
     "text",
     "text-summary"
   ],
-  "require": [
-    "ts-node/register"
-  ],
   "statements": 100
 }

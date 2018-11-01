@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { DEFAULT_REDACT_SYMBOL } from '../consts';
 import Context from '../context';
 import { ISerializedHttp } from '../http-serializer';
-import { ISerializedHttpPartialDeepMatch, match } from './matcher';
+import { ISerializedHttpPartialDeepMatch, match, MatchFn } from './matcher';
 import { redact, Redactor } from './redact';
 
 export interface IFiltered {
@@ -11,14 +11,14 @@ export interface IFiltered {
   mocks: () => ISerializedHttp[];
 }
 
-interface IFilteredHttpCollectionParams {
+export interface IFilteredHttpCollectionParams {
   context: Context;
-  matcher?: ISerializedHttpPartialDeepMatch;
+  matcher?: ISerializedHttpPartialDeepMatch | MatchFn;
 }
 
 export default class FilteredHttpCollection implements IFiltered {
   private readonly ctx: Context;
-  private readonly matcher: ISerializedHttpPartialDeepMatch;
+  private readonly matcher: ISerializedHttpPartialDeepMatch | MatchFn;
 
   constructor({ context, matcher = {} }: IFilteredHttpCollectionParams) {
     this.ctx = context;

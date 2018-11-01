@@ -6,8 +6,8 @@ import {
   ISerializedResponse,
 } from '../http-serializer';
 
-type RequestQuery = { [P in keyof ISerializedRequest]?: ISerializedRequest[P] | RegExp };
-type ResponseQuery = { [P in keyof ISerializedResponse]?: ISerializedResponse[P] | RegExp };
+export type RequestQuery = { [P in keyof ISerializedRequest]?: ISerializedRequest[P] | RegExp };
+export type ResponseQuery = { [P in keyof ISerializedResponse]?: ISerializedResponse[P] | RegExp };
 
 export interface ISerializedHttpPartialDeepMatch {
   url?: string | RegExp;
@@ -15,7 +15,7 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
-type MatchFn = (serialized: ISerializedHttp) => boolean;
+export type MatchFn = (serialized: ISerializedHttp) => boolean;
 
 /**
  * Curried function to determine whether a query matches an intercepted request.

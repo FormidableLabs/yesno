@@ -31,7 +31,7 @@ describe('yesno', () => {
     server.close();
   });
 
-  describe('#save', () => {
+  describe.skip('#save', () => {
     it('should create records locally', async () => {
       const name = 'record-test-1';
       const now = Date.now();
