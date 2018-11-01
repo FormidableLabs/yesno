@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "__duration": 0,
+      "__id": "3814c497-cded-4e4d-8dff-3fde6feebcc9",
+      "__timestamp": 1540332352920,
+      "__version": "1.0.0",
+      "request": {
+        "body": "",
+        "headers": {},
+        "host": "example.com",
+        "method": "POST",
+        "path": "/my/path",
+        "port": 80,
+        "protocol": "http"
+      },
+      "response": {
+        "body": "mock body",
+        "headers": {
+          "content-type": "text/plain",
+          "x-yesno-mock": "hello"
+        },
+        "statusCode": 200
+      },
+      "url": "http://example.com:80/my/path"
+    }
+  ]
+}

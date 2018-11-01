@@ -1,0 +1,16 @@
+{
+  "all": true,
+  "branches": 100,
+  "check-coverage": true,
+  "extension": [".ts"],
+  "exclude": ["src/**/*.d.ts"],
+  "functions": 100,
+  "include": ["src/**/*.ts"],
+  "lines": 100,
+  "per-file": false,
+  "reporter": [
+    "text",
+    "text-summary"
+  ],
+  "statements": 100
+}

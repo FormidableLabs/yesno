@@ -1,0 +1,69 @@
+{
+  "records": [
+    {
+      "__id": "1",
+      "__duration": 3,
+      "__timestamp": 1539210298277,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "x-status-code": 299,
+          "x-timestamp": 1539210298272,
+          "host": "localhost:3001"
+        },
+        "host": "localhost",
+        "method": "GET",
+        "path": "/get",
+        "port": 3001,
+        "protocol": "http",
+        "query": "foo=bar"
+      },
+      "response": {
+        "body": "Mock Body 1",
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "126",
+          "etag": "W/\"7e-URVWNJGNVqk8miEYbmWEsYLGGmo\"",
+          "date": "Wed, 10 Oct 2018 22:24:58 GMT",
+          "connection": "close"
+        },
+        "statusCode": 299
+      },
+      "url": "http://localhost:3001/get"
+    },
+    {
+      "__id": "2",
+      "__duration": 3,
+      "__timestamp": 1539210298282,
+      "__version": "1.0.0",
+      "request": {
+        "body": "{\"foo\":\"bar\"}",
+        "headers": {
+          "host": "localhost:3001",
+          "accept": "application/json",
+          "content-type": "application/json",
+          "content-length": 13
+        },
+        "host": "localhost",
+        "method": "POST",
+        "path": "/post",
+        "port": 3001,
+        "protocol": "http"
+      },
+      "response": {
+        "body": "Mock Body 2",
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "163",
+          "etag": "W/\"a3-jHqZr7r0l0zBQzwvS/zMEYPWTEo\"",
+          "date": "Wed, 10 Oct 2018 22:24:58 GMT",
+          "connection": "close"
+        },
+        "statusCode": 200
+      },
+      "url": "http://localhost:3001/post"
+    }
+  ]
+}

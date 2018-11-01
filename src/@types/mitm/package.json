@@ -1,0 +1,49 @@
+{
+  "_from": "@types/mitm",
+  "_id": "@types/mitm@1.3.2",
+  "_inBundle": false,
+  "_integrity": "sha1-omkQqgznRrYKWK18on3OsYEZ5uw=",
+  "_location": "/@types/mitm",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@types/mitm",
+    "name": "@types/mitm",
+    "escapedName": "@types%2fmitm",
+    "scope": "@types",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@types/mitm/-/mitm-1.3.2.tgz",
+  "_shasum": "a26910aa0ce746b60a58ad7ca27dceb18119e6ec",
+  "_spec": "@types/mitm",
+  "_where": "/Users/ianwalker-sperber/Code/ian/yesno",
+  "author": {
+    "name": "Alejandro Sánchez",
+    "email": "https://github.com/alejo90"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@types/node": "*"
+  },
+  "deprecated": false,
+  "description": "TypeScript definitions for mitm v1.3.0",
+  "license": "MIT",
+  "main": "",
+  "name": "@types/mitm",
+  "peerDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "scripts": {},
+  "typesPublisherContentHash": "90d8a3f63390bfc281913aa21437c0b85cdb2d5a6be48fed8457828a6872269d",
+  "typings": "index.d.ts",
+  "version": "1.3.2"
+}
