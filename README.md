@@ -160,24 +160,24 @@ describe('api', () => {
 
 ## API
 
-YesNo is written in [TypeScript](link) and uses its type syntax where possible.
+YesNo is written in [TypeScript](#link) and uses its type syntax where possible.
 
 ##### [`YesNo`](#YesNo)
-- [`yesno.spy(options?: IInterceptOptions): void`](link);
-- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](link);
-- [`yesno.restore(): void`](link);
-- [`yesno.save(name: string, dir: string): Promise<void>`](link) (+1 overload)
-- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](link) (+1 overload);
-- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](link);
+- [`yesno.spy(options?: IInterceptOptions): void`](#link);
+- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
+- [`yesno.restore(): void`](#link);
+- [`yesno.save(name: string, dir: string): Promise<void>`](#link) (+1 overload)
+- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#link) (+1 overload);
+- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
 
 ##### [`FilteredHttpCollection`](#FilteredHttpCollection)
-- [`collection.mocks(): ISerializedHttp[]`](link);
-- [`collection.intercepted(): ISerializedHttp[]`](link);
-- [`collection.redact(): void`](link);
-- [`collection.comparator(): void`](link);
+- [`collection.mocks(): ISerializedHttp[]`](#link);
+- [`collection.intercepted(): ISerializedHttp[]`](#link);
+- [`collection.redact(): void`](#link);
+- [`collection.comparator(): void`](#link);
 
-##### [`ISerializedHttp`](link)
-##### [`YesNoError`](link)
+##### [`ISerializedHttp`](#link)
+##### [`YesNoError`](#link)
 
 ### `YesNo`
 
@@ -198,7 +198,7 @@ Enables intercept of requests if not already enabled and configures YesNo to `mo
 
 YesNo responds to the Nth intercepted request with the Nth mock. If the HTTP method & URL of the intercepted request does not match the corresponding mock then client request will fail.
 
-When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](link) instance. Most libraries will handle this by throwing an error.
+When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](#link) instance. Most libraries will handle this by throwing an error.
 
 See also [`IInterceptOptions`](#IInterceptOptions).
 
