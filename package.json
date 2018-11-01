@@ -13,7 +13,7 @@
   "scripts": {
     "preversion": "npm run clean && npm run lint && npm run tests",
     "version": "npm run compile",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "compile": "tsc",
     "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
@@ -50,6 +50,7 @@
     "nyc": "^13.1.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "rimraf": "^2.6.2",
     "sinon": "^6.1.5",
     "source-map-support": "^0.5.8",
     "ts-node": "^7.0.1",

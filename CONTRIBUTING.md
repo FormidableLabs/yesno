@@ -24,7 +24,7 @@ If you are actively developing, you can run a watch in one terminal:
 $ yarn run watch
 ```
 
-to build both source and test files, and then do whatever development you want in a separate terminal.
+to build source files and then do whatever development you want in a separate terminal.
 
 ## Releasing a new version to NPM
 
