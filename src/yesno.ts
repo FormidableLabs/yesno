@@ -18,7 +18,7 @@ import {
   ISerializedResponse,
   validateSerializedHttpArray,
 } from './http-serializer';
-import Interceptor, { IInterceptEvent, IProxiedEvent } from './interceptor';
+import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
 const debug: IDebugger = require('debug')('yesno');
 
 export enum Mode {
@@ -30,10 +30,6 @@ export enum Mode {
    * Spy on request/response
    */
   Spy,
-}
-
-export interface IInterceptOptions {
-  ports?: number[];
 }
 
 export class YesNo implements IFiltered {
@@ -208,11 +204,10 @@ export class YesNo implements IFiltered {
    * Enable intercepting requests
    */
   private enable(options?: IInterceptOptions): YesNo {
-    const { ports = [] }: IInterceptOptions = options || {};
-    const portsWithDefaults = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, ...ports];
+    const { ignorePorts = [] }: IInterceptOptions = options || {};
 
-    debug('Enabling intercept on ports', ports);
-    this.interceptor.enable(portsWithDefaults);
+    debug('Enabling intercept. Ignoring ports', ignorePorts);
+    this.interceptor.enable({ ignorePorts });
 
     return this;
   }

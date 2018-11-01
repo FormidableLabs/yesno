@@ -19,7 +19,7 @@ describe('yesno', () => {
   });
 
   beforeEach(() => {
-    yesno.spy({ ports: [3001] });
+    yesno.spy();
   });
 
   afterEach(() => {
@@ -162,7 +162,7 @@ describe('yesno', () => {
     it('should play back the requests from disk', async () => {
       const name = 'mock-test-1';
       const mocks = await yesno.load(name, path.join(__dirname, 'mocks'));
-      yesno.mock(mocks, { ports: [3001] });
+      yesno.mock(mocks);
 
       const now = Date.now();
 

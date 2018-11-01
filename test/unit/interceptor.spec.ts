@@ -26,7 +26,7 @@ describe('Interceptor', () => {
   describe('#enable', () => {
     it('should enable request intercept via "intercept" events', async () => {
       interceptor = new Interceptor();
-      interceptor.enable([testServer.PORT]);
+      interceptor.enable();
 
       let intercepted = false;
       interceptor.on('intercept', () => (intercepted = true));
@@ -37,7 +37,7 @@ describe('Interceptor', () => {
 
     it('should proxy by default', async () => {
       interceptor = new Interceptor();
-      interceptor.enable([testServer.PORT]);
+      interceptor.enable();
 
       const serverCount = server.getRequestCount();
       let intercepted = 0;
@@ -55,9 +55,9 @@ describe('Interceptor', () => {
       });
     });
 
-    it('should bypass requests on other ports', async () => {
+    it('should allow ignoring ports', async () => {
       interceptor = new Interceptor();
-      interceptor.enable([testServer.PORT + 1]);
+      interceptor.enable({ ignorePorts: [testServer.PORT] });
 
       const serverCount = server.getRequestCount();
       let intercepted = 0;
@@ -79,7 +79,7 @@ describe('Interceptor', () => {
   describe('#disable', () => {
     it('should disable HTTP request intercepting', async () => {
       interceptor = new Interceptor();
-      interceptor.enable([testServer.PORT]);
+      interceptor.enable();
 
       const serverCount = server.getRequestCount();
       let intercepted = 0;
@@ -99,7 +99,7 @@ describe('Interceptor', () => {
   describe('event "intercept"', () => {
     it('should should provide us a reference to the originating ClientRequest', async () => {
       interceptor = new Interceptor();
-      interceptor.enable([testServer.PORT]);
+      interceptor.enable();
 
       let interceptEvent: IInterceptEvent | undefined;
       interceptor.on('intercept', (e: IInterceptEvent) => (interceptEvent = e));

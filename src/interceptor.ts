@@ -13,8 +13,6 @@ import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http
 
 const debug: IDebugger = require('debug')('yesno:proxy');
 
-const DEFAULT_PORTS = [DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS];
-
 interface ClientRequestTracker {
   [key: string]: {
     clientOptions: http.RequestOptions;
@@ -38,6 +36,10 @@ export interface IInterceptEvent {
   requestSerializer: RequestSerializer;
 }
 
+export interface IInterceptOptions {
+  ignorePorts?: number[];
+}
+
 export interface IProxiedEvent {
   requestSerializer: RequestSerializer;
   responseSerializer: ResponseSerializer;
@@ -55,7 +57,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   private clientRequests: ClientRequestTracker = {};
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
-  private ports = DEFAULT_PORTS;
+  private ignorePorts: number[] = [];
 
   /**
    * Begin intercepting requests on instantiation
@@ -70,7 +72,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     this.shouldProxy = shouldProxy;
   }
 
-  public enable(ports = DEFAULT_PORTS): void {
+  public enable(options: IInterceptOptions = {}): void {
     if (this.mitm || this.origOnSocket) {
       debug('Interceptor already enabled. Do nothing.');
       return;
@@ -78,7 +80,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
 
     const self = this;
     this.mitm = Mitm();
-    this.ports = ports;
+    this.ignorePorts = options.ignorePorts || [];
     this.origOnSocket = ClientRequest.prototype.onSocket;
 
     ClientRequest.prototype.onSocket = _.flowRight(
@@ -124,7 +126,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     debug('New socket connection');
     const { port } = options;
 
-    if (!port || -1 === this.ports.indexOf(parseInt(String(port), 10))) {
+    if (this.ignorePorts && -1 !== this.ignorePorts.indexOf(parseInt(String(port), 10))) {
       debug('Ignoring socket on port %d', port);
       socket.bypass();
       return;

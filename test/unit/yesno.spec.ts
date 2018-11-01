@@ -56,7 +56,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
 
-      yesno.mock(await yesno.load('mock-localhost-get', mocksDir), { ports: [3001] });
+      yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
 
@@ -64,7 +64,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
-      await yesno.mock(await yesno.load('mock-localhost-get', mocksDir), { ports: [3001] });
+      await yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked again').to.eql(startingRequestCount + 2);
     });
@@ -79,7 +79,7 @@ describe('Yesno', () => {
     it('should support application/x-www-form-url-encoded');
 
     it('should support multipart/form-data', async () => {
-      yesno.spy({ ports: [3001] });
+      yesno.spy();
 
       await rp({
         formData: {
@@ -123,7 +123,7 @@ describe('Yesno', () => {
       ) as IHttpMock;
     }
     beforeEach(async () => {
-      await yesno.mock(await yesno.load('mock-test', mocksDir), { ports: [3001] });
+      await yesno.mock(await yesno.load('mock-test', mocksDir));
     });
 
     afterEach(() => {
