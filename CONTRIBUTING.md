@@ -11,12 +11,20 @@ Install the project using `yarn` (which we've standardized on for development):
 $ yarn install
 ```
 
-`tl:dr` - You can run everything with:
+You can build and run everything with:
 
 ```sh
 $ yarn run compile
 $ yarn run check
 ```
+
+If you are actively developing, you can run a watch in one terminal:
+
+```sh
+$ yarn run watch
+```
+
+to build both source and test files, and then do whatever development you want in a separate terminal.
 
 ## Releasing a new version to NPM
 
