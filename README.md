@@ -215,18 +215,28 @@ If you're using YesNo in a test suite it's advisable to run this method after ev
 
 Save serialized HTTP requests to disk. Will save currently intercepted requests unless records are provided to method. 
 
-This method will throw an error if there are any in flight requests.
+Unless providing records, this method will throw an error if there are any in flight requests to prevent users from accidentally saving before all requests have completed. (TODO: Allow forcing save)
+
+##### `IFileOptions`
+
+`options.filename: string`: Full filename (JSON)
+
+##### `ISaveOptions`
+
+`options.records?: ISerializedHttp`: Records to save. Defaults to already intercepted requests.
 
 ##### `yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
-Load mocks from disk. Mocks will be returned. To use mocks you must pass them to `yesno.mock()`.
+Load serialized records from disk. 
+
+See [`IFileOptions`](#ifileoptions).
 
 ##### `yesno.matching(filter: HttpFilter): FilteredHttpCollection`
 
 Apply a filter to subsequently access or manipulate matching mocks or intercepted requests.
 
-We define an `HttpFilter` as: `type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | (serialized: ISerializedHttp, index: number) => boolean`;
+We define an `HttpFilter` as: `type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | (serialized: ISerializedHttp) => boolean`;
 
 The `filter` is applied to each serialized request to filter results. If the filter is...
 
@@ -270,7 +280,7 @@ Return the intercepted requests defined within the collection.
 
 ##### `collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`
 
-Redact properties on intercepted requests within the collection.
+Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
 
 ##### `collection.comparator((intercepted: ISerializedRequest, mock: ISerializedRequest) => boolean): void`
 
