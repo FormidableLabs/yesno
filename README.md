@@ -2,7 +2,7 @@
 
 YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests. YesNo provides a simple API to access, manipulate and record requests, using mocks or live services, so that you can easily define what requests should and should not be made by your app.
 
-_Note:_ YesNo is still in early development! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is still subject to change. Any and all feedback is appreciated.
+_Note:_ YesNo is still in early development! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
 
 - [Why?](#Why)
 - [Installation](#installation)
