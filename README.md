@@ -174,7 +174,6 @@ YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its t
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
 - [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
-- [`collection.comparator(): void`](#collectioncomparatorintercepted-iserializedrequest-mock-iserializedrequest--boolean-void);
 
 ##### [`ISerializedHttp`](#iserializedhttp-1)
 
@@ -219,7 +218,7 @@ const testName = 'should hit the api'
 yesno.save(testName, mocksDir) // => "./test/mocks/should-hit-the-api-yesno.json"
 ```
 
-Unless providing records, this method will throw an error if there are any in flight requests to prevent users from accidentally saving before all requests have completed. (TODO: Allow forcing save)
+Unless providing records, this method will throw an error if there are any in flight requests to prevent users from accidentally saving before all requests have completed.
 
 ##### `IFileOptions`
 
@@ -288,22 +287,6 @@ Return the intercepted requests defined within the collection.
 
 Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
 
-##### `collection.comparator((intercepted: ISerializedRequest, mock: ISerializedRequest) => boolean): void`
-
-_Not yet implemented!_
-
-Provide a custom comparator to use with mocks within the collection. The comparator is used to determine whether an intercepted request matches a mock. Use this method to make mocking more or less strict, which can reduce/increase the need to validate intercepted requests afterward. YesNo ships with the comparators `comparators.url`, `comparators.body`, `comparators.headers`. By default YesNo will use `comparators.url` (least strict).
-
-You can compose comparators to mix and match behavior:
-
-```javascript
-const { comparators } = require('yesno-http');
-const { flow } = require('lodash'); // Composition helper
-
-const compareAuthHeader = (intercepted, mock) => intercepted.headers.authorization === mock.headers.authorization;
-yesno.matching(/auth/).comparator(flow(comparators.url, compareAuthHeader));
-```
-
 #### ISerializedHttp
 
 ```typescript
@@ -333,16 +316,3 @@ export interface SerializedRequest {
   readonly protocol: 'http' | 'https';
 }
 ```
-
-### CLI
-
-TODO
-
-### Roadmap
-
-YesNo is still a work in progress. The below features are planned or in consideration.
-
-- Support non-deterministic order of HTTP requests.
-- Detect HTTP requests by some heuristic other than port so that we don't intercept non-http
-- Support `comparator`
-- Apply redact to incoming requests
