@@ -1,0 +1,32 @@
+{
+  "records": [
+    {
+      "__duration": 2,
+      "__id": "069390a8-adb9-4434-b4e5-e0751ae283b4",
+      "__timestamp": 1542869578952,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "host": "localhost:3001"
+        },
+        "host": "localhost",
+        "method": "GET",
+        "path": "/get",
+        "port": 3001,
+        "protocol": "http"
+      },
+      "response": {
+        "body": "{\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\"},\"method\":\"GET\",\"path\":\"/get\"}",
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "87",
+          "etag": "W/\"57-Z4ae1p59epSpYq2PcHrfwQR3giw\"",
+          "date": "Thu, 22 Nov 2018 06:52:58 GMT",
+          "connection": "close"
+        },
+        "statusCode": 200
+      }
+    }
+  ]
+}

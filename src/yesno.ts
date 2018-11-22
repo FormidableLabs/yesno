@@ -2,7 +2,7 @@ import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
+import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
@@ -19,18 +19,8 @@ import {
   validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
+import Recording, { RecordMode as Mode } from './recording';
 const debug: IDebugger = require('debug')('yesno');
-
-export enum Mode {
-  /**
-   * Intercept requests and respond with local mocks
-   */
-  Mock,
-  /**
-   * Spy on request/response
-   */
-  Spy,
-}
 
 export class YesNo implements IFiltered {
   private mode: Mode = Mode.Spy;
@@ -68,6 +58,22 @@ export class YesNo implements IFiltered {
     this.setMode(Mode.Mock);
 
     this.setMocks(mocks.map(file.hydrateHttpMock));
+  }
+
+  public async recording(options: file.IFileOptions): Promise<Recording> {
+    const mode = this.getModeByEnv();
+
+    if (mode !== Mode.Mock) {
+      this.spy();
+    } else {
+      this.mock(await this.load(options));
+    }
+
+    return new Recording({
+      ...options,
+      getRecordsToSave: this.getRecordsToSave.bind(this),
+      mode,
+    });
   }
 
   /**
@@ -128,11 +134,6 @@ export class YesNo implements IFiltered {
       options = nameOrOptions as file.ISaveOptions & file.IFileOptions;
     }
 
-    if (!options.records && this.isMode(Mode.Mock)) {
-      debug('Nothing to save. No records or running in mock mode.');
-      return Promise.resolve();
-    }
-
     options.records = options.records || this.getRecordsToSave();
 
     return file.save(options);
@@ -181,6 +182,21 @@ export class YesNo implements IFiltered {
    */
   public redact(property: string | string[], redactor?: Redactor): void {
     return this.getCollection().redact(property, redactor);
+  }
+
+  private getModeByEnv(): Mode {
+    const env = (process.env[YESNO_RECORDING_MODE_ENV_VAR] || Mode.Mock).toLowerCase();
+
+    if (!Object.values(Mode).includes(env)) {
+      throw new YesNoError(
+        // tslint:disable-next-line:max-line-length
+        `Invalid mode "${env}" set for ${YESNO_RECORDING_MODE_ENV_VAR}. Must be one of ${Object.values(
+          Mode,
+        ).join(', ')}`,
+      );
+    }
+
+    return env as Mode;
   }
 
   private getRecordsToSave(): ISerializedHttp[] {

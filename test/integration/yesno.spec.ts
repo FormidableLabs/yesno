@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
-import { ISerializedHttp } from '../../src/http-serializer';
 import * as testServer from '../test-server';
 
 describe('yesno', () => {

@@ -1,11 +1,14 @@
 import { expect } from 'chai';
-import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
+import rimraf = require('rimraf');
 import * as sinon from 'sinon';
 import yesno from '../../src';
+import { YESNO_RECORDING_MODE_ENV_VAR } from '../../src/consts';
 import { IHttpMock } from '../../src/file';
+import { RecordMode } from '../../src/recording';
 import * as testServer from '../test-server';
 
 type PartialDeep<T> = { [P in keyof T]?: PartialDeep<T[P]> };
@@ -15,8 +18,9 @@ describe('Yesno', () => {
   const mocksDir = path.join(__dirname, 'mocks');
   let server: testServer.ITestServer;
 
-  afterEach(() => {
+  afterEach(async () => {
     sinon.restore();
+    await new Promise((res, rej) => rimraf(`${__dirname}/tmp/*`, (e) => (e ? rej(e) : res())));
   });
 
   function requestTestServer(options: object = {}) {
@@ -203,14 +207,98 @@ describe('Yesno', () => {
     });
   });
 
+  describe('#recording', () => {
+    describe('if "spy" mode', () => {
+      const filename = path.join(__dirname, 'tmp', 'recording-spy.json');
+
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy));
+
+      it('should make live requests', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount + 1);
+      });
+
+      it('should not persist the recording', async () => {
+        const recording = await yesno.recording({ filename });
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(filename)).to.be.false;
+      });
+    });
+
+    describe('if "record" mode', () => {
+      const filename = path.join(__dirname, 'tmp', 'recording-record.json');
+
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record));
+
+      it('should make live requests', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount + 1);
+      });
+
+      it('should persist the recording', async () => {
+        const recording = await yesno.recording({ filename });
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(filename)).to.be.true;
+      });
+    });
+
+    describe('if "mock" mode', () => {
+      const filename = path.join(__dirname, 'mocks', 'recording-mock.json');
+
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Mock));
+
+      it('should mock responses', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount);
+      });
+
+      it('should not persist the recording', async () => {
+        const tmpFilename = path.join(__dirname, 'tmp', 'recording-mock.json');
+        await fse.writeFile(tmpFilename, await fse.readFileSync(filename));
+
+        const recording = await yesno.recording({ filename: tmpFilename });
+        await fse.unlink(tmpFilename); // Delete fixtures, so that we can verify new ones aren't persisted
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(tmpFilename)).to.be.false;
+      });
+    });
+  });
+
   describe('#save', () => {
     const name = 'mock-save';
     const expectedFilename = path.join(dir, `${name}-yesno.json`);
 
     afterEach(() => {
-      const files = fs.readdirSync(dir);
+      const files = fse.readdirSync(dir);
       files.forEach((file) => {
-        fs.unlinkSync(path.join(dir, file));
+        fse.unlinkSync(path.join(dir, file));
       });
 
       yesno.restore();
