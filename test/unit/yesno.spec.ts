@@ -291,6 +291,29 @@ describe('Yesno', () => {
     });
   });
 
+  describe('#recordableTest', () => {
+    it('should create a recordable test', async () => {
+      process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record;
+
+      const mockTestFn = sinon.mock();
+      const mockTest = sinon.mock();
+      const expectedFilename = `${dir}/test-title-yesno.json`;
+
+      const recordedTest = yesno.recordedTest({ test: mockTestFn, dir });
+      recordedTest('test title', mockTest);
+
+      expect(mockTestFn).to.have.been.calledOnceWith('test title');
+      expect(fse.existsSync(expectedFilename)).to.be.false;
+      expect(mockTest).to.not.have.been.called;
+
+      const callback = mockTestFn.args[0][1];
+      await callback();
+
+      expect(mockTest).to.have.been.calledOnce;
+      expect(fse.existsSync(expectedFilename)).to.be.true;
+    });
+  });
+
   describe('#save', () => {
     const name = 'mock-save';
     const expectedFilename = path.join(dir, `${name}-yesno.json`);

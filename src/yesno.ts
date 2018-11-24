@@ -22,6 +22,15 @@ import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from '
 import Recording, { RecordMode as Mode } from './recording';
 const debug: IDebugger = require('debug')('yesno');
 
+export type GenericTest = (...args: any) => Promise<any> | void;
+export type GenericTestFunction = (title: string, fn: GenericTest) => any;
+
+export interface IRecordableTest {
+  test?: GenericTestFunction;
+  it?: GenericTestFunction;
+  dir: string;
+}
+
 export class YesNo implements IFiltered {
   private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
@@ -74,6 +83,28 @@ export class YesNo implements IFiltered {
       getRecordsToSave: this.getRecordsToSave.bind(this),
       mode,
     });
+  }
+
+  /**
+   * Create a test function that will wrap its provided test in a recording.
+   */
+  public recordedTest({ it, test, dir }: IRecordableTest): GenericTestFunction {
+    const runTest = test || it;
+
+    if (!runTest) {
+      throw new YesNoError('Missing "test" or "it" test function');
+    }
+
+    return (title: string, fn: GenericTest): GenericTestFunction => {
+      return runTest(title, async () => {
+        debug('Running test "%s"', title);
+        const filename = file.getMockFilename(title, dir);
+        const recording = await this.recording({ filename });
+        await fn();
+        debug('Saving test %s', filename);
+        await recording.complete();
+      });
+    };
   }
 
   /**

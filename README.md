@@ -165,20 +165,25 @@ describe('api', () => {
 
 YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its type syntax where possible.
 
-##### [`YesNo`](#yesno-2)
-- [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
-- [`yesno.mock(mocks?: ISerializedHttp[] | ISerializedHttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
-- [`yesno.restore(): void`](#yesnorestore-void);
-- [`yesno.save(name: string, dir: string): Promise<void>`](#yesnosavename-string-dir-string-promisevoid) (+1 overload)
-- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#yesnoloadname-string-dir-string-promiseiserializedhttp) (+1 overload);
-- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection);
+##### [`YesNo`](#YesNo)
+- [`yesno.spy(options?: IInterceptOptions): void`](#link);
+- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
+- [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#link);
+- [`yesno.restore(): void`](#link);
+- [`yesno.save(name: string, dir: string): Promise<void>`](#link) (+1 overload)
+- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#link) (+1 overload);
+- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
+- [`yesno.test(testFn: Function): (name: string, test: () => Promise<Any>) => void`](#link);
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
 - [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 
-##### [`ISerializedHttp`](#iserializedhttp-1)
+##### [`Recording`](#Recording)
+- [`yesno.save(options: IFileOptions): Promise<void>`](#link) (+1 overload)
+
+##### [`ISerializedHttp`](#link)
 
 ### `YesNo`
 
