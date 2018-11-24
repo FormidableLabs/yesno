@@ -170,8 +170,8 @@ YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its t
 - [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
 - [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#link);
 - [`yesno.restore(): void`](#link);
-- [`yesno.save(name: string, dir: string): Promise<void>`](#link) (+1 overload)
-- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#link) (+1 overload);
+- [`yesno.save(options: IFileOptions): Promise<void>`](#link)
+- [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#link);
 - [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
 - [`yesno.test(testFn: Function): (name: string, test: () => Promise<Any>) => void`](#link);
 
@@ -181,7 +181,7 @@ YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its t
 - [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 
 ##### [`Recording`](#Recording)
-- [`yesno.save(options: IFileOptions): Promise<void>`](#link) (+1 overload)
+- [`yesno.save(options: IFileOptions): Promise<void>`](#link)
 
 ##### [`ISerializedHttp`](#link)
 
@@ -213,7 +213,6 @@ Restore normal HTTP functionality by disabling Mitm & restoring any defined stub
 
 If you're using YesNo in a test suite it's advisable to run this method after every test case.
 
-##### `yesno.save(name: string, dir: string): Promise<void>`
 ##### `yesno.save(options: IFileOptions & ISaveOptions): Promise<void>`
 
 Save serialized HTTP requests to disk. Unless records are provided directly, yesno will save the currently intercepted requests.

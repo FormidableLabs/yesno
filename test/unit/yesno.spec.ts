@@ -60,7 +60,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
 
-      yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
+      yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-localhost-get-yesno.json` }));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
 
@@ -68,7 +68,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
-      await yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
+      await yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-localhost-get-yesno.json` }));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked again').to.eql(startingRequestCount + 2);
     });
@@ -127,7 +127,7 @@ describe('Yesno', () => {
       ) as IHttpMock;
     }
     beforeEach(async () => {
-      await yesno.mock(await yesno.load('mock-test', mocksDir));
+      await yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-test-yesno.json` }));
     });
 
     afterEach(() => {

@@ -32,7 +32,7 @@ describe('yesno', () => {
 
   describe.skip('#save', () => {
     it('should create records locally', async () => {
-      const name = 'record-test-1';
+      const filename = `${tmpDir}/record-test-1-yesno.json`;
       const now = Date.now();
 
       await rp.get({
@@ -51,9 +51,9 @@ describe('yesno', () => {
       });
 
       expect(yesno.intercepted()).to.have.length(2);
-      await yesno.save(name, tmpDir);
+      await yesno.save({ filename });
 
-      const mocks = await yesno.load(name, tmpDir);
+      const mocks = await yesno.load({ filename });
       expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
       expect(mocks[0]).to.have.nested.property('request.path', '/get');
@@ -159,8 +159,7 @@ describe('yesno', () => {
 
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
-      const name = 'mock-test-1';
-      const mocks = await yesno.load(name, path.join(__dirname, 'mocks'));
+      const mocks = await yesno.load({ filename: `${path.join(__dirname, 'mocks')}/mock-test-1` });
       yesno.mock(mocks);
 
       const now = Date.now();

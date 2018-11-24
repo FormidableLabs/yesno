@@ -109,28 +109,9 @@ export class YesNo implements IFiltered {
 
   /**
    * Load request/response mocks from disk
-   * @param name Mock name
-   * @param dir Override default directory
    */
-  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]>;
-  public async load(name: string, dir: string): Promise<ISerializedHttp[]>;
-  public async load(
-    nameOrOptions: string | file.IFileOptions,
-    dir?: string,
-  ): Promise<ISerializedHttp[]> {
+  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]> {
     debug('Loading mocks');
-    let options = nameOrOptions;
-
-    if (!_.isPlainObject(nameOrOptions)) {
-      if (!dir) {
-        throw new YesNoError('Must provide directory with mock name');
-      }
-
-      options = {
-        filename: file.getMockFilename(nameOrOptions as string, dir),
-      };
-    }
-
     const records = await file.load(options as file.IFileOptions);
 
     validateSerializedHttpArray(records);
@@ -138,33 +119,11 @@ export class YesNo implements IFiltered {
     return records;
   }
   /**
-   * Save intercepted requests _if_ we're in Spy mode.
+   * Save intercepted requests
    *
-   * @todo Use the same name/dir as the loaded mocks IF available...?
-   * @param name Filename
-   * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
    */
-  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void>;
-  public async save(name: string, dir: string): Promise<string | void>;
-  public save(
-    nameOrOptions: string | (file.ISaveOptions & file.IFileOptions),
-    dir?: string,
-  ): Promise<string | void> {
-    let options: file.IFileOptions & file.ISaveOptions;
-
-    if (!_.isPlainObject(nameOrOptions)) {
-      if (!dir) {
-        throw new YesNoError('Must provide directory with mock name');
-      }
-
-      options = {
-        filename: file.getMockFilename(nameOrOptions as string, dir),
-      };
-    } else {
-      options = nameOrOptions as file.ISaveOptions & file.IFileOptions;
-    }
-
+  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
     options.records = options.records || this.getRecordsToSave();
 
     return file.save(options);
