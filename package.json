@@ -21,6 +21,8 @@
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "unit": "mocha --timeout 2000 --recursive 'test/unit/**/*.spec.ts'",
+    "example-server": "./node_modules/.bin/ts-node ./examples/src/api-server.ts",
+    "example-tests": "mocha --timeout 2000 --recursive './examples/*.spec.ts'",
     "integration": "mocha --timeout 5000 --recursive 'test/integration/**/*.spec.ts'",
     "check": "npm run lint && npm run tests"
   },
