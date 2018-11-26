@@ -90,13 +90,12 @@ function helpMessageMissingMock(filename: string): string {
 export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
   const { request, response } = mock;
 
-  const responseHeaders = response.headers || {};
-  let responseBody = response.body || '';
+  let responseHeaders = response.headers || {};
+  const responseBody: string | object = response.body || '';
 
-  if (_.isPlainObject(responseBody)) {
-    // If response body is object, handle as JSON
-    responseBody = JSON.stringify(response.body);
-    responseHeaders[HEADER_CONTENT_TYPE] = MIME_TYPE_JSON;
+  if (_.isPlainObject(response.body) && !responseHeaders[HEADER_CONTENT_TYPE]) {
+    debug('Adding missing header %s=%s', HEADER_CONTENT_TYPE, MIME_TYPE_JSON);
+    responseHeaders = { ...responseHeaders, [HEADER_CONTENT_TYPE]: MIME_TYPE_JSON };
   }
 
   return createRecord({

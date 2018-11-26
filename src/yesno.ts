@@ -304,8 +304,11 @@ export class YesNo implements IFiltered {
       // mitm does not support promise rejections on "request" event
       comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
 
+      const bodyString = _.isPlainObject(mock.response.body)
+        ? JSON.stringify(mock.response.body)
+        : mock.response.body;
       interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
-      interceptedResponse.write(mock.response.body);
+      interceptedResponse.write(bodyString);
       interceptedResponse.end();
 
       this.recordCompleted(serializedRequest, mock.response, requestNumber);
