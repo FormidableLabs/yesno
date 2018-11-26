@@ -206,7 +206,9 @@ YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax wh
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
-- [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
+- [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
+- [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp);
+- [`collection.response(): ISerializedHttp`](#collectionresponse-iserializedhttp);
 
 ##### [`Recording`](#Recording)
 - [`recording.complete(): Promise<void>`](#recordingcomplete---promisevoid)
@@ -327,6 +329,14 @@ Return the intercepted requests defined within the collection.
 ##### `collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`
 
 Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
+
+##### `collection.request(): ISerializedHttp`
+
+TODO
+
+##### `collection.response(): ISerializedHttp`
+
+TODO
 
 #### Recording
 
