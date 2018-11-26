@@ -159,7 +159,9 @@ describe('yesno', () => {
 
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
-      const mocks = await yesno.load({ filename: `${path.join(__dirname, 'mocks')}/mock-test-1` });
+      const mocks = await yesno.load({
+        filename: `${path.join(__dirname, 'mocks')}/mock-test-1-yesno.json`,
+      });
       yesno.mock(mocks);
 
       const now = Date.now();

@@ -292,10 +292,14 @@ describe('Yesno', () => {
   });
 
   describe('#recordableTest', () => {
+    beforeEach(() => {
+      process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy;
+    });
+
     it('should create a recordable test', async () => {
       process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record;
 
-      const mockTestFn = sinon.mock();
+      const mockTestFn = sinon.mock(); // eg jest.test
       const mockTest = sinon.mock();
       const expectedFilename = `${dir}/test-title-yesno.json`;
 
@@ -311,6 +315,46 @@ describe('Yesno', () => {
 
       expect(mockTest).to.have.been.calledOnce;
       expect(fse.existsSync(expectedFilename)).to.be.true;
+    });
+
+    it('should restore behavior before and after the test regardless of whether it passes', async () => {
+      const mockTestFn = sinon.mock(); // eg jest.test
+      const mockTest = sinon.mock().resolves();
+      const mockTestReject = sinon.mock().rejects(new Error('Mock reject'));
+      const mockTestThrow = sinon.mock().throws(new Error('Mock throw'));
+      const restoreSpy = sinon.spy(yesno, 'restore');
+
+      const recordedTest = yesno.recordedTest({ test: mockTestFn, dir });
+
+      // Success
+      recordedTest('test success', mockTest);
+      const successTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await successTestCallback();
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
+
+      // Rejected
+      recordedTest('test reject', mockTestReject);
+      const rejectTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await expect(rejectTestCallback()).to.be.rejectedWith('Mock reject');
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
+
+      // Thrown
+      recordedTest('test throw', mockTestThrow);
+      const throwTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await expect(throwTestCallback()).to.be.rejectedWith('Mock throw');
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
     });
   });
 

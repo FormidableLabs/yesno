@@ -96,15 +96,19 @@ export class YesNo implements IFiltered {
     }
 
     return (title: string, fn: GenericTest): GenericTestFunction => {
-      this.restore();
       return runTest(title, async () => {
         debug('Running test "%s"', title);
-        const filename = file.getMockFilename(title, dir);
-        const recording = await this.recording({ filename });
-        await fn();
-        debug('Saving test %s', filename);
-        await recording.complete();
         this.restore();
+
+        try {
+          const filename = file.getMockFilename(title, dir);
+          const recording = await this.recording({ filename });
+          await fn();
+          debug('Saving test "%s"', filename);
+          await recording.complete();
+        } finally {
+          this.restore();
+        }
       });
     };
   }
