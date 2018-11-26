@@ -88,7 +88,7 @@ export class YesNo implements IFiltered {
   /**
    * Create a test function that will wrap its provided test in a recording.
    */
-  public recordedTest({ it, test, dir }: IRecordableTest): GenericTestFunction {
+  public test({ it, test, dir }: IRecordableTest): GenericTestFunction {
     const runTest = test || it;
 
     if (!runTest) {

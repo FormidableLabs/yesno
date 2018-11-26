@@ -303,7 +303,7 @@ describe('Yesno', () => {
       const mockTest = sinon.mock();
       const expectedFilename = `${dir}/test-title-yesno.json`;
 
-      const recordedTest = yesno.recordedTest({ test: mockTestFn, dir });
+      const recordedTest = yesno.test({ test: mockTestFn, dir });
       recordedTest('test title', mockTest);
 
       expect(mockTestFn).to.have.been.calledOnceWith('test title');
@@ -324,7 +324,7 @@ describe('Yesno', () => {
       const mockTestThrow = sinon.mock().throws(new Error('Mock throw'));
       const restoreSpy = sinon.spy(yesno, 'restore');
 
-      const recordedTest = yesno.recordedTest({ test: mockTestFn, dir });
+      const recordedTest = yesno.test({ test: mockTestFn, dir });
 
       // Success
       recordedTest('test success', mockTest);

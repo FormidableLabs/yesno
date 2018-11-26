@@ -12,8 +12,8 @@ _Note:_ YesNo is still in early development! We're actively working toward our [
   - [Recording requests](#recording-requests)
   - [Filtering results](#filtering-results)
   - [Restoring HTTP behavior](#restoring-http-behavior)
+- [Examples](#Examples)
 - [API](#API)
-- [CLI](#CLI)
 
 ## Why?
 
@@ -30,6 +30,8 @@ npm i --save-dev yesno-http
 ```
 
 ## Usage
+
+_To see our preferred usage, skip to [recording](#recording-requests)!_
 
 ### Intercepting live requests
 
@@ -93,26 +95,31 @@ Mocks also allow us to easily test the behavior of our application when it recei
 While mocking is useful mocks themselves are hard to maintain. When APIs changes (sometimes unexpectedly!) our mocks become stale, meaning we're testing for the wrong behavior. To solve this problem YesNo allows you to _record_ requests, saving the requests we've intercepted to a local file.
 
 ```javascript
-yesno.spy();
+const recording = await yesno.record({ filename: './get-users-yesno.json' });
 await myApi.getUsers();
+  expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
 
-yesno.save({ filename: './get-users.json' });
-```
-
-After we've saved the records to disk, we can update our test to load its mocks from the records.
-
-```javascript
-yesno.mock(await yesno.load({ filename: './get-users-mocks.json' }));
-await myApi.getUsers();
+recording.complete();
 ```
 
 This workflow has the advantage of ensuring that our mocks closely represent the _real_ HTTP request/responses our application deals with and making it easy to refresh these mocks when an API has been updated.
 
-Since it's a common pattern, the save & load methods alternatively accept the test name and a directory to store the mocks, from which it will generate the filename.
+To make this worflow even easier, YesNo includes a `test` method which accepts a jest or mocha style test statement and surrounds it with our record statements. Using the above as an example, we could rewrite it as: 
 
 ```javascript
-yesno.mock(await yesno.load(testName, mockDir));
+const itRecorded = await yesno.test({ it, dir: `${__dirname}/mocks` })
+
+// Mocks for this test will be saved to or loaded from
+// "./mocks/get-users-yesno.json"
+itRecorded('Get Users', () => {
+  await myApi.getUsers();
+  expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
+})
 ```
+
+Now we skip the recording boilerplate and just write our test!
+
+In case you need to load and generate fixtures manually, YesNo also exposes the `save` and `load` methods that `record` uses internally.
 
 ### Filtering results
 Once requests have finished we still need to assert that the requests were correct. We've already seen `yesno.intercepted()`, which returns _all_ the intercepted requests, but this is just shorthand for `yesno.matching().intercepted()`, which we can use to selectively access requests.
@@ -161,6 +168,25 @@ describe('api', () => {
 });
 ```
 
+If you're using `yesno.test()` it'll call restore for you whenever it runs.
+
+## Examples
+
+Visit the [examples](https://github.com/FormidableLabs/yesno/tree/master/examples) directory to see sample tests written with YesNo.
+
+You can run the tests yourselves after cloning the repo.
+
+```sh
+npm install
+npm run example-server # Start test server
+```
+
+Then in a separate window
+
+```sh
+npm run example-tests
+```
+
 ## API
 
 YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its type syntax where possible.
@@ -169,11 +195,11 @@ YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its t
 - [`yesno.spy(options?: IInterceptOptions): void`](#link);
 - [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
 - [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#link);
+- [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`](#link);
 - [`yesno.restore(): void`](#link);
 - [`yesno.save(options: IFileOptions): Promise<void>`](#link)
 - [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#link);
 - [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
-- [`yesno.test(testFn: Function): (name: string, test: () => Promise<Any>) => void`](#link);
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
@@ -206,6 +232,14 @@ YesNo responds to the Nth intercepted request with the Nth mock. If the HTTP met
 When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](https://nodejs.org/api/http.html#http_class_http_clientrequest) instance. Most libraries will handle this by throwing an error.
 
 See also [`IInterceptOptions`](#IInterceptOptions).
+
+##### `yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`
+
+TODO
+
+##### `yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`
+
+TODO
 
 ##### `yesno.restore(): void`
 
@@ -321,4 +355,3 @@ export interface SerializedRequest {
  readonly query?: string;
  readonly protocol: 'http' | 'https';
 }
-```

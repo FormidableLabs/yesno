@@ -3,7 +3,7 @@ import yesno from '../src';
 import * as apiClient from './src/api-client';
 
 describe('my api', () => {
-  const itRecorded = yesno.recordedTest({ it, dir: `${__dirname}/mocks` });
+  const itRecorded = yesno.test({ it, dir: `${__dirname}/mocks` });
 
   describe('/api/me', () => {
     const username = 'example-username';
