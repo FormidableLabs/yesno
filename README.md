@@ -189,17 +189,17 @@ npm run example-tests
 
 ## API
 
-YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its type syntax where possible.
+YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax where possible.
 
 ##### [`YesNo`](#YesNo)
-- [`yesno.spy(options?: IInterceptOptions): void`](#link);
-- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#link);
-- [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#link);
-- [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`](#link);
-- [`yesno.restore(): void`](#link);
-- [`yesno.save(options: IFileOptions): Promise<void>`](#link)
-- [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#link);
-- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#link);
+- [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
+- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
+- [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#yesnorecordingoptions-iinterceptoptions--ifileoptions-promiserecording);
+- [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`](#yesnotestoptions-irecordabletest-name-string-test---promiseany--void);
+- [`yesno.restore(): void`](#yesnorestore-void);
+- [`yesno.save(options: IFileOptions): Promise<void>`](#yesnosaveoptions-ifileoptions--isaveoptions-promisevoid)
+- [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#yesnoloadoptions-ifileoptions-promiseiserializedhttp);
+- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection);
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
@@ -207,7 +207,7 @@ YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its t
 - [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 
 ##### [`Recording`](#Recording)
-- [`yesno.save(options: IFileOptions): Promise<void>`](#link)
+- [`recording.save(): Promise<void>`](#recordingsave---promisevoid)
 
 ##### [`ISerializedHttp`](#link)
 
@@ -268,7 +268,6 @@ Unless providing records, this method will throw an error if there are any in fl
 
 `options.records?: ISerializedHttp`: Records to save. Defaults to already intercepted requests.
 
-##### `yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
 Load serialized HTTP requests from a local JSON file.
