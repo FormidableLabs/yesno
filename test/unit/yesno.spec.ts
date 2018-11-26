@@ -378,16 +378,15 @@ describe('Yesno', () => {
   });
 
   describe('#save', () => {
-    const name = 'mock-save';
-    const expectedFilename = path.join(dir, `${name}-yesno.json`);
+    it('should create the directory if it does not exist', async () => {
+      const nestedDir = `${__dirname}/tmp/my/dir`;
+      const filename = `${nestedDir}/file.json`;
 
-    afterEach(() => {
-      const files = fse.readdirSync(dir);
-      files.forEach((file) => {
-        fse.unlinkSync(path.join(dir, file));
-      });
+      expect(fse.existsSync(nestedDir)).to.be.false;
+      expect(fse.existsSync(filename)).to.be.false;
 
-      yesno.restore();
+      await yesno.save({ filename });
+      expect(fse.existsSync(filename)).to.be.true;
     });
 
     it('should save intercepted requests');
