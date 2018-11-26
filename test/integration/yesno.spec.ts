@@ -76,13 +76,15 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/get',
       });
 
-      await rp.post({
-        headers: {
-          'x-status-code': 500,
-        },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+      await expect(
+        rp.post({
+          headers: {
+            'x-status-code': 500,
+          },
+          json: true,
+          uri: 'http://localhost:3001/post',
+        }),
+      ).to.be.rejected;
 
       expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(2);
       expect(yesno.matching(/\/get/).intercepted(), 'Match URL by RegExp').to.have.lengthOf(1);
@@ -128,17 +130,19 @@ describe('yesno', () => {
 
   describe('#redact', () => {
     it('should allow redacting a single nested property', async () => {
-      await rp.post({
-        body: {
-          password: 'secret',
-          username: 'hulkhoganhero',
-        },
-        headers: {
-          'x-status-code': 500,
-        },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+      await expect(
+        rp.post({
+          body: {
+            password: 'secret',
+            username: 'hulkhoganhero',
+          },
+          headers: {
+            'x-status-code': 500,
+          },
+          json: true,
+          uri: 'http://localhost:3001/post',
+        }),
+      ).to.be.rejected;
 
       const toRedact = 'request.body.password';
       const intercepted = yesno.intercepted();
