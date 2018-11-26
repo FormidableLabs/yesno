@@ -212,6 +212,9 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
       const responseSerializer = new ResponseSerializer(proxiedResponse);
       debugReq('proxied response (%d)', proxiedResponse.statusCode);
+      if (proxiedResponse.statusCode) {
+        interceptedResponse.writeHead(proxiedResponse.statusCode);
+      }
       (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
 
       proxiedResponse.on('end', () => {

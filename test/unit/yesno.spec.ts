@@ -82,6 +82,12 @@ describe('Yesno', () => {
     it('should support application/json');
     it('should support application/x-www-form-url-encoded');
 
+    it('should proxy status code', async () => {
+      yesno.spy();
+      await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
+      expect(yesno.matching(/get/).response()).to.have.property('statusCode', 500);
+    });
+
     it('should support multipart/form-data', async () => {
       yesno.spy();
 
@@ -291,7 +297,7 @@ describe('Yesno', () => {
     });
   });
 
-  describe('#recordableTest', () => {
+  describe('#test', () => {
     beforeEach(() => {
       process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy;
     });
@@ -302,12 +308,16 @@ describe('Yesno', () => {
       const mockTestFn = sinon.mock(); // eg jest.test
       const mockTest = sinon.mock();
       const expectedFilename = `${dir}/test-title-yesno.json`;
+      const expectedFilenamePrefix = `${dir}/foobar-test-title-yesno.json`;
 
       const recordedTest = yesno.test({ test: mockTestFn, dir });
+      const recordedTestPrefix = yesno.test({ test: mockTestFn, dir, prefix: 'foobar' });
       recordedTest('test title', mockTest);
 
       expect(mockTestFn).to.have.been.calledOnceWith('test title');
+
       expect(fse.existsSync(expectedFilename)).to.be.false;
+      expect(fse.existsSync(expectedFilenamePrefix)).to.be.false;
       expect(mockTest).to.not.have.been.called;
 
       const callback = mockTestFn.args[0][1];
@@ -315,6 +325,15 @@ describe('Yesno', () => {
 
       expect(mockTest).to.have.been.calledOnce;
       expect(fse.existsSync(expectedFilename)).to.be.true;
+
+      mockTestFn.reset();
+      mockTest.reset();
+
+      recordedTestPrefix('test title', mockTest);
+      const callbackPrefix = mockTestFn.args[0][1];
+      await callbackPrefix();
+
+      expect(fse.existsSync(expectedFilenamePrefix)).to.be.true;
     });
 
     it('should restore behavior before and after the test regardless of whether it passes', async () => {
