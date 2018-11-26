@@ -326,6 +326,10 @@ Return the intercepted requests defined within the collection.
 
 Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
 
+#### Recording
+
+##### `recording.save(): Promise<void>`
+
 #### ISerializedHttp
 
 ```typescript
