@@ -1,11 +1,14 @@
 import { expect } from 'chai';
-import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
+import rimraf = require('rimraf');
 import * as sinon from 'sinon';
 import yesno from '../../src';
+import { YESNO_RECORDING_MODE_ENV_VAR } from '../../src/consts';
 import { IHttpMock } from '../../src/file';
+import { RecordMode } from '../../src/recording';
 import * as testServer from '../test-server';
 
 type PartialDeep<T> = { [P in keyof T]?: PartialDeep<T[P]> };
@@ -15,8 +18,9 @@ describe('Yesno', () => {
   const mocksDir = path.join(__dirname, 'mocks');
   let server: testServer.ITestServer;
 
-  afterEach(() => {
+  afterEach(async () => {
     sinon.restore();
+    await new Promise((res, rej) => rimraf(`${__dirname}/tmp/*`, (e) => (e ? rej(e) : res())));
   });
 
   function requestTestServer(options: object = {}) {
@@ -56,7 +60,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked').to.eql(startingRequestCount + 1);
 
-      yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
+      yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-localhost-get-yesno.json` }));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked').to.eql(startingRequestCount + 1);
 
@@ -64,7 +68,7 @@ describe('Yesno', () => {
       await requestTestServer();
       expect(server.getRequestCount(), 'Unmocked again').to.eql(startingRequestCount + 2);
 
-      await yesno.mock(await yesno.load('mock-localhost-get', mocksDir));
+      await yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-localhost-get-yesno.json` }));
       await requestTestServer();
       expect(server.getRequestCount(), 'Mocked again').to.eql(startingRequestCount + 2);
     });
@@ -77,6 +81,12 @@ describe('Yesno', () => {
     it('should handle invalid SSL');
     it('should support application/json');
     it('should support application/x-www-form-url-encoded');
+
+    it('should proxy status code', async () => {
+      yesno.spy();
+      await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
+      expect(yesno.matching(/get/).response()).to.have.property('statusCode', 500);
+    });
 
     it('should support multipart/form-data', async () => {
       yesno.spy();
@@ -123,7 +133,7 @@ describe('Yesno', () => {
       ) as IHttpMock;
     }
     beforeEach(async () => {
-      await yesno.mock(await yesno.load('mock-test', mocksDir));
+      await yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-test-yesno.json` }));
     });
 
     afterEach(() => {
@@ -203,17 +213,180 @@ describe('Yesno', () => {
     });
   });
 
-  describe('#save', () => {
-    const name = 'mock-save';
-    const expectedFilename = path.join(dir, `${name}-yesno.json`);
+  describe('#recording', () => {
+    describe('if "spy" mode', () => {
+      const filename = path.join(__dirname, 'tmp', 'recording-spy.json');
 
-    afterEach(() => {
-      const files = fs.readdirSync(dir);
-      files.forEach((file) => {
-        fs.unlinkSync(path.join(dir, file));
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy));
+
+      it('should make live requests', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount + 1);
       });
 
-      yesno.restore();
+      it('should not persist the recording', async () => {
+        const recording = await yesno.recording({ filename });
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(filename)).to.be.false;
+      });
+    });
+
+    describe('if "record" mode', () => {
+      const filename = path.join(__dirname, 'tmp', 'recording-record.json');
+
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record));
+
+      it('should make live requests', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount + 1);
+      });
+
+      it('should persist the recording', async () => {
+        const recording = await yesno.recording({ filename });
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(filename)).to.be.true;
+      });
+    });
+
+    describe('if "mock" mode', () => {
+      const filename = path.join(__dirname, 'mocks', 'recording-mock.json');
+
+      before(() => (process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Mock));
+
+      it('should mock responses', async () => {
+        await yesno.recording({ filename });
+        const reqCount = server.getRequestCount();
+
+        await requestTestServer();
+
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        expect(server.getRequestCount()).to.eql(reqCount);
+      });
+
+      it('should not persist the recording', async () => {
+        const tmpFilename = path.join(__dirname, 'tmp', 'recording-mock.json');
+        await fse.writeFile(tmpFilename, await fse.readFileSync(filename));
+
+        const recording = await yesno.recording({ filename: tmpFilename });
+        await fse.unlink(tmpFilename); // Delete fixtures, so that we can verify new ones aren't persisted
+
+        await requestTestServer();
+        await recording.complete();
+
+        expect(fse.existsSync(tmpFilename)).to.be.false;
+      });
+    });
+  });
+
+  describe('#test', () => {
+    beforeEach(() => {
+      process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy;
+    });
+
+    it('should create a recordable test', async () => {
+      process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record;
+
+      const mockTestFn = sinon.mock(); // eg jest.test
+      const mockTest = sinon.mock();
+      const expectedFilename = `${dir}/test-title-yesno.json`;
+      const expectedFilenamePrefix = `${dir}/foobar-test-title-yesno.json`;
+
+      const recordedTest = yesno.test({ test: mockTestFn, dir });
+      const recordedTestPrefix = yesno.test({ test: mockTestFn, dir, prefix: 'foobar' });
+      recordedTest('test title', mockTest);
+
+      expect(mockTestFn).to.have.been.calledOnceWith('test title');
+
+      expect(fse.existsSync(expectedFilename)).to.be.false;
+      expect(fse.existsSync(expectedFilenamePrefix)).to.be.false;
+      expect(mockTest).to.not.have.been.called;
+
+      const callback = mockTestFn.args[0][1];
+      await callback();
+
+      expect(mockTest).to.have.been.calledOnce;
+      expect(fse.existsSync(expectedFilename)).to.be.true;
+
+      mockTestFn.reset();
+      mockTest.reset();
+
+      recordedTestPrefix('test title', mockTest);
+      const callbackPrefix = mockTestFn.args[0][1];
+      await callbackPrefix();
+
+      expect(fse.existsSync(expectedFilenamePrefix)).to.be.true;
+    });
+
+    it('should restore behavior before and after the test regardless of whether it passes', async () => {
+      const mockTestFn = sinon.mock(); // eg jest.test
+      const mockTest = sinon.mock().resolves();
+      const mockTestReject = sinon.mock().rejects(new Error('Mock reject'));
+      const mockTestThrow = sinon.mock().throws(new Error('Mock throw'));
+      const restoreSpy = sinon.spy(yesno, 'restore');
+
+      const recordedTest = yesno.test({ test: mockTestFn, dir });
+
+      // Success
+      recordedTest('test success', mockTest);
+      const successTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await successTestCallback();
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
+
+      // Rejected
+      recordedTest('test reject', mockTestReject);
+      const rejectTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await expect(rejectTestCallback()).to.be.rejectedWith('Mock reject');
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
+
+      // Thrown
+      recordedTest('test throw', mockTestThrow);
+      const throwTestCallback = mockTestFn.args[0][1];
+      mockTestFn.reset();
+
+      expect(restoreSpy).to.have.callCount(0);
+      await expect(throwTestCallback()).to.be.rejectedWith('Mock throw');
+      expect(restoreSpy).to.have.callCount(2);
+      restoreSpy.resetHistory();
+    });
+  });
+
+  describe('#save', () => {
+    it('should create the directory if it does not exist', async () => {
+      const nestedDir = `${__dirname}/tmp/my/dir`;
+      const filename = `${nestedDir}/file.json`;
+
+      expect(fse.existsSync(nestedDir)).to.be.false;
+      expect(fse.existsSync(filename)).to.be.false;
+
+      await yesno.save({ filename });
+      expect(fse.existsSync(filename)).to.be.true;
     });
 
     it('should save intercepted requests');

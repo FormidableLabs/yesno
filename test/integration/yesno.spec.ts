@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import rp from 'request-promise';
 import yesno from '../../src';
-import { ISerializedHttp } from '../../src/http-serializer';
 import * as testServer from '../test-server';
 
 describe('yesno', () => {
@@ -33,7 +32,7 @@ describe('yesno', () => {
 
   describe.skip('#save', () => {
     it('should create records locally', async () => {
-      const name = 'record-test-1';
+      const filename = `${tmpDir}/record-test-1-yesno.json`;
       const now = Date.now();
 
       await rp.get({
@@ -52,9 +51,9 @@ describe('yesno', () => {
       });
 
       expect(yesno.intercepted()).to.have.length(2);
-      await yesno.save(name, tmpDir);
+      await yesno.save({ filename });
 
-      const mocks = await yesno.load(name, tmpDir);
+      const mocks = await yesno.load({ filename });
       expect(mocks[0]).to.have.nested.property('request.headers.x-timestamp', now);
       expect(mocks[0]).to.have.nested.property('request.host', 'localhost');
       expect(mocks[0]).to.have.nested.property('request.path', '/get');
@@ -77,13 +76,15 @@ describe('yesno', () => {
         uri: 'http://localhost:3001/get',
       });
 
-      await rp.post({
-        headers: {
-          'x-status-code': 500,
-        },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+      await expect(
+        rp.post({
+          headers: {
+            'x-status-code': 500,
+          },
+          json: true,
+          uri: 'http://localhost:3001/post',
+        }),
+      ).to.be.rejected;
 
       expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(2);
       expect(yesno.matching(/\/get/).intercepted(), 'Match URL by RegExp').to.have.lengthOf(1);
@@ -129,17 +130,19 @@ describe('yesno', () => {
 
   describe('#redact', () => {
     it('should allow redacting a single nested property', async () => {
-      await rp.post({
-        body: {
-          password: 'secret',
-          username: 'hulkhoganhero',
-        },
-        headers: {
-          'x-status-code': 500,
-        },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+      await expect(
+        rp.post({
+          body: {
+            password: 'secret',
+            username: 'hulkhoganhero',
+          },
+          headers: {
+            'x-status-code': 500,
+          },
+          json: true,
+          uri: 'http://localhost:3001/post',
+        }),
+      ).to.be.rejected;
 
       const toRedact = 'request.body.password';
       const intercepted = yesno.intercepted();
@@ -160,8 +163,9 @@ describe('yesno', () => {
 
   describe('mock mode', () => {
     it('should play back the requests from disk', async () => {
-      const name = 'mock-test-1';
-      const mocks = await yesno.load(name, path.join(__dirname, 'mocks'));
+      const mocks = await yesno.load({
+        filename: `${path.join(__dirname, 'mocks')}/mock-test-1-yesno.json`,
+      });
       yesno.mock(mocks);
 
       const now = Date.now();

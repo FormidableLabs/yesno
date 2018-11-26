@@ -1,0 +1,79 @@
+{
+  "records": [
+    {
+      "__duration": 32,
+      "__id": "b608406e-de9a-4b3e-8f75-bec29f19f23a",
+      "__timestamp": 1543202093381,
+      "__version": "1.0.0",
+      "request": {
+        "body": {
+          "password": "example-password",
+          "username": "example-username"
+        },
+        "headers": {
+          "host": "localhost:3000",
+          "accept": "application/json",
+          "content-type": "application/json",
+          "content-length": 61
+        },
+        "host": "localhost",
+        "method": "POST",
+        "path": "/api/login",
+        "port": 3000,
+        "protocol": "http"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "token": "89c5d47f-cb5d-4582-a533-bf5064d04106"
+          }
+        },
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "57",
+          "etag": "W/\"39-wAGWogYQcDYl7w2H1qOGPIhOV2Q\"",
+          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "connection": "close"
+        },
+        "statusCode": 201
+      }
+    },
+    {
+      "__duration": 5,
+      "__id": "02df93a9-bc42-4d61-8fce-dbd49f8df46e",
+      "__timestamp": 1543202093394,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "authorization": "89c5d47f-cb5d-4582-a533-bf5064d04106",
+          "host": "localhost:3000",
+          "accept": "application/json"
+        },
+        "host": "localhost",
+        "method": "GET",
+        "path": "/api/me",
+        "port": 3000,
+        "protocol": "http"
+      },
+      "response": {
+        "body": {
+          "data": {
+            "id": 1,
+            "password": "example-password",
+            "username": "example-username"
+          }
+        },
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "77",
+          "etag": "W/\"4d-G0F5LRUo1DA+P5QyUGb5pd7Axtk\"",
+          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "connection": "close"
+        },
+        "statusCode": 200
+      }
+    }
+  ]
+}

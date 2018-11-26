@@ -1,7 +1,14 @@
 import * as _ from 'lodash';
+import { EOL } from 'os';
 import { DEFAULT_REDACT_SYMBOL } from '../consts';
 import Context from '../context';
-import { ISerializedHttp } from '../http-serializer';
+import { YesNoError } from '../errors';
+import {
+  formatUrl,
+  ISerializedHttp,
+  ISerializedRequest,
+  ISerializedResponse,
+} from '../http-serializer';
 import { ISerializedHttpPartialDeepMatch, match, MatchFn } from './matcher';
 import { redact, Redactor } from './redact';
 
@@ -50,5 +57,57 @@ export default class FilteredHttpCollection implements IFiltered {
       });
     });
     this.ctx.interceptedRequestsCompleted = newCompleted;
+  }
+
+  /**
+   * Return serialized request part of the _single_ matching intercepted HTTP request.
+   *
+   * Throws an exception is multiple requests were matched.
+   */
+  public request(): ISerializedRequest {
+    return this.only().request;
+  }
+
+  /**
+   * Return serialized response part of the _single_ matching intercepted HTTP request.
+   *
+   * Throws an exception is multiple requests were matched.
+   */
+  public response(): ISerializedResponse {
+    return this.only().response;
+  }
+
+  private only(): ISerializedHttp {
+    const intercepted = this.intercepted();
+    const all = this.ctx.interceptedRequestsCompleted;
+
+    if (!intercepted.length) {
+      const nonMatchingHint = all
+        .map(({ request }, i) => `  ${i + 1}. ${request.method} ${formatUrl(request)}`)
+        .slice(0, 6)
+        .join(EOL);
+      const queryHint = _.isObject(this.matcher)
+        ? JSON.stringify(
+            this.matcher,
+            (key, value) => (value instanceof RegExp ? `RegExp(${value.toString()})` : value),
+            2,
+          )
+        : 'Function';
+      const numNotShown =
+        this.ctx.interceptedRequestsCompleted.length > 6
+          ? this.ctx.interceptedRequestsCompleted.length - 6
+          : 0;
+      // tslint:disable-next-line:max-line-length
+      const help = `  ${EOL}Query:${EOL}${queryHint}${EOL}${EOL}Non-matching intercepted:${EOL}${nonMatchingHint}${
+        numNotShown ? ` (+${numNotShown} more)` : ''
+      }`;
+      throw new YesNoError(`No matching intercepted requests ${help}`);
+    }
+
+    if (intercepted.length > 1) {
+      throw new YesNoError(`Query unexpectedly matched multiple (${intercepted.length}) requests.`);
+    }
+
+    return intercepted[0];
   }
 }

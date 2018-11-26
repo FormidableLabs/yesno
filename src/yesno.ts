@@ -2,7 +2,7 @@ import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
 import * as readable from 'readable-stream';
-import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS } from './consts';
+import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
@@ -19,17 +19,17 @@ import {
   validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
+import Recording, { RecordMode as Mode } from './recording';
 const debug: IDebugger = require('debug')('yesno');
 
-export enum Mode {
-  /**
-   * Intercept requests and respond with local mocks
-   */
-  Mock,
-  /**
-   * Spy on request/response
-   */
-  Spy,
+export type GenericTest = (...args: any) => Promise<any> | void;
+export type GenericTestFunction = (title: string, fn: GenericTest) => any;
+
+export interface IRecordableTest {
+  test?: GenericTestFunction;
+  it?: GenericTestFunction;
+  prefix?: string;
+  dir: string;
 }
 
 export class YesNo implements IFiltered {
@@ -70,30 +70,56 @@ export class YesNo implements IFiltered {
     this.setMocks(mocks.map(file.hydrateHttpMock));
   }
 
-  /**
-   * Load request/response mocks from disk
-   * @param name Mock name
-   * @param dir Override default directory
-   */
-  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]>;
-  public async load(name: string, dir: string): Promise<ISerializedHttp[]>;
-  public async load(
-    nameOrOptions: string | file.IFileOptions,
-    dir?: string,
-  ): Promise<ISerializedHttp[]> {
-    debug('Loading mocks');
-    let options = nameOrOptions;
+  public async recording(options: file.IFileOptions): Promise<Recording> {
+    const mode = this.getModeByEnv();
 
-    if (!_.isPlainObject(nameOrOptions)) {
-      if (!dir) {
-        throw new YesNoError('Must provide directory with mock name');
-      }
-
-      options = {
-        filename: file.getMockFilename(nameOrOptions as string, dir),
-      };
+    if (mode !== Mode.Mock) {
+      this.spy();
+    } else {
+      this.mock(await this.load(options));
     }
 
+    return new Recording({
+      ...options,
+      getRecordsToSave: this.getRecordsToSave.bind(this),
+      mode,
+    });
+  }
+
+  /**
+   * Create a test function that will wrap its provided test in a recording.
+   */
+  public test({ it, test, dir, prefix }: IRecordableTest): GenericTestFunction {
+    const runTest = test || it;
+
+    if (!runTest) {
+      throw new YesNoError('Missing "test" or "it" test function');
+    }
+
+    return (title: string, fn: GenericTest): GenericTestFunction => {
+      const filename = file.getMockFilename(prefix ? `${prefix}-${title}` : title, dir);
+
+      return runTest(title, async () => {
+        debug('Running test "%s"', title);
+        this.restore();
+
+        try {
+          const recording = await this.recording({ filename });
+          await fn();
+          debug('Saving test "%s"', filename);
+          await recording.complete();
+        } finally {
+          this.restore();
+        }
+      });
+    };
+  }
+
+  /**
+   * Load request/response mocks from disk
+   */
+  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]> {
+    debug('Loading mocks');
     const records = await file.load(options as file.IFileOptions);
 
     validateSerializedHttpArray(records);
@@ -101,38 +127,11 @@ export class YesNo implements IFiltered {
     return records;
   }
   /**
-   * Save intercepted requests _if_ we're in Spy mode.
+   * Save intercepted requests
    *
-   * @todo Use the same name/dir as the loaded mocks IF available...?
-   * @param name Filename
-   * @param dir Optionally provide directory for file
    * @returns Full filename of saved JSON if generated
    */
-  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void>;
-  public async save(name: string, dir: string): Promise<string | void>;
-  public save(
-    nameOrOptions: string | (file.ISaveOptions & file.IFileOptions),
-    dir?: string,
-  ): Promise<string | void> {
-    let options: file.IFileOptions & file.ISaveOptions;
-
-    if (!_.isPlainObject(nameOrOptions)) {
-      if (!dir) {
-        throw new YesNoError('Must provide directory with mock name');
-      }
-
-      options = {
-        filename: file.getMockFilename(nameOrOptions as string, dir),
-      };
-    } else {
-      options = nameOrOptions as file.ISaveOptions & file.IFileOptions;
-    }
-
-    if (!options.records && this.isMode(Mode.Mock)) {
-      debug('Nothing to save. No records or running in mock mode.');
-      return Promise.resolve();
-    }
-
+  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
     options.records = options.records || this.getRecordsToSave();
 
     return file.save(options);
@@ -181,6 +180,21 @@ export class YesNo implements IFiltered {
    */
   public redact(property: string | string[], redactor?: Redactor): void {
     return this.getCollection().redact(property, redactor);
+  }
+
+  private getModeByEnv(): Mode {
+    const env = (process.env[YESNO_RECORDING_MODE_ENV_VAR] || Mode.Mock).toLowerCase();
+
+    if (!Object.values(Mode).includes(env)) {
+      throw new YesNoError(
+        // tslint:disable-next-line:max-line-length
+        `Invalid mode "${env}" set for ${YESNO_RECORDING_MODE_ENV_VAR}. Must be one of ${Object.values(
+          Mode,
+        ).join(', ')}`,
+      );
+    }
+
+    return env as Mode;
   }
 
   private getRecordsToSave(): ISerializedHttp[] {
@@ -290,8 +304,11 @@ export class YesNo implements IFiltered {
       // mitm does not support promise rejections on "request" event
       comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
 
+      const bodyString = _.isPlainObject(mock.response.body)
+        ? JSON.stringify(mock.response.body)
+        : mock.response.body;
       interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
-      interceptedResponse.write(mock.response.body);
+      interceptedResponse.write(bodyString);
       interceptedResponse.end();
 
       this.recordCompleted(serializedRequest, mock.response, requestNumber);

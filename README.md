@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
+
 # YesNo
 
 YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests. YesNo provides a simple API to access, manipulate and record requests, using mocks or live services, so that you can easily define what requests should and should not be made by your app.
@@ -12,8 +14,8 @@ _Note:_ YesNo is still in early development! We're actively working toward our [
   - [Recording requests](#recording-requests)
   - [Filtering results](#filtering-results)
   - [Restoring HTTP behavior](#restoring-http-behavior)
+- [Examples](#Examples)
 - [API](#API)
-- [CLI](#CLI)
 
 ## Why?
 
@@ -30,6 +32,8 @@ npm i --save-dev yesno-http
 ```
 
 ## Usage
+
+_To see our preferred usage, skip to [recording](#recording-requests)!_
 
 ### Intercepting live requests
 
@@ -93,26 +97,31 @@ Mocks also allow us to easily test the behavior of our application when it recei
 While mocking is useful mocks themselves are hard to maintain. When APIs changes (sometimes unexpectedly!) our mocks become stale, meaning we're testing for the wrong behavior. To solve this problem YesNo allows you to _record_ requests, saving the requests we've intercepted to a local file.
 
 ```javascript
-yesno.spy();
+const recording = await yesno.record({ filename: './get-users-yesno.json' });
 await myApi.getUsers();
+  expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
 
-yesno.save({ filename: './get-users.json' });
-```
-
-After we've saved the records to disk, we can update our test to load its mocks from the records.
-
-```javascript
-yesno.mock(await yesno.load({ filename: './get-users-mocks.json' }));
-await myApi.getUsers();
+recording.complete();
 ```
 
 This workflow has the advantage of ensuring that our mocks closely represent the _real_ HTTP request/responses our application deals with and making it easy to refresh these mocks when an API has been updated.
 
-Since it's a common pattern, the save & load methods alternatively accept the test name and a directory to store the mocks, from which it will generate the filename.
+To make this worflow even easier, YesNo includes a `test` method which accepts a jest or mocha style test statement and surrounds it with our record statements. Using the above as an example, we could rewrite it as: 
 
 ```javascript
-yesno.mock(await yesno.load(testName, mockDir));
+const itRecorded = await yesno.test({ it, dir: `${__dirname}/mocks` })
+
+// Mocks for this test will be saved to or loaded from
+// "./mocks/get-users-yesno.json"
+itRecorded('Get Users', () => {
+  await myApi.getUsers();
+  expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
+})
 ```
+
+Now we skip the recording boilerplate and just write our test!
+
+In case you need to load and generate fixtures manually, YesNo also exposes the `save` and `load` methods that `record` uses internally.
 
 ### Filtering results
 Once requests have finished we still need to assert that the requests were correct. We've already seen `yesno.intercepted()`, which returns _all_ the intercepted requests, but this is just shorthand for `yesno.matching().intercepted()`, which we can use to selectively access requests.
@@ -161,24 +170,50 @@ describe('api', () => {
 });
 ```
 
+If you're using `yesno.test()` it'll call restore for you whenever it runs.
+
+## Examples
+
+Visit the [examples](https://github.com/FormidableLabs/yesno/tree/master/examples) directory to see sample tests written with YesNo.
+
+You can run the tests yourselves after cloning the repo.
+
+```sh
+npm install
+npm run example-server # Start test server
+```
+
+Then in a separate window
+
+```sh
+npm run example-tests
+```
+
 ## API
 
-YesNo is written in [TypeScript](https://www.typescriptlang.org/) and uses its type syntax where possible.
+YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax where possible.
 
-##### [`YesNo`](#yesno-2)
+##### [`YesNo`](#YesNo)
 - [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
-- [`yesno.mock(mocks?: ISerializedHttp[] | ISerializedHttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
+- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
+- [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#yesnorecordingoptions-iinterceptoptions--ifileoptions-promiserecording);
+- [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`](#yesnotestoptions-irecordabletest-name-string-test---promiseany--void);
 - [`yesno.restore(): void`](#yesnorestore-void);
-- [`yesno.save(name: string, dir: string): Promise<void>`](#yesnosavename-string-dir-string-promisevoid) (+1 overload)
-- [`yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`](#yesnoloadname-string-dir-string-promiseiserializedhttp) (+1 overload);
+- [`yesno.save(options: IFileOptions): Promise<void>`](#yesnosaveoptions-ifileoptions--isaveoptions-promisevoid)
+- [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#yesnoloadoptions-ifileoptions-promiseiserializedhttp);
 - [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection);
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
-- [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
+- [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
+- [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp);
+- [`collection.response(): ISerializedHttp`](#collectionresponse-iserializedhttp);
 
-##### [`ISerializedHttp`](#iserializedhttp-1)
+##### [`Recording`](#Recording)
+- [`recording.complete(): Promise<void>`](#recordingcomplete---promisevoid)
+
+##### [`ISerializedHttp`](#link)
 
 ### `YesNo`
 
@@ -202,13 +237,20 @@ When YesNo cannot provide a mock for an intercept it emits an `error` event on t
 
 See also [`IInterceptOptions`](#IInterceptOptions).
 
+##### `yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`
+
+TODO
+
+##### `yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`
+
+TODO
+
 ##### `yesno.restore(): void`
 
 Restore normal HTTP functionality by disabling Mitm & restoring any defined stubs. Clears references to any stateful properties such as the defined mocks or intercepted requests.
 
 If you're using YesNo in a test suite it's advisable to run this method after every test case.
 
-##### `yesno.save(name: string, dir: string): Promise<void>`
 ##### `yesno.save(options: IFileOptions & ISaveOptions): Promise<void>`
 
 Save serialized HTTP requests to disk. Unless records are provided directly, yesno will save the currently intercepted requests.
@@ -230,7 +272,6 @@ Unless providing records, this method will throw an error if there are any in fl
 
 `options.records?: ISerializedHttp`: Records to save. Defaults to already intercepted requests.
 
-##### `yesno.load(name: string, dir: string): Promise<ISerializedHttp[]>`
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
 Load serialized HTTP requests from a local JSON file.
@@ -289,6 +330,18 @@ Return the intercepted requests defined within the collection.
 
 Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
 
+##### `collection.request(): ISerializedHttp`
+
+TODO
+
+##### `collection.response(): ISerializedHttp`
+
+TODO
+
+#### Recording
+
+##### `recording.complete(): Promise<void>`
+
 #### ISerializedHttp
 
 ```typescript
@@ -317,4 +370,3 @@ export interface SerializedRequest {
  readonly query?: string;
  readonly protocol: 'http' | 'https';
 }
-```

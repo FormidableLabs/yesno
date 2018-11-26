@@ -1,7 +1,7 @@
-import { expect } from 'chai';
 import { IDebugger } from 'debug';
 import { readFile, writeFile } from 'fs';
 import * as _ from 'lodash';
+import mkdirp = require('mkdirp');
 import { EOL } from 'os';
 import * as path from 'path';
 import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON } from './consts';
@@ -70,15 +70,22 @@ export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   });
 }
 
-export function save({ filename, records = [] }: ISaveOptions & IFileOptions): Promise<string> {
+export async function save({
+  filename,
+  records = [],
+}: ISaveOptions & IFileOptions): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
+
+  await new Promise((resolve, reject) => {
+    mkdirp(path.dirname(filename), (err) => (err ? reject(err) : resolve()));
+  });
 
   return new Promise((resolve, reject) => {
     const payload: ISaveFile = { records };
     const contents = JSON.stringify(payload, null, 2);
 
     writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
-  });
+  }) as Promise<string>;
 }
 
 function helpMessageMissingMock(filename: string): string {
@@ -90,13 +97,12 @@ function helpMessageMissingMock(filename: string): string {
 export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
   const { request, response } = mock;
 
-  const responseHeaders = response.headers || {};
-  let responseBody = response.body || '';
+  let responseHeaders = response.headers || {};
+  const responseBody: string | object = response.body || '';
 
-  if (_.isPlainObject(responseBody)) {
-    // If response body is object, handle as JSON
-    responseBody = JSON.stringify(response.body);
-    responseHeaders[HEADER_CONTENT_TYPE] = MIME_TYPE_JSON;
+  if (_.isPlainObject(response.body) && !responseHeaders[HEADER_CONTENT_TYPE]) {
+    debug('Adding missing header %s=%s', HEADER_CONTENT_TYPE, MIME_TYPE_JSON);
+    responseHeaders = { ...responseHeaders, [HEADER_CONTENT_TYPE]: MIME_TYPE_JSON };
   }
 
   return createRecord({

@@ -68,7 +68,9 @@ export interface ClientRequestFull extends ClientRequest {
 }
 
 function serializeJSON(headers: IHeaders, body?: string): undefined | string | object {
-  const isJSON = headers[HEADER_CONTENT_TYPE] === MIME_TYPE_JSON;
+  const isJSON =
+    headers[HEADER_CONTENT_TYPE] &&
+    (headers[HEADER_CONTENT_TYPE] as string).includes(MIME_TYPE_JSON);
 
   if (isJSON) {
     try {
