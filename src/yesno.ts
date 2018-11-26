@@ -28,6 +28,7 @@ export type GenericTestFunction = (title: string, fn: GenericTest) => any;
 export interface IRecordableTest {
   test?: GenericTestFunction;
   it?: GenericTestFunction;
+  prefix?: string;
   dir: string;
 }
 
@@ -88,7 +89,7 @@ export class YesNo implements IFiltered {
   /**
    * Create a test function that will wrap its provided test in a recording.
    */
-  public test({ it, test, dir }: IRecordableTest): GenericTestFunction {
+  public test({ it, test, dir, prefix }: IRecordableTest): GenericTestFunction {
     const runTest = test || it;
 
     if (!runTest) {
@@ -96,12 +97,13 @@ export class YesNo implements IFiltered {
     }
 
     return (title: string, fn: GenericTest): GenericTestFunction => {
+      const filename = file.getMockFilename(prefix ? `${prefix}-${title}` : title, dir);
+
       return runTest(title, async () => {
         debug('Running test "%s"', title);
         this.restore();
 
         try {
-          const filename = file.getMockFilename(title, dir);
           const recording = await this.recording({ filename });
           await fn();
           debug('Saving test "%s"', filename);
