@@ -207,7 +207,7 @@ YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax wh
 - [`collection.redact(): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 
 ##### [`Recording`](#Recording)
-- [`recording.save(): Promise<void>`](#recordingsave---promisevoid)
+- [`recording.complete(): Promise<void>`](#recordingcomplete---promisevoid)
 
 ##### [`ISerializedHttp`](#link)
 
@@ -328,7 +328,7 @@ Redact properties on intercepted requests within the collection. Nested properti
 
 #### Recording
 
-##### `recording.save(): Promise<void>`
+##### `recording.complete(): Promise<void>`
 
 #### ISerializedHttp
 
