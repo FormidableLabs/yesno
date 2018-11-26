@@ -1,0 +1,38 @@
+{
+  "records": [
+    {
+      "__duration": 5,
+      "__id": "c9a7c9df-8fa2-456e-a95f-006be4d98be9",
+      "__timestamp": 1543202093415,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "authorization": "foobar",
+          "host": "localhost:3000",
+          "accept": "application/json"
+        },
+        "host": "localhost",
+        "method": "GET",
+        "path": "/api/me",
+        "port": 3000,
+        "protocol": "http"
+      },
+      "response": {
+        "body": {
+          "error": {
+            "message": "Invalid API key"
+          }
+        },
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "39",
+          "etag": "W/\"27-8wHwtoK+dGN26Hnc3611Etra53E\"",
+          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "connection": "close"
+        },
+        "statusCode": 401
+      }
+    }
+  ]
+}

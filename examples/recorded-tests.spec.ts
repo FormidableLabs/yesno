@@ -3,7 +3,11 @@ import yesno from '../src';
 import * as apiClient from './src/api-client';
 
 describe('my api', () => {
-  const itRecorded = yesno.test({ it, dir: `${__dirname}/mocks` });
+  const itRecorded = yesno.test({
+    it,
+    dir: `${__dirname}/mocks`,
+    prefix: 'recorded-tests-my-api',
+  });
 
   describe('/api/me', () => {
     const username = 'example-username';
@@ -23,7 +27,7 @@ describe('my api', () => {
     });
 
     itRecorded('should respond 401 for an invalid token', async () => {
-      await apiClient.getCurrentUser('foobar');
+      await expect(apiClient.getCurrentUser('foobar')).to.be.rejected;
       expect(yesno.matching(/me/).response()).to.have.nested.property('statusCode', 401);
     });
   });
