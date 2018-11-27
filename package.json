@@ -1,6 +1,6 @@
 {
   "name": "yesno-http",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Easy HTTP testing",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
