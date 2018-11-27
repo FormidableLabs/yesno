@@ -4,8 +4,8 @@ import * as apiClient from './src/api-client';
 
 describe('my api', () => {
   const itRecorded = yesno.test({
-    it,
     dir: `${__dirname}/mocks`,
+    it,
     prefix: 'recorded-tests-my-api',
   });
 
@@ -13,14 +13,12 @@ describe('my api', () => {
     const username = 'example-username';
     const password = 'example-password';
 
-    beforeEach(() => {
-      yesno.matching(/login/).redact(['response.body.token']);
-      yesno.matching(/api\/me/).redact(['request.headers.authorization']);
-    });
-
     itRecorded('should respond with the current user', async () => {
       const token = await apiClient.login(username, password);
       const user = await apiClient.getCurrentUser(token);
+
+      yesno.matching(/login/).redact(['response.body.data.token', 'request.body.token']);
+      yesno.matching(/api\/me/).redact(['request.headers.authorization']);
 
       expect(yesno.intercepted()).to.have.lengthOf(2);
       expect(user).to.eql((yesno.matching(/api\/me/).response().body as any).data);

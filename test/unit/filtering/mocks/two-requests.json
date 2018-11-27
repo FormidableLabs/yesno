@@ -1,0 +1,54 @@
+{
+  "records": [
+    {
+      "__duration": 2,
+      "__id": "069390a8-adb9-4434-b4e5-e0751ae283b4",
+      "__timestamp": 1542869578952,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "host": "example"
+        },
+        "host": "example",
+        "method": "GET",
+        "path": "/fiz",
+        "port": 80,
+        "protocol": "https"
+      },
+      "response": {
+        "body": {
+          "fiz": "baz"
+        },
+        "headers": {
+          "content-type": "application/json; charset=utf-8"
+        },
+        "statusCode": 200
+      }
+    },
+    {
+      "__duration": 2,
+      "__id": "069390a8-adb9-4434-b4e5-e0751ae283b5",
+      "__timestamp": 1542869578952,
+      "__version": "1.0.0",
+      "request": {
+        "headers": {
+          "host": "example"
+        },
+        "host": "example",
+        "method": "POST",
+        "path": "/foo",
+        "port": 80,
+        "protocol": "https"
+      },
+      "response": {
+        "body": {
+          "foo": "bar"
+        },
+        "headers": {
+          "content-type": "application/json; charset=utf-8"
+        },
+        "statusCode": 200
+      }
+    }
+  ]
+}

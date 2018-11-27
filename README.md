@@ -4,7 +4,7 @@
 
 YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests. YesNo provides a simple API to access, manipulate and record requests, using mocks or live services, so that you can easily define what requests should and should not be made by your app.
 
-_Note:_ YesNo is still in early development! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
+_Note:_ YesNo is still in beta! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
 
 - [Why?](#Why)
 - [Installation](#installation)
@@ -225,13 +225,13 @@ Enables intercept of requests if not already enabled.
 
 ##### `IInterceptOptions`
 
-`options.ignorePorts: number[]`: Since YesNo uses Mitm internally, by default it will intercept any sockets, HTTP or otherwise. If you need to ignore a port (eg for a database connection), provide that port number here. Normally you will run YesNo after long running connections have been established, so this won't be a problem.
+`options.ignorePorts: number[]`: _Important._ Since YesNo uses Mitm internally, by default it will intercept any sockets, HTTP or otherwise. If you need to ignore a port (eg for a database connection), provide that port number here. Normally you will run YesNo after long running connections have been established, so this won't be a problem.
 
 ##### `yesno.mock(mocks: ISerializedHttp[] | ISerializedHttpMock[], options?: IInterceptOptions): void`
 
 Enables intercept of requests if not already enabled and configures YesNo to respond to all forthcoming intercepted requests with the provided `mocks`.
 
-YesNo responds to the Nth intercepted request with the Nth mock. If the HTTP method & URL of the intercepted request does not match the corresponding mock then client request will fail.
+YesNo responds to the Nth intercepted request with the Nth mock. If the HTTP method & URL of the intercepted request does not match the corresponding mock then the client request will fail.
 
 When YesNo cannot provide a mock for an intercept it emits an `error` event on the corresponding [`ClientRequest`](https://nodejs.org/api/http.html#http_class_http_clientrequest) instance. Most libraries will handle this by throwing an error.
 
@@ -239,11 +239,69 @@ See also [`IInterceptOptions`](#IInterceptOptions).
 
 ##### `yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`
 
-TODO
+Begin a new recording. Recording allow you to alternatively spy, record or mock behavior according to the value of the environment variable `YESNO_RECORDING_MODE`. The values and the accompanying behaviors of theses modes are described below.
 
-##### `yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`
+| Mode | Value | Description |
+|--|--|--|
+| Spy | "spy" | Intercept requests & proxy to destination. Don't save. Equivalent to `yesno.spy()`  |
+| Record | "record" | Intercept requests & proxy to destination. Save to disk on completion. Equivalent to `yesno.spy()` & `yesno.save()` |
+| Mock | "mock" (default) | Load mocks from disks. Intercept requests & respond with mocks. Don't save. Equivalent to `yesno.mock(await yesno.load())`. |
 
-TODO
+**Example**
+
+```javascript
+// Begin a recording. Load mocks if in "mock" mode, otherwise spy.
+const recording = await yesno.recording({ 
+  filename: './get-users.json' 
+})
+
+// Make our HTTP requests
+await myApi.getUsers() 
+
+// Run assertions
+expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200)
+
+// Persist intercepted requests if in "record" mode, otherwise no-op
+await recording.complete()
+```
+
+##### `yesno.test(options: IRecordableTest): (name: string, test: () => Promise<any>) => void`
+
+A utility method for creating test definitions instrumented with `yesno.recording()`. It accepts any testing method `it` or `test` which accepts a `name` and `test` function as its arguments, along with a directory and optional prefix to use for recording fixtures.
+
+##### `IRecordableTest`
+
+`options.test: (name: string, test: () => Promise<any>) => any`: A test function, such as `jest.test` or `mocha.it` which accepts a name and test definition. The test may either be syncronous or return a promise.
+
+`options.it: (name: string, test: () => Promise<any>) => any`: Alias for `options.test`
+
+`options.dir: string`: Directory to use for recording
+
+`options.prefix?: string`: _Optional_. Prefix to use for all fixtures. Useful to prevent conflicts with similarly named tests in other files.
+
+**Example**
+
+Given the below test written with `yesno.recording`....
+
+```javascript
+it('should get users', async () => {
+  const recording = await yesno.recording({ filename: `${__dirname}/mocks/should-get-users-yesno.json` });
+  await myApi.getUsers();
+  await recording.save()
+})
+```
+
+...we may write it more concisely with `yesno.test` as
+
+```javascript
+const itRecorded = yesno.test({ it, dir: `${__dirname}/mocks` });
+
+itRecorded('should get users', async () => {
+  await myApi.getUsers();
+});
+```
+
+Which removes much of the boilerplate from our test.
 
 ##### `yesno.restore(): void`
 
@@ -270,13 +328,11 @@ Unless providing records, this method will throw an error if there are any in fl
 
 ##### `ISaveOptions`
 
-`options.records?: ISerializedHttp`: Records to save. Defaults to already intercepted requests.
+`options.records?: ISerializedHttp[]`: Records to save. Defaults to already intercepted requests.
 
 ##### `yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`
 
 Load serialized HTTP requests from a local JSON file.
-
-Accepts the same name and directory shorthandle as `yesno.save()`.
 
 See [`IFileOptions`](#ifileoptions).
 
@@ -328,19 +384,49 @@ Return the intercepted requests defined within the collection.
 
 ##### `collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`
 
+`property`: Property or array of properties on serialized requests to redact.
+`redactor`: Callback that receives value and property path on matching requests. Return value will be used as redacted value.
+
 Redact properties on intercepted requests within the collection. Nested properties may be indicated using `.`.
+
+**Example**
+
+```javascript
+await myApi.getToken(apiKey)
+
+// Replace the auth values with an md5 hash
+yesno.matching(/login/).redact(
+  ['request.headers.authorization', 'response.body.token'],
+  (value, path) => md5(value)
+)
+await yesno.save({ filename: 'redacted.json' })
+```
 
 ##### `collection.request(): ISerializedHttp`
 
-TODO
+Return the request part of the _single_ matching HTTP request.
+
+Throws an error if the collection does not match _one and only one_ request.
+
+**Example**
+
+```javascript
+await myApi.getUsers(token);
+
+expect(yesno.matching(/users/).request()).to.have.nested.property('headers.authorization', token)
+```
 
 ##### `collection.response(): ISerializedHttp`
 
-TODO
+Response corollary to `collection.request()`. Return the response part of the _single_ matching HTTP request.
+
+Throws an error if the collection does not match _one and only one_ request.
 
 #### Recording
 
 ##### `recording.complete(): Promise<void>`
+
+Save the request if we're in record mode. Otherwise no-op.
 
 #### ISerializedHttp
 

@@ -50,13 +50,12 @@ export default class FilteredHttpCollection implements IFiltered {
       redact(intercepted, properties, redactor),
     );
 
-    const newCompleted = [...this.ctx.interceptedRequestsCompleted];
     redactedRecords.forEach((redactedRecord) => {
-      newCompleted.forEach((interceptedRecord, i) => {
-        newCompleted[i] = redactedRecord;
+      const i = this.ctx.interceptedRequestsCompleted.findIndex((req) => {
+        return redactedRecord.__id === req.__id;
       });
+      this.ctx.interceptedRequestsCompleted[i] = redactedRecord;
     });
-    this.ctx.interceptedRequestsCompleted = newCompleted;
   }
 
   /**

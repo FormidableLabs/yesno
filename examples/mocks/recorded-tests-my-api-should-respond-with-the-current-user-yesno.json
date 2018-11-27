@@ -1,9 +1,9 @@
 {
   "records": [
     {
-      "__duration": 32,
-      "__id": "b608406e-de9a-4b3e-8f75-bec29f19f23a",
-      "__timestamp": 1543202093381,
+      "__duration": 19,
+      "__id": "d14ec4dc-b7e0-4225-b8b0-d01dec0c29be",
+      "__timestamp": 1543298161188,
       "__version": "1.0.0",
       "request": {
         "body": {
@@ -25,28 +25,28 @@
       "response": {
         "body": {
           "data": {
-            "token": "89c5d47f-cb5d-4582-a533-bf5064d04106"
+            "token": "*****"
           }
         },
         "headers": {
           "x-powered-by": "Express",
           "content-type": "application/json; charset=utf-8",
           "content-length": "57",
-          "etag": "W/\"39-wAGWogYQcDYl7w2H1qOGPIhOV2Q\"",
-          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "etag": "W/\"39-5iTPmQdaaC7DNfkzt/cHPyb/MRE\"",
+          "date": "Tue, 27 Nov 2018 05:56:01 GMT",
           "connection": "close"
         },
         "statusCode": 201
       }
     },
     {
-      "__duration": 5,
-      "__id": "02df93a9-bc42-4d61-8fce-dbd49f8df46e",
-      "__timestamp": 1543202093394,
+      "__duration": 9,
+      "__id": "6e691aa5-3d7a-4897-9c2c-0277aca21b18",
+      "__timestamp": 1543298161211,
       "__version": "1.0.0",
       "request": {
         "headers": {
-          "authorization": "89c5d47f-cb5d-4582-a533-bf5064d04106",
+          "authorization": "*****",
           "host": "localhost:3000",
           "accept": "application/json"
         },
@@ -69,7 +69,7 @@
           "content-type": "application/json; charset=utf-8",
           "content-length": "77",
           "etag": "W/\"4d-G0F5LRUo1DA+P5QyUGb5pd7Axtk\"",
-          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "date": "Tue, 27 Nov 2018 05:56:01 GMT",
           "connection": "close"
         },
         "statusCode": 200

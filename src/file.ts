@@ -59,7 +59,14 @@ export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
         return reject(e);
       }
 
-      const obj: ISaveFile = JSON.parse(data.toString());
+      let obj: ISaveFile;
+      const dataString = data.toString();
+
+      try {
+        obj = JSON.parse(dataString);
+      } catch (e) {
+        throw new YesNoError(`Failed to parse JSON from ${filename}: ${e}`);
+      }
 
       if (!obj.records) {
         throw new YesNoError('Invalid JSON format. Missing top level "records" key.');

@@ -417,4 +417,8 @@ describe('Yesno', () => {
   describe('#redact', () => {
     it('should call FilteredHttpCollection#redact() with no query');
   });
+
+  describe('#matching', () => {
+    it('should call FilteredHttpCollection#redact() with the provided query');
+  });
 });
