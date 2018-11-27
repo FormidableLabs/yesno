@@ -1,9 +1,9 @@
 {
   "records": [
     {
-      "__duration": 5,
-      "__id": "c9a7c9df-8fa2-456e-a95f-006be4d98be9",
-      "__timestamp": 1543202093415,
+      "__duration": 3,
+      "__id": "355ff617-3921-4209-9afb-e4c71d69acac",
+      "__timestamp": 1543298161231,
       "__version": "1.0.0",
       "request": {
         "headers": {
@@ -28,7 +28,7 @@
           "content-type": "application/json; charset=utf-8",
           "content-length": "39",
           "etag": "W/\"27-8wHwtoK+dGN26Hnc3611Etra53E\"",
-          "date": "Mon, 26 Nov 2018 03:14:53 GMT",
+          "date": "Tue, 27 Nov 2018 05:56:01 GMT",
           "connection": "close"
         },
         "statusCode": 401

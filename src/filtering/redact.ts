@@ -25,7 +25,10 @@ export function redact(
 
   properties.forEach((property) => {
     const currentValue = _.get(redacted, property);
-    _.set(redacted, property, redactor(currentValue, property));
+
+    if (currentValue !== undefined) {
+      _.set(redacted, property, redactor(currentValue, property));
+    }
   });
 
   return redacted;

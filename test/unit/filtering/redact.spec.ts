@@ -36,11 +36,7 @@ describe('redact#redact', () => {
 
   it('should allow redacting multiple properties', () => {
     const original = serialized();
-    const redacted = redact(original, [
-      'response.body',
-      'request.headers.x-test-header',
-      'response.foobar',
-    ]);
+    const redacted = redact(original, ['response.body', 'request.headers.x-test-header', 'foobar']);
 
     expect(redacted, 'No mutation').to.not.eql(original);
     expect(redacted).to.have.nested.property('response.body', DEFAULT_REDACT_SYMBOL);
