@@ -45,7 +45,7 @@ const { expect } = require('chai');
 const myApi = require('../src/my-api');
 
 describe('my-api', () => {
- it('should get users', () => {
+ it('should get users', async () => {
    yesno.spy(); // Intercept requests
    const users = await myApi.getUsers();
    const intercepted = yesno.intercepted(); // Get the intercepted requests
@@ -113,7 +113,7 @@ const itRecorded = await yesno.test({ it, dir: `${__dirname}/mocks` })
 
 // Mocks for this test will be saved to or loaded from
 // "./mocks/get-users-yesno.json"
-itRecorded('Get Users', () => {
+itRecorded('Get Users', async () => {
   await myApi.getUsers();
   expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
 })
