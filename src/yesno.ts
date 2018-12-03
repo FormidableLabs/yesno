@@ -153,9 +153,9 @@ export class YesNo implements IFiltered {
    * @param query
    */
   public matching(
-    filter: string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn,
+    filter?: string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn,
   ): FilteredHttpCollection {
-    const normalizedFilter: ISerializedHttpPartialDeepMatch | MatchFn =
+    const normalizedFilter: ISerializedHttpPartialDeepMatch | MatchFn | undefined =
       _.isString(filter) || _.isRegExp(filter) ? { url: filter } : filter;
 
     return this.getCollection(normalizedFilter);

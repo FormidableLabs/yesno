@@ -420,5 +420,11 @@ describe('Yesno', () => {
 
   describe('#matching', () => {
     it('should call FilteredHttpCollection#redact() with the provided query');
+
+    it('should allow for no parameters', async () => {
+      yesno.spy();
+      await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
+      expect(yesno.matching().response()).to.have.property('statusCode', 500);
+    });
   });
 });
