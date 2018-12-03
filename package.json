@@ -17,13 +17,13 @@
     "compile": "tsc",
     "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
-    "coverage": "nyc --reporter=html -- npm run tests",
+    "coverage": "nyc --reporter=html -- mocha --timeout 2000 \"test/unit/**/*.spec.ts\" && mocha --timeout 5000 \"test/integration/**/*.spec.ts\"",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
-    "unit": "mocha --timeout 2000 --recursive 'test/unit/**/*.spec.ts'",
+    "unit": "mocha --timeout 2000 \"test/unit/**/*.spec.ts\"",
     "example-server": "./node_modules/.bin/ts-node ./examples/src/api-server.ts",
-    "example-tests": "mocha --timeout 2000 --recursive './examples/*.spec.ts'",
-    "integration": "mocha --timeout 5000 --recursive 'test/integration/**/*.spec.ts'",
+    "example-tests": "mocha --timeout 2000 \"./examples/*.spec.ts\"",
+    "integration": "mocha --timeout 5000 \"test/integration/**/*.spec.ts\"",
     "check": "npm run lint && npm run tests"
   },
   "repository": {
@@ -31,6 +31,12 @@
     "url": "git+https://github.com/formidablelabs/yesno.git"
   },
   "author": "Ian Walker-Sperber",
+  "contributors": [
+    {
+      "email": "mscottx88@gmail.com",
+      "name": "Michael P. Scott"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/formidablelabs/yesno/issues"
