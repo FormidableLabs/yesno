@@ -336,7 +336,7 @@ Load serialized HTTP requests from a local JSON file.
 
 See [`IFileOptions`](#ifileoptions).
 
-##### `yesno.matching(filter: HttpFilter): FilteredHttpCollection`
+##### `yesno.matching(filter?: HttpFilter): FilteredHttpCollection`
 
 Apply a filter to subsequently access or manipulate matching mocks or intercepted requests.
 
@@ -348,6 +348,7 @@ The `filter` is applied to each serialized request to filter results. If the fil
 - A regular expression: Test against URL (port optional)
 - An object (`ISerializedHttpPartialDeepMatch`): Perform a deep partial comparison against the serialized request
 - A function: A callback that receives the `ISerializedHttp` object and returns a `boolean` value of `true` to indicate match.
+- `undefined`: The entire collection is returned.
 
 Examples:
 
@@ -370,6 +371,7 @@ yesno.matching((serialized, i) => {
 
  return false;
 });
+yesno.matching().response(); // short-cut to get the response from the one response
 ```
 
 ### `FilteredHttpCollection`

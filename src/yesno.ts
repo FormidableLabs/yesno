@@ -25,6 +25,8 @@ const debug: IDebugger = require('debug')('yesno');
 export type GenericTest = (...args: any) => Promise<any> | void;
 export type GenericTestFunction = (title: string, fn: GenericTest) => any;
 
+export type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn;
+
 export interface IRecordableTest {
   test?: GenericTestFunction;
   it?: GenericTestFunction;
@@ -152,9 +154,7 @@ export class YesNo implements IFiltered {
    * @todo Convert everything to a match fn
    * @param query
    */
-  public matching(
-    filter?: string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn,
-  ): FilteredHttpCollection {
+  public matching(filter?: HttpFilter): FilteredHttpCollection {
     const normalizedFilter: ISerializedHttpPartialDeepMatch | MatchFn | undefined =
       _.isString(filter) || _.isRegExp(filter) ? { url: filter } : filter;
 
