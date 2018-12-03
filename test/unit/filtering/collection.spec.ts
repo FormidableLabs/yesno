@@ -3,7 +3,7 @@ import yesno from '../../../src';
 import Context from '../../../src/context';
 import FilteredHttpCollection from '../../../src/filtering/collection';
 
-describe.only('FilteredHttpCollection', () => {
+describe('FilteredHttpCollection', () => {
   describe('#redacted', () => {
     it('should effect the provided array', async () => {
       const context = new Context();
