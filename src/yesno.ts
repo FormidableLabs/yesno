@@ -60,7 +60,7 @@ export class YesNo implements IFiltered {
   }
 
   /**
-   * Mock responses for intecepted requests
+   * Mock responses for intercepted requests
    * @todo Reset the request counter?
    */
   public mock(mocks: file.IHttpMock[], options?: IInterceptOptions): void {
