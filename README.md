@@ -371,7 +371,7 @@ yesno.matching((serialized, i) => {
 
  return false;
 });
-yesno.matching().response(); // short-cut to get the response from the one response
+yesno.matching().response(); // short-cut to get the response from the one intercepted request
 ```
 
 ### `FilteredHttpCollection`
