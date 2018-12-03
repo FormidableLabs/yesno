@@ -1,4 +1,5 @@
 --colors
 --require ts-node/register
 --require source-map-support/register
---require ./test/setup.ts
+--require test/setup.ts
+--recursive
