@@ -342,11 +342,10 @@ describe('file', () => {
 
   describe('getMockFileName', () => {
     const mockName: string = 'Some Name With   Spaces';
-    const mockDirectory: string = ['some', 'path', 'on', 'disk'].join(sep);
 
     it('computes the mock file name for a mock name', () => {
-      const mockFileName: string = getMockFilename(mockName, mockDirectory);
-      expect(mockFileName).equals(`${mockDirectory}${sep}some-name-with-spaces-yesno.json`);
+      const results: string = getMockFilename(mockName, mockDirectory);
+      expect(results).equals(normalize(`${mockDirectory}${sep}some-name-with-spaces-yesno.json`));
     });
   });
 });
