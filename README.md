@@ -109,7 +109,7 @@ This workflow has the advantage of ensuring that our mocks closely represent the
 To make this workflow even easier, YesNo includes a `test` method which accepts a jest or mocha style test statement and surrounds it with our record statements. Using the above as an example, we could rewrite it as:
 
 ```javascript
-const itRecorded = await yesno.test({ it, dir: `${__dirname}/mocks` })
+const itRecorded = yesno.test({ it, dir: `${__dirname}/mocks` })
 
 // Mocks for this test will be saved to or loaded from
 // "./mocks/get-users-yesno.json"
