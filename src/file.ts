@@ -4,7 +4,14 @@ import * as _ from 'lodash';
 import mkdirp = require('mkdirp');
 import { EOL } from 'os';
 import * as path from 'path';
-import { HEADER_CONTENT_TYPE, MIME_TYPE_JSON } from './consts';
+
+import {
+  DEFAULT_PORT_HTTP,
+  DEFAULT_PORT_HTTPS,
+  HEADER_CONTENT_TYPE,
+  MIME_TYPE_JSON,
+} from './consts';
+
 import { YesNoError } from './errors';
 import { createRecord, IHeaders, ISerializedHttp } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:mocks');
@@ -21,7 +28,7 @@ export interface IFileOptions {
   filename: string;
 }
 
-interface IPartialMockRequest {
+export interface IPartialMockRequest {
   headers?: IHeaders;
   body?: string | object;
   port?: number;
@@ -31,7 +38,7 @@ interface IPartialMockRequest {
   host: string;
 }
 
-interface IPartialMockResponse {
+export interface IPartialMockResponse {
   body?: string | object;
   headers?: IHeaders;
   statusCode: number;
@@ -115,9 +122,10 @@ export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
   return createRecord({
     duration: 0,
     request: {
+      // supply defaults for headers, path, and port
       headers: {},
       path: '/',
-      port: request.protocol === 'https' ? 443 : 80,
+      port: request.protocol === 'https' ? DEFAULT_PORT_HTTPS : DEFAULT_PORT_HTTP,
       ...request,
     },
     response: {
