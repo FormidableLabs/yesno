@@ -1,5 +1,5 @@
 import { IDebugger } from 'debug';
-import { readFile, writeFile } from 'fs';
+import { readFile, writeFile } from 'fs-extra';
 import * as _ from 'lodash';
 import mkdirp = require('mkdirp');
 import { EOL } from 'os';
@@ -49,39 +49,36 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
-export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
+export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
-  return new Promise((resolve, reject) => {
-    readFile(filename, (e: Error, data: Buffer) => {
-      if (e) {
-        if ((e as any).code === 'ENOENT') {
-          return reject(
-            new YesNoError(
-              `${helpMessageMissingMock(filename)}${EOL}${EOL}Original error: ${e.message}`,
-            ),
-          );
-        }
+  let data: Buffer | undefined;
+  try {
+    data = await readFile(filename);
+  } catch (e) {
+    if ((e as any).code === 'ENOENT') {
+      throw new YesNoError(
+        `${helpMessageMissingMock(filename)}${EOL}${EOL}Original error: ${e.message}`,
+      );
+    }
 
-        return reject(e);
-      }
+    throw e;
+  }
 
-      let obj: ISaveFile;
-      const dataString = data.toString();
+  let obj: ISaveFile;
+  const dataString: string = data.toString();
 
-      try {
-        obj = JSON.parse(dataString);
-      } catch (e) {
-        throw new YesNoError(`Failed to parse JSON from ${filename}: ${e}`);
-      }
+  try {
+    obj = JSON.parse(dataString);
+  } catch (e) {
+    throw new YesNoError(`Failed to parse JSON from ${filename}: ${e}`);
+  }
 
-      if (!obj.records) {
-        throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
-      }
+  if (!obj.records) {
+    throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
+  }
 
-      resolve(obj.records);
-    });
-  });
+  return obj.records;
 }
 
 export async function save({
