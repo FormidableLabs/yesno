@@ -48,21 +48,25 @@ describe('file', () => {
 
   const expectedData = JSON.stringify({ records: mockRecords }, null, 2);
 
+  const mockErrorMessage: string = 'some-error';
+  const mockError: Error = new Error(mockErrorMessage);
+
   let file: { [key: string]: any };
 
-  let stubMkDirP: Stub;
+  let stubEnsureDir: Stub;
   let stubReadFile: Stub;
   let stubWriteFile: Stub;
 
   beforeEach(() => {
-    stubMkDirP = sandbox.stub();
+    stubEnsureDir = sandbox.stub();
     stubReadFile = sandbox.stub();
     stubWriteFile = sandbox.stub();
 
-    mock('mkdirp', stubMkDirP);
-    mockRequire.reRequire('mkdirp');
-
-    mock('fs-extra', { readFile: stubReadFile, writeFile: stubWriteFile });
+    mock('fs-extra', {
+      ensureDir: stubEnsureDir,
+      readFile: stubReadFile,
+      writeFile: stubWriteFile,
+    });
     mockRequire.reRequire('fs-extra');
 
     file = mockRequire.reRequire('../../src/file');
@@ -74,6 +78,37 @@ describe('file', () => {
 
       const results: ISerializedHttp[] = await file.load({ filename: mockFileName });
       expect(results).deep.equals(mockRecords);
+
+      expect(stubReadFile).calledOnce.and.calledWithExactly(mockFileName);
+    });
+
+    it('rejects with a typed error if readFile rejects with missing file', async () => {
+      const missingFileError: any = new Error('some message');
+      missingFileError.code = 'ENOENT';
+
+      stubReadFile.rejects(missingFileError);
+
+      let error: Error | undefined;
+      try {
+        await file.load({ filename: mockFileName });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).instanceOf(YesNoError);
+
+      expect(stubReadFile).calledOnce.and.calledWithExactly(mockFileName);
+    });
+
+    it('rejects with any other rejection from readFile', async () => {
+      stubReadFile.rejects(mockError);
+
+      let error: Error | undefined;
+      try {
+        await file.load({ filename: mockFileName });
+      } catch (e) {
+        error = e;
+      }
+      expect(error && error.message).equals(mockErrorMessage);
 
       expect(stubReadFile).calledOnce.and.calledWithExactly(mockFileName);
     });
@@ -93,7 +128,9 @@ describe('file', () => {
     });
 
     it('rejects if the data does not contain top level records property', async () => {
-      stubReadFile.resolves(Buffer.from(JSON.stringify({ data: 'this is missing records' }), 'utf8'));
+      stubReadFile.resolves(
+        Buffer.from(JSON.stringify({ data: 'this is missing records' }), 'utf8'),
+      );
 
       let error: Error | undefined;
       try {
@@ -108,37 +145,37 @@ describe('file', () => {
   });
 
   describe('save', () => {
-    const mockErrorMessage: string = 'some-error';
-    const mockError: Error = new Error(mockErrorMessage);
-
     it('makes the directory and writes the file', async () => {
-      stubMkDirP.callsFake((path: string, callback: (error?: Error) => {}) => {
-        expect(normalize(path)).equals(normalize(mockDirectory));
-        process.nextTick(callback);
-      });
-
-      stubWriteFile.callsFake((path: string, data: string, callback: (error?: Error) => {}) => {
-        expect(path).equals(mockFileName);
-        expect(data).equals(expectedData);
-        process.nextTick(callback);
-      });
+      stubEnsureDir.resolves();
+      stubWriteFile.resolves();
 
       const results: string = await file.save({ filename: mockFileName, records: mockRecords });
       expect(results).equals(mockFileName);
 
-      expect(stubMkDirP).calledOnce.and.calledWithMatch(sinon.match.string, sinon.match.func);
-      expect(stubWriteFile).calledOnce.and.calledWithMatch(
-        sinon.match.string,
-        expectedData,
-        sinon.match.func,
+      expect(stubEnsureDir).calledOnce;
+      expect(normalize(stubEnsureDir.args[0][0])).equals(normalize(mockDirectory));
+
+      expect(stubWriteFile).calledOnce.and.calledWithExactly(mockFileName, expectedData);
+    });
+
+    it('provides defaults for some parameters', async () => {
+      stubEnsureDir.resolves();
+      stubWriteFile.resolves();
+
+      const results: string = await file.save({ filename: mockFileName });
+      expect(results).equals(mockFileName);
+
+      expect(stubEnsureDir).calledOnce;
+      expect(normalize(stubEnsureDir.args[0][0])).equals(normalize(mockDirectory));
+
+      expect(stubWriteFile).calledOnce.and.calledWithExactly(
+        mockFileName,
+        JSON.stringify({ records: [] }, null, 2),
       );
     });
 
     it('rejects if making the directory fails', async () => {
-      stubMkDirP.callsFake((path: string, callback: (error?: Error) => {}) => {
-        expect(normalize(path)).equals(normalize(mockDirectory));
-        process.nextTick(() => callback(mockError));
-      });
+      stubEnsureDir.rejects(mockError);
 
       let error: Error | undefined;
       try {
@@ -148,21 +185,15 @@ describe('file', () => {
       }
       expect(error && error.message).equals(mockErrorMessage);
 
-      expect(stubMkDirP).calledOnce.and.calledWithMatch(sinon.match.string, sinon.match.func);
+      expect(stubEnsureDir).calledOnce;
+      expect(normalize(stubEnsureDir.args[0][0])).equals(normalize(mockDirectory));
+
       expect(stubWriteFile).not.called;
     });
 
     it('rejects if writing the file contents fails', async () => {
-      stubMkDirP.callsFake((path: string, callback: (error?: Error) => {}) => {
-        expect(normalize(path)).equals(normalize(mockDirectory));
-        process.nextTick(callback);
-      });
-
-      stubWriteFile.callsFake((path: string, data: string, callback: (error?: Error) => {}) => {
-        expect(path).equals(mockFileName);
-        expect(data).equals(expectedData);
-        process.nextTick(() => callback(mockError));
-      });
+      stubEnsureDir.resolves();
+      stubWriteFile.rejects(mockError);
 
       let error: Error | undefined;
       try {
@@ -172,12 +203,10 @@ describe('file', () => {
       }
       expect(error && error.message).equals(mockErrorMessage);
 
-      expect(stubMkDirP).calledOnce.and.calledWithMatch(sinon.match.string, sinon.match.func);
-      expect(stubWriteFile).calledOnce.and.calledWithMatch(
-        sinon.match.string,
-        expectedData,
-        sinon.match.func,
-      );
+      expect(stubEnsureDir).calledOnce;
+      expect(normalize(stubEnsureDir.args[0][0])).equals(normalize(mockDirectory));
+
+      expect(stubWriteFile).calledOnce.and.calledWithExactly(mockFileName, expectedData);
     });
   });
 

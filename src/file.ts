@@ -1,7 +1,6 @@
 import { IDebugger } from 'debug';
-import { readFile, writeFile } from 'fs-extra';
+import { ensureDir, readFile, writeFile } from 'fs-extra';
 import * as _ from 'lodash';
-import mkdirp = require('mkdirp');
 import { EOL } from 'os';
 import * as path from 'path';
 
@@ -87,16 +86,13 @@ export async function save({
 }: ISaveOptions & IFileOptions): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
 
-  await new Promise((resolve, reject) => {
-    mkdirp(path.dirname(filename), (err) => (err ? reject(err) : resolve()));
-  });
+  await ensureDir(path.dirname(filename));
 
-  return new Promise((resolve, reject) => {
-    const payload: ISaveFile = { records };
-    const contents = JSON.stringify(payload, null, 2);
+  const payload: ISaveFile = { records };
+  const contents = JSON.stringify(payload, null, 2);
+  await writeFile(filename, contents);
 
-    writeFile(filename, contents, (e: Error) => (e ? reject(e) : resolve(filename)));
-  }) as Promise<string>;
+  return filename;
 }
 
 function helpMessageMissingMock(filename: string): string {
