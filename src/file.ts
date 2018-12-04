@@ -52,7 +52,7 @@ export interface IHttpMock {
 export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
-  let data: Buffer | undefined;
+  let data: Buffer;
   try {
     data = await readFile(filename);
   } catch (e) {
