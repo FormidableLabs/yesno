@@ -1,28 +1,19 @@
 {
-    "authors": "Alejandro Sánchez <https://github.com/alejo90>",
-    "definitionFilename": "index.d.ts",
-    "libraryDependencies": [
-        "node"
-    ],
-    "moduleDependencies": [
-        "http",
-        "net"
-    ],
-    "libraryMajorVersion": 1,
-    "libraryMinorVersion": 3,
-    "libraryName": "mitm v1.3.0",
-    "typingsPackageName": "mitm",
-    "projectName": "https://github.com/moll/node-mitm",
-    "sourceRepoURL": "https://www.github.com/DefinitelyTyped/DefinitelyTyped",
-    "sourceBranch": "types-2.0",
-    "kind": "ModuleAugmentation",
-    "globals": [],
-    "declaredModules": [
-        "mitm"
-    ],
-    "files": [
-        "index.d.ts"
-    ],
-    "hasPackageJson": false,
-    "contentHash": "90d8a3f63390bfc281913aa21437c0b85cdb2d5a6be48fed8457828a6872269d"
+  "authors": "Alejandro Sánchez <https://github.com/alejo90>",
+  "definitionFilename": "index.d.ts",
+  "libraryDependencies": ["node"],
+  "moduleDependencies": ["http", "net"],
+  "libraryMajorVersion": 1,
+  "libraryMinorVersion": 3,
+  "libraryName": "mitm v1.3.0",
+  "typingsPackageName": "mitm",
+  "projectName": "https://github.com/moll/node-mitm",
+  "sourceRepoURL": "https://www.github.com/DefinitelyTyped/DefinitelyTyped",
+  "sourceBranch": "types-2.0",
+  "kind": "ModuleAugmentation",
+  "globals": [],
+  "declaredModules": ["mitm"],
+  "files": ["index.d.ts"],
+  "hasPackageJson": false,
+  "contentHash": "90d8a3f63390bfc281913aa21437c0b85cdb2d5a6be48fed8457828a6872269d"
 }
