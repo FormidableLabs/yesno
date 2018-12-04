@@ -30,7 +30,7 @@ export default class Recording {
     this.options = options;
   }
 
-  public async complete(): Promise<string | undefined> {
+  public complete(): Promise<string> | undefined {
     if (this.options.mode === RecordMode.Record) {
       debug('Record mode, saving');
       return save({
