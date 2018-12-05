@@ -23,7 +23,7 @@
 
 **● requestSerializer**: *[RequestSerializer](../classes/_http_serializer_.requestserializer.md)*
 
-*Defined in [context.ts:5](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/context.ts#L5)*
+*Defined in [context.ts:5](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/context.ts#L5)*
 
 ___
 <a id="starttime"></a>
@@ -32,7 +32,7 @@ ___
 
 **● startTime**: *`number`*
 
-*Defined in [context.ts:4](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/context.ts#L4)*
+*Defined in [context.ts:4](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/context.ts#L4)*
 
 ___
 

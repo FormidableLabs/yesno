@@ -32,7 +32,7 @@
 
 **Ƭ GenericTest**: *`function`*
 
-*Defined in [yesno.ts:25](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L25)*
+*Defined in [yesno.ts:25](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L25)*
 
 #### Type declaration
 ▸(...args: *`any`*):  `Promise`<`any`> &#124; `void`
@@ -52,7 +52,7 @@ ___
 
 **Ƭ GenericTestFunction**: *`function`*
 
-*Defined in [yesno.ts:26](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L26)*
+*Defined in [yesno.ts:26](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L26)*
 
 #### Type declaration
 ▸(title: *`string`*, fn: *[GenericTest](_yesno_.md#generictest)*): `any`
@@ -74,7 +74,7 @@ ___
 **Ƭ HttpFilter**: * `string` &#124; `RegExp` &#124; [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)
 *
 
-*Defined in [yesno.ts:28](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L28)*
+*Defined in [yesno.ts:28](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L28)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 **● debug**: *`IDebugger`* =  require('debug')('yesno')
 
-*Defined in [yesno.ts:23](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L23)*
+*Defined in [yesno.ts:23](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L23)*
 
 ___
 

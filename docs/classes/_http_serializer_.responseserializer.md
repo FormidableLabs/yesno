@@ -89,7 +89,7 @@
 
 *Overrides Transform.__constructor*
 
-*Defined in [http-serializer.ts:149](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L149)*
+*Defined in [http-serializer.ts:149](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L149)*
 
 **Parameters:**
 
@@ -110,7 +110,7 @@ ___
 **● body**: * `string` &#124; `any`
 *
 
-*Defined in [http-serializer.ts:147](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L147)*
+*Defined in [http-serializer.ts:147](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L147)*
 
 ___
 <a id="headers"></a>
@@ -119,7 +119,7 @@ ___
 
 **● headers**: *[IHeaders](../interfaces/_http_serializer_.iheaders.md)*
 
-*Defined in [http-serializer.ts:148](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L148)*
+*Defined in [http-serializer.ts:148](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L148)*
 
 ___
 <a id="readable"></a>
@@ -161,7 +161,7 @@ ___
 
 **● statusCode**: *`number`*
 
-*Defined in [http-serializer.ts:149](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L149)*
+*Defined in [http-serializer.ts:149](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L149)*
 
 ___
 <a id="writable"></a>
@@ -311,7 +311,7 @@ ___
 
 *Overrides Transform._transform*
 
-*Defined in [http-serializer.ts:159](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L159)*
+*Defined in [http-serializer.ts:159](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L159)*
 
 **Parameters:**
 
@@ -1444,7 +1444,7 @@ ___
 
 ▸ **serialize**(): [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 
-*Defined in [http-serializer.ts:166](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L166)*
+*Defined in [http-serializer.ts:166](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L166)*
 
 **Returns:** [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 

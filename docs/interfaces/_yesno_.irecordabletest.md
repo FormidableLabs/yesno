@@ -25,7 +25,7 @@
 
 **● dir**: *`string`*
 
-*Defined in [yesno.ts:34](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L34)*
+*Defined in [yesno.ts:34](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L34)*
 
 ___
 <a id="it"></a>
@@ -34,7 +34,7 @@ ___
 
 **● it**: *[GenericTestFunction](../modules/_yesno_.md#generictestfunction)*
 
-*Defined in [yesno.ts:32](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L32)*
+*Defined in [yesno.ts:32](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L32)*
 
 ___
 <a id="prefix"></a>
@@ -44,7 +44,7 @@ ___
 **● prefix**: * `undefined` &#124; `string`
 *
 
-*Defined in [yesno.ts:33](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L33)*
+*Defined in [yesno.ts:33](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L33)*
 
 ___
 <a id="test"></a>
@@ -53,7 +53,7 @@ ___
 
 **● test**: *[GenericTestFunction](../modules/_yesno_.md#generictestfunction)*
 
-*Defined in [yesno.ts:31](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/yesno.ts#L31)*
+*Defined in [yesno.ts:31](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L31)*
 
 ___
 

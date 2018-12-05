@@ -22,7 +22,7 @@
 
 **● records**: *[ISerializedHttp](_http_serializer_.iserializedhttp.md)[]*
 
-*Defined in [file.ts:17](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/file.ts#L17)*
+*Defined in [file.ts:17](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L17)*
 
 ___
 

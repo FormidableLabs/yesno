@@ -32,7 +32,7 @@
 
 **● debug**: *`IDebugger`* =  require('debug')('yesno:proxy')
 
-*Defined in [interceptor.ts:14](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L14)*
+*Defined in [interceptor.ts:14](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L14)*
 
 ___
 

@@ -64,7 +64,7 @@
 
 ⊕ **new Interceptor**(options?: * `undefined` &#124; `object`*): [Interceptor](_interceptor_.interceptor.md)
 
-*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L60)*
+*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L60)*
 
 Begin intercepting requests on instantiation
 
@@ -86,7 +86,7 @@ ___
 
 **● clientRequests**: *[ClientRequestTracker](../interfaces/_interceptor_.clientrequesttracker.md)*
 
-*Defined in [interceptor.ts:57](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L57)*
+*Defined in [interceptor.ts:57](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L57)*
 
 ___
 <a id="ignoreports"></a>
@@ -95,7 +95,7 @@ ___
 
 **● ignorePorts**: *`number`[]* =  []
 
-*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L60)*
+*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L60)*
 
 ___
 <a id="mitm"></a>
@@ -104,7 +104,7 @@ ___
 
 **● mitm**: *`Mitm.Mitm`*
 
-*Defined in [interceptor.ts:58](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L58)*
+*Defined in [interceptor.ts:58](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L58)*
 
 ___
 <a id="origonsocket"></a>
@@ -114,7 +114,7 @@ ___
 **● origOnSocket**: * `undefined` &#124; `function`
 *
 
-*Defined in [interceptor.ts:59](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L59)*
+*Defined in [interceptor.ts:59](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L59)*
 
 ___
 <a id="requestnumber"></a>
@@ -123,7 +123,7 @@ ___
 
 **● requestNumber**: *`number`* = 0
 
-*Defined in [interceptor.ts:55](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L55)*
+*Defined in [interceptor.ts:55](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L55)*
 
 ___
 <a id="shouldproxy"></a>
@@ -132,7 +132,7 @@ ___
 
 **● shouldProxy**: *`boolean`* = true
 
-*Defined in [interceptor.ts:56](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L56)*
+*Defined in [interceptor.ts:56](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L56)*
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -177,7 +177,7 @@ ___
 
 ▸ **disable**(): `void`
 
-*Defined in [interceptor.ts:110](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L110)*
+*Defined in [interceptor.ts:110](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L110)*
 
 Disable request interception
 
@@ -212,7 +212,7 @@ ___
 
 ▸ **enable**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
 
-*Defined in [interceptor.ts:75](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L75)*
+*Defined in [interceptor.ts:75](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L75)*
 
 **Parameters:**
 
@@ -259,7 +259,7 @@ ___
 
 ▸ **getRequestId**(interceptedRequest: *`IncomingMessage`*): `string`
 
-*Defined in [interceptor.ts:239](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L239)*
+*Defined in [interceptor.ts:239](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L239)*
 
 **Parameters:**
 
@@ -318,7 +318,7 @@ ___
 
 ▸ **mitmOnConnect**(socket: *`BypassableSocket`*, options: *[ProxyRequestOptions](../interfaces/_interceptor_.proxyrequestoptions.md)*): `void`
 
-*Defined in [interceptor.ts:125](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L125)*
+*Defined in [interceptor.ts:125](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L125)*
 
 Event handler for Mitm "connect" event.
 
@@ -338,7 +338,7 @@ ___
 
 ▸ **mitmOnRequest**(interceptedRequest: *`IncomingMessage`*, interceptedResponse: *`ServerResponse`*): `void`
 
-*Defined in [interceptor.ts:151](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L151)*
+*Defined in [interceptor.ts:151](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L151)*
 
 Event handler for Mitm "request" event.
 
@@ -473,7 +473,7 @@ ___
 
 ▸ **proxy**(shouldProxy: *`boolean`*): `void`
 
-*Defined in [interceptor.ts:71](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L71)*
+*Defined in [interceptor.ts:71](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L71)*
 
 **Parameters:**
 
@@ -575,7 +575,7 @@ ___
 
 ▸ **trackSocketAndClientOptions**(socket: *[RegisteredSocket](../interfaces/_interceptor_.registeredsocket.md)*, clientOptions: *[ProxyRequestOptions](../interfaces/_interceptor_.proxyrequestoptions.md)*): `void`
 
-*Defined in [interceptor.ts:231](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L231)*
+*Defined in [interceptor.ts:231](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L231)*
 
 **Parameters:**
 

@@ -28,7 +28,7 @@
 
 *Inherited from [IFileOptions](_file_.ifileoptions.md).[filename](_file_.ifileoptions.md#filename)*
 
-*Defined in [file.ts:21](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/file.ts#L21)*
+*Defined in [file.ts:21](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L21)*
 
 ___
 <a id="getrecordstosave"></a>
@@ -37,7 +37,7 @@ ___
 
 **● getRecordsToSave**: *`function`*
 
-*Defined in [recording.ts:22](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/recording.ts#L22)*
+*Defined in [recording.ts:22](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L22)*
 
 #### Type declaration
 ▸(): [ISerializedHttp](_http_serializer_.iserializedhttp.md)[]
@@ -51,7 +51,7 @@ ___
 
 **● mode**: *[RecordMode](../enums/_recording_.recordmode.md)*
 
-*Defined in [recording.ts:23](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/recording.ts#L23)*
+*Defined in [recording.ts:23](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L23)*
 
 ___
 

@@ -20,7 +20,7 @@
 
 **Mock**:  = "mock"
 
-*Defined in [recording.ts:10](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/recording.ts#L10)*
+*Defined in [recording.ts:10](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L10)*
 
 Intercept requests and respond with local mocks
 
@@ -31,7 +31,7 @@ ___
 
 **Record**:  = "record"
 
-*Defined in [recording.ts:18](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/recording.ts#L18)*
+*Defined in [recording.ts:18](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L18)*
 
 Save requests
 
@@ -42,7 +42,7 @@ ___
 
 **Spy**:  = "spy"
 
-*Defined in [recording.ts:14](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/recording.ts#L14)*
+*Defined in [recording.ts:14](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L14)*
 
 Spy on request/response
 

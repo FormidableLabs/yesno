@@ -22,7 +22,7 @@
 
 **● requestIndex**: *`number`*
 
-*Defined in [filtering/comparator.ts:6](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/filtering/comparator.ts#L6)*
+*Defined in [filtering/comparator.ts:6](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/comparator.ts#L6)*
 
 ___
 

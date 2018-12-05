@@ -94,7 +94,7 @@
 
 *Overrides Transform.__constructor*
 
-*Defined in [http-serializer.ts:98](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L98)*
+*Defined in [http-serializer.ts:98](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L98)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 **● body**: * `string` &#124; `undefined`
 *
 
-*Defined in [http-serializer.ts:88](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L88)*
+*Defined in [http-serializer.ts:88](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L88)*
 
 ___
 <a id="headers"></a>
@@ -127,7 +127,7 @@ ___
 
 **● headers**: *[IHeaders](../interfaces/_http_serializer_.iheaders.md)*
 
-*Defined in [http-serializer.ts:89](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L89)*
+*Defined in [http-serializer.ts:89](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L89)*
 
 ___
 <a id="host"></a>
@@ -136,7 +136,7 @@ ___
 
 **● host**: *`string`*
 
-*Defined in [http-serializer.ts:90](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L90)*
+*Defined in [http-serializer.ts:90](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L90)*
 
 ___
 <a id="method"></a>
@@ -145,7 +145,7 @@ ___
 
 **● method**: *`string`*
 
-*Defined in [http-serializer.ts:92](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L92)*
+*Defined in [http-serializer.ts:92](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L92)*
 
 ___
 <a id="path"></a>
@@ -154,7 +154,7 @@ ___
 
 **● path**: *`string`*
 
-*Defined in [http-serializer.ts:91](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L91)*
+*Defined in [http-serializer.ts:91](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L91)*
 
 ___
 <a id="port"></a>
@@ -163,7 +163,7 @@ ___
 
 **● port**: *`number`*
 
-*Defined in [http-serializer.ts:93](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L93)*
+*Defined in [http-serializer.ts:93](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L93)*
 
 ___
 <a id="protocol"></a>
@@ -173,7 +173,7 @@ ___
 **● protocol**: * "http" &#124; "https"
 *
 
-*Defined in [http-serializer.ts:94](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L94)*
+*Defined in [http-serializer.ts:94](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L94)*
 
 ___
 <a id="query"></a>
@@ -183,7 +183,7 @@ ___
 **● query**: * `undefined` &#124; `string`
 *
 
-*Defined in [http-serializer.ts:98](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L98)*
+*Defined in [http-serializer.ts:98](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L98)*
 
 Query part _including_ `?`
 
@@ -368,7 +368,7 @@ ___
 
 *Overrides Transform._transform*
 
-*Defined in [http-serializer.ts:124](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L124)*
+*Defined in [http-serializer.ts:124](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L124)*
 
 **Parameters:**
 
@@ -1501,7 +1501,7 @@ ___
 
 ▸ **serialize**(): [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
 
-*Defined in [http-serializer.ts:132](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L132)*
+*Defined in [http-serializer.ts:132](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L132)*
 
 **Returns:** [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
 
