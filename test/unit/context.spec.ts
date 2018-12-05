@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { SinonSandbox as Sandbox, SinonStub as Stub } from 'sinon';
+import { SinonSandbox as Sandbox } from 'sinon';
 import * as sinon from 'sinon';
 
-import Context, { IInFlightRequest } from '../../src/context';
+import Context from '../../src/context';
 import { ISerializedHttp } from '../../src/http-serializer';
 
 describe('context', () => {
