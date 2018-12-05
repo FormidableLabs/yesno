@@ -1,23 +1,26 @@
+
 [![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
 
-# YesNo
+YesNo
+=====
 
 YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests. YesNo provides a simple API to access, manipulate and record requests, using mocks or live services, so that you can easily define what requests should and should not be made by your app.
 
 _Note:_ YesNo is still in beta! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
 
-- [Why?](#Why)
-- [Installation](#installation)
-- [Usage](#Usage)
-  - [Intercepting live requests](#intercepting-live-requests)
-  - [Mocking responses](#mocking-responses)
-  - [Recording requests](#recording-requests)
-  - [Filtering results](#filtering-results)
-  - [Restoring HTTP behavior](#restoring-http-behavior)
-- [Examples](#Examples)
-- [API](#API)
+*   [Why?](#Why)
+*   [Installation](#installation)
+*   [Usage](#Usage)
+    *   [Intercepting live requests](#intercepting-live-requests)
+    *   [Mocking responses](#mocking-responses)
+    *   [Recording requests](#recording-requests)
+    *   [Filtering results](#filtering-results)
+    *   [Restoring HTTP behavior](#restoring-http-behavior)
+*   [Examples](#Examples)
+*   [API](#API)
 
-## Why?
+Why?
+----
 
 NodeJS applications often need to generate HTTP requests, whether that is to orchestrate across internal microservices, integrate with third party APIs or whatever. Because the correct behavior of the app is usually dependent on _sending the correct request_ and _receiving the correct response_, it's important that our tests properly validate our HTTP requests. We can accomplish this through a mix of _spying_ and _mocking_.
 
@@ -25,13 +28,15 @@ Whereas a naive approach would be to mock the method calls to our request librar
 
 YesNo's sole purpose is to provide an easy interface to intercepting requests and defining mocks. You are free to use your existing assertion library to validate requests.
 
-## Installation
+Installation
+------------
 
 ```
 npm i --save-dev yesno-http
 ```
 
-## Usage
+Usage
+-----
 
 _To see our preferred usage, skip to [recording](#recording-requests)!_
 
@@ -124,6 +129,7 @@ Now we skip the recording boilerplate and just write our test!
 In case you need to load and generate fixtures manually, YesNo also exposes the `save` and `load` methods that `record` uses internally.
 
 ### Filtering results
+
 Once requests have finished we still need to assert that the requests were correct. We've already seen `yesno.intercepted()`, which returns _all_ the intercepted requests, but this is just shorthand for `yesno.matching().intercepted()`, which we can use to selectively access requests.
 
 Consider the following, where we use `yesno.matching()` to access only the intercepted user request, then assert a password was hashed.
@@ -148,7 +154,6 @@ await myApi.updateUser(userId, rawPassword);
 
 yesno.matching(/auth/).redact(['request.headers.authorization', 'response.body.token']);
 
-
 expect(yesno.matching(/auth/).intercepted()).to.have.nested.property(
  'request.headers.authorization', '*****');
 
@@ -172,7 +177,8 @@ describe('api', () => {
 
 If you're using `yesno.test()` it'll call restore for you whenever it runs.
 
-## Examples
+Examples
+--------
 
 Visit the [examples](https://github.com/FormidableLabs/yesno/tree/master/examples) directory to see sample tests written with YesNo.
 
@@ -189,8 +195,30 @@ Then in a separate window
 npm run example-tests
 ```
 
-## API
+API
+---
 
 YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax where possible.
 
-See complete documentation [here](./docs/README.md).
+See complete documentation [here](./docs).
+
+## Index
+
+### External modules
+
+* ["consts"](modules/_consts_.md)
+* ["context"](modules/_context_.md)
+* ["errors"](modules/_errors_.md)
+* ["file"](modules/_file_.md)
+* ["filtering/collection"](modules/_filtering_collection_.md)
+* ["filtering/comparator"](modules/_filtering_comparator_.md)
+* ["filtering/matcher"](modules/_filtering_matcher_.md)
+* ["filtering/redact"](modules/_filtering_redact_.md)
+* ["http-serializer"](modules/_http_serializer_.md)
+* ["index"](modules/_index_.md)
+* ["interceptor"](modules/_interceptor_.md)
+* ["recording"](modules/_recording_.md)
+* ["yesno"](modules/_yesno_.md)
+
+---
+

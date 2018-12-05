@@ -1,0 +1,28 @@
+[yesno-http](../README.md) > ["file"](../modules/_file_.md) > [ISaveFile](../interfaces/_file_.isavefile.md)
+
+# Interface: ISaveFile
+
+## Hierarchy
+
+**ISaveFile**
+
+## Index
+
+### Properties
+
+* [records](_file_.isavefile.md#records)
+
+---
+
+## Properties
+
+<a id="records"></a>
+
+###  records
+
+**● records**: *[ISerializedHttp](_http_serializer_.iserializedhttp.md)[]*
+
+*Defined in [file.ts:13](https://github.com/FormidableLabs/yesno/blob/61f406a/src/file.ts#L13)*
+
+___
+

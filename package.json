@@ -26,7 +26,7 @@
     "example-tests": "mocha --timeout 2000 \"./examples/*.spec.ts\"",
     "integration": "mocha --timeout 5000 \"test/integration/**/*.spec.ts\"",
     "check": "npm run lint && npm run tests",
-    "docs": "node ./node_modules/typedoc/bin/typedoc --out ./docs ./src"
+    "docs": "node ./node_modules/typedoc/bin/typedoc --theme markdown --out ./docs ./src"
   },
   "repository": {
     "type": "git",
@@ -71,6 +71,7 @@
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typedoc": "^0.13.0",
+    "typedoc-plugin-markdown": "^1.1.19",
     "typescript": "^3.0.1"
   },
   "dependencies": {
