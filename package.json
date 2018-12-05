@@ -25,7 +25,8 @@
     "example-server": "./node_modules/.bin/ts-node ./examples/src/api-server.ts",
     "example-tests": "mocha --timeout 2000 \"./examples/*.spec.ts\"",
     "integration": "mocha --timeout 5000 \"test/integration/**/*.spec.ts\"",
-    "check": "npm run lint && npm run tests"
+    "check": "npm run lint && npm run tests",
+    "docs": "node ./node_modules/typedoc/bin/typedoc --out ./docs ./src"
   },
   "repository": {
     "type": "git",
@@ -69,6 +70,7 @@
     "source-map-support": "^0.5.8",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
+    "typedoc": "^0.13.0",
     "typescript": "^3.0.1"
   },
   "dependencies": {
