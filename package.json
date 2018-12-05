@@ -20,6 +20,7 @@
     "coverage": "nyc -- mocha --timeout 2000 \"test/unit/**/*.spec.ts\"",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prettier": "cat .gitignore .prettierignore > .gitprettierignore && prettier --write --config .prettierrc \"**/*.{ts,scss,json}\" --ignore-path .gitprettierignore",
     "unit": "mocha --timeout 2000 \"test/unit/**/*.spec.ts\"",
     "example-server": "./node_modules/.bin/ts-node ./examples/src/api-server.ts",
     "example-tests": "mocha --timeout 2000 \"./examples/*.spec.ts\"",

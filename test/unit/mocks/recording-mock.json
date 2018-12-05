@@ -16,7 +16,8 @@
         "protocol": "http"
       },
       "response": {
-        "body": "{\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\"},\"method\":\"GET\",\"path\":\"/get\"}",
+        "body":
+          "{\"headers\":{\"host\":\"localhost:3001\",\"connection\":\"close\"},\"method\":\"GET\",\"path\":\"/get\"}",
         "headers": {
           "x-powered-by": "Express",
           "content-type": "application/json; charset=utf-8",
