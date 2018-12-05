@@ -75,7 +75,6 @@
     "@types/debug": "0.0.30",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
-    "@types/mkdirp": "^0.5.2",
     "@types/uuid": "^3.4.4",
     "@types/yargs": "^12.0.1",
     "debug": "^4.0.1",
