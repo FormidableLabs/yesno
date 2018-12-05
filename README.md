@@ -193,4 +193,4 @@ npm run example-tests
 
 YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax where possible.
 
-See complete documentation [here](./docs/index.html).
+See complete documentation [here](./docs).
