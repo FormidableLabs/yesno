@@ -2,6 +2,6 @@
 
 import * as Stream from 'stream';
 
-declare module "readable-stream" {
-  export module Stream {}
+declare module 'readable-stream' {
+  export namespace Stream {  }
 }
