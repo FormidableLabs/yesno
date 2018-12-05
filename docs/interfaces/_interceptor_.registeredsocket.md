@@ -124,7 +124,7 @@ ___
 **● __yesno_req_id**: * `undefined` &#124; `string`
 *
 
-*Defined in [interceptor.ts:24](https://github.com/FormidableLabs/yesno/blob/61f406a/src/interceptor.ts#L24)*
+*Defined in [interceptor.ts:24](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/interceptor.ts#L24)*
 
 ___
 <a id="buffersize"></a>
@@ -624,7 +624,7 @@ ___
 
 *Inherited from BypassableSocket.bypass*
 
-*Defined in [@types/mitm/index.d.ts:23](https://github.com/FormidableLabs/yesno/blob/61f406a/src/@types/mitm/index.d.ts#L23)*
+*Defined in [@types/mitm/index.d.ts:23](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/@types/mitm/index.d.ts#L23)*
 
 **Returns:** `void`
 

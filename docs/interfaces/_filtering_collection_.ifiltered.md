@@ -29,7 +29,7 @@
 
 **● intercepted**: *`function`*
 
-*Defined in [filtering/collection.ts:17](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L17)*
+*Defined in [filtering/collection.ts:17](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L17)*
 
 #### Type declaration
 ▸(): [ISerializedHttp](_http_serializer_.iserializedhttp.md)[]
@@ -43,7 +43,7 @@ ___
 
 **● mocks**: *`function`*
 
-*Defined in [filtering/collection.ts:18](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L18)*
+*Defined in [filtering/collection.ts:18](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L18)*
 
 #### Type declaration
 ▸(): [ISerializedHttp](_http_serializer_.iserializedhttp.md)[]
@@ -57,7 +57,7 @@ ___
 
 **● redact**: *`function`*
 
-*Defined in [filtering/collection.ts:16](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L16)*
+*Defined in [filtering/collection.ts:16](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L16)*
 
 #### Type declaration
 ▸(property: * `string` &#124; `string`[]*, symbol: *[Redactor](../modules/_filtering_redact_.md#redactor)*): `void`

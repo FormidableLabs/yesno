@@ -23,7 +23,7 @@
 
 **● context**: *[Context](../classes/_context_.context.md)*
 
-*Defined in [filtering/collection.ts:22](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L22)*
+*Defined in [filtering/collection.ts:22](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L22)*
 
 ___
 <a id="matcher"></a>
@@ -33,7 +33,7 @@ ___
 **● matcher**: * [ISerializedHttpPartialDeepMatch](_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](../modules/_filtering_matcher_.md#matchfn)
 *
 
-*Defined in [filtering/collection.ts:23](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L23)*
+*Defined in [filtering/collection.ts:23](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L23)*
 
 ___
 

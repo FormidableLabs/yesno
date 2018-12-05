@@ -30,7 +30,7 @@
 
 ⊕ **new Recording**(options: *[IRecordingOptions](../interfaces/_recording_.irecordingoptions.md)*): [Recording](_recording_.recording.md)
 
-*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/61f406a/src/recording.ts#L27)*
+*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/recording.ts#L27)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ ___
 
 **● options**: *[IRecordingOptions](../interfaces/_recording_.irecordingoptions.md)*
 
-*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/61f406a/src/recording.ts#L27)*
+*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/recording.ts#L27)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 ▸ **complete**(): `Promise`< `string` &#124; `undefined`>
 
-*Defined in [recording.ts:33](https://github.com/FormidableLabs/yesno/blob/61f406a/src/recording.ts#L33)*
+*Defined in [recording.ts:33](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/recording.ts#L33)*
 
 **Returns:** `Promise`< `string` &#124; `undefined`>
 

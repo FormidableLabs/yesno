@@ -28,7 +28,7 @@
 
 **● inFlightRequests**: *`Array`< [IInFlightRequest](../interfaces/_context_.iinflightrequest.md) &#124; `null`>* =  []
 
-*Defined in [context.ts:23](https://github.com/FormidableLabs/yesno/blob/61f406a/src/context.ts#L23)*
+*Defined in [context.ts:23](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/context.ts#L23)*
 
 Proxied requests which have not yet responded. When completed the value is set to "null" but the index is preserved.
 
@@ -39,7 +39,7 @@ ___
 
 **● interceptedRequestsCompleted**: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]* =  []
 
-*Defined in [context.ts:14](https://github.com/FormidableLabs/yesno/blob/61f406a/src/context.ts#L14)*
+*Defined in [context.ts:14](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/context.ts#L14)*
 
 Completed serialized request-response objects. Used for: A. Assertions B. Saved to disk if in record mode
 
@@ -50,7 +50,7 @@ ___
 
 **● loadedMocks**: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]* =  []
 
-*Defined in [context.ts:18](https://github.com/FormidableLabs/yesno/blob/61f406a/src/context.ts#L18)*
+*Defined in [context.ts:18](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/context.ts#L18)*
 
 Serialized records loaded from disk.
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **clear**(): `void`
 
-*Defined in [context.ts:25](https://github.com/FormidableLabs/yesno/blob/61f406a/src/context.ts#L25)*
+*Defined in [context.ts:25](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/context.ts#L25)*
 
 **Returns:** `void`
 

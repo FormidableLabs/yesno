@@ -40,7 +40,7 @@
 
 ⊕ **new FilteredHttpCollection**(__namedParameters: *`object`*): [FilteredHttpCollection](_filtering_collection_.filteredhttpcollection.md)
 
-*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L28)*
+*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L28)*
 
 **Parameters:**
 
@@ -63,7 +63,7 @@ ___
 
 **● ctx**: *[Context](_context_.context.md)*
 
-*Defined in [filtering/collection.ts:27](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L27)*
+*Defined in [filtering/collection.ts:27](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L27)*
 
 ___
 <a id="matcher"></a>
@@ -73,7 +73,7 @@ ___
 **● matcher**: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](../modules/_filtering_matcher_.md#matchfn)
 *
 
-*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L28)*
+*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L28)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **intercepted**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
-*Defined in [filtering/collection.ts:35](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L35)*
+*Defined in [filtering/collection.ts:35](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L35)*
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
@@ -96,7 +96,7 @@ ___
 
 ▸ **mocks**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
-*Defined in [filtering/collection.ts:39](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L39)*
+*Defined in [filtering/collection.ts:39](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L39)*
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
@@ -107,7 +107,7 @@ ___
 
 ▸ **only**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
-*Defined in [filtering/collection.ts:79](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L79)*
+*Defined in [filtering/collection.ts:79](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L79)*
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **redact**(property: * `string` &#124; `string`[]*, redactor?: *[Redactor](../modules/_filtering_redact_.md#redactor)*): `void`
 
-*Defined in [filtering/collection.ts:43](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L43)*
+*Defined in [filtering/collection.ts:43](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L43)*
 
 **Parameters:**
 
@@ -136,7 +136,7 @@ ___
 
 ▸ **request**(): [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
 
-*Defined in [filtering/collection.ts:66](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L66)*
+*Defined in [filtering/collection.ts:66](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L66)*
 
 Return serialized request part of the _single_ matching intercepted HTTP request.
 
@@ -151,7 +151,7 @@ ___
 
 ▸ **response**(): [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 
-*Defined in [filtering/collection.ts:75](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/collection.ts#L75)*
+*Defined in [filtering/collection.ts:75](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/collection.ts#L75)*
 
 Return serialized response part of the _single_ matching intercepted HTTP request.
 

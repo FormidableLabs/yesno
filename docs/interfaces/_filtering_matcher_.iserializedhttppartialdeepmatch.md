@@ -24,7 +24,7 @@
 
 **● request**: *[RequestQuery](../modules/_filtering_matcher_.md#requestquery)*
 
-*Defined in [filtering/matcher.ts:14](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/matcher.ts#L14)*
+*Defined in [filtering/matcher.ts:14](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/matcher.ts#L14)*
 
 ___
 <a id="response"></a>
@@ -33,7 +33,7 @@ ___
 
 **● response**: *[ResponseQuery](../modules/_filtering_matcher_.md#responsequery)*
 
-*Defined in [filtering/matcher.ts:15](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/matcher.ts#L15)*
+*Defined in [filtering/matcher.ts:15](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/matcher.ts#L15)*
 
 ___
 <a id="url"></a>
@@ -43,7 +43,7 @@ ___
 **● url**: * `string` &#124; `RegExp`
 *
 
-*Defined in [filtering/matcher.ts:13](https://github.com/FormidableLabs/yesno/blob/61f406a/src/filtering/matcher.ts#L13)*
+*Defined in [filtering/matcher.ts:13](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/filtering/matcher.ts#L13)*
 
 ___
 

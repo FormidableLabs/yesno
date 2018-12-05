@@ -207,7 +207,7 @@ ___
 **● proxying**: * `undefined` &#124; `false` &#124; `true`
 *
 
-*Defined in [interceptor.ts:28](https://github.com/FormidableLabs/yesno/blob/61f406a/src/interceptor.ts#L28)*
+*Defined in [interceptor.ts:28](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/interceptor.ts#L28)*
 
 ___
 <a id="socketpath"></a>
