@@ -23,7 +23,7 @@
 
 **● request**: *[IPartialMockRequest](_file_.ipartialmockrequest.md)*
 
-*Defined in [file.ts:41](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/file.ts#L41)*
+*Defined in [file.ts:41](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/file.ts#L41)*
 
 ___
 <a id="response"></a>
@@ -32,7 +32,7 @@ ___
 
 **● response**: *[IPartialMockResponse](_file_.ipartialmockresponse.md)*
 
-*Defined in [file.ts:42](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/file.ts#L42)*
+*Defined in [file.ts:42](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/file.ts#L42)*
 
 ___
 

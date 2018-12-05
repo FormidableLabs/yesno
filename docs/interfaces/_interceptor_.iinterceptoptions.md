@@ -22,7 +22,7 @@
 
 **● ignorePorts**: *`number`[]*
 
-*Defined in [interceptor.ts:40](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/interceptor.ts#L40)*
+*Defined in [interceptor.ts:40](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/interceptor.ts#L40)*
 
 ___
 

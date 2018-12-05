@@ -24,7 +24,7 @@
 
 **● filename**: *`string`*
 
-*Defined in [file.ts:21](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/file.ts#L21)*
+*Defined in [file.ts:21](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/file.ts#L21)*
 
 ___
 

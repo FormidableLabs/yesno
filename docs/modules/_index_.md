@@ -18,7 +18,7 @@
 
 **● yesno**: *[YesNo](../classes/_yesno_.yesno.md)* =  new YesNo(new Context())
 
-*Defined in [index.ts:9](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/index.ts#L9)*
+*Defined in [index.ts:9](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/index.ts#L9)*
 
 ___
 

@@ -127,7 +127,7 @@ ___
 **● agent**: * `undefined` &#124; `object`
 *
 
-*Defined in [http-serializer.ts:64](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/http-serializer.ts#L64)*
+*Defined in [http-serializer.ts:64](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L64)*
 
 ___
 <a id="chunkedencoding"></a>
@@ -182,7 +182,7 @@ ___
 
 **● path**: *`string`*
 
-*Defined in [http-serializer.ts:67](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/http-serializer.ts#L67)*
+*Defined in [http-serializer.ts:67](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/http-serializer.ts#L67)*
 
 ___
 <a id="senddate"></a>

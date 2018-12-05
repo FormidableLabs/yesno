@@ -31,7 +31,7 @@
 
 ⊕ **new YesNoError**(message: *`string`*): [YesNoError](_errors_.yesnoerror.md)
 
-*Defined in [errors.ts:1](https://github.com/FormidableLabs/yesno/blob/8e1469e/src/errors.ts#L1)*
+*Defined in [errors.ts:1](https://github.com/FormidableLabs/yesno/blob/acc9f7a/src/errors.ts#L1)*
 
 **Parameters:**
 
