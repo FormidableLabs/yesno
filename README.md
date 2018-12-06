@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
+[![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/master/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
 
 # YesNo
 

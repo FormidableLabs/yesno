@@ -178,15 +178,13 @@ export function formatUrl(request: ISerializedRequest, includePort: boolean = fa
   return `${request.protocol}://${request.host}${port}${request.path}${query}`;
 }
 
-export function createRecord({
-  request,
-  response,
-  duration,
-}: {
+export interface ICreateRecord {
   request: ISerializedRequest;
   response: ISerializedResponse;
   duration: number;
-}): ISerializedHttp {
+}
+
+export function createRecord({ request, response, duration }: ICreateRecord): ISerializedHttp {
   return {
     __duration: duration,
     __id: uuid.v4(),
