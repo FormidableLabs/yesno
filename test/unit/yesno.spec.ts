@@ -5,6 +5,7 @@ import * as path from 'path';
 import rp from 'request-promise';
 import rimraf = require('rimraf');
 import * as sinon from 'sinon';
+import { SinonSandbox as Sandbox } from 'sinon';
 import yesno from '../../src';
 import { YESNO_RECORDING_MODE_ENV_VAR } from '../../src/consts';
 import { IHttpMock } from '../../src/file';
@@ -18,8 +19,10 @@ describe('Yesno', () => {
   const mocksDir = path.join(__dirname, 'mocks');
   let server: testServer.ITestServer;
 
+  const sandbox: Sandbox = sinon.createSandbox();
+
   afterEach(async () => {
-    sinon.restore();
+    sandbox.restore();
     await new Promise((res, rej) => rimraf(`${__dirname}/tmp/*`, (e) => (e ? rej(e) : res())));
   });
 
@@ -305,8 +308,8 @@ describe('Yesno', () => {
     it('should create a recordable test', async () => {
       process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Record;
 
-      const mockTestFn = sinon.mock(); // eg jest.test
-      const mockTest = sinon.mock();
+      const mockTestFn = sandbox.mock(); // eg jest.test
+      const mockTest = sandbox.mock();
       const expectedFilename = `${dir}/test-title-yesno.json`;
       const expectedFilenamePrefix = `${dir}/foobar-test-title-yesno.json`;
 
@@ -337,11 +340,11 @@ describe('Yesno', () => {
     });
 
     it('should restore behavior before and after the test regardless of whether it passes', async () => {
-      const mockTestFn = sinon.mock(); // eg jest.test
-      const mockTest = sinon.mock().resolves();
-      const mockTestReject = sinon.mock().rejects(new Error('Mock reject'));
-      const mockTestThrow = sinon.mock().throws(new Error('Mock throw'));
-      const restoreSpy = sinon.spy(yesno, 'restore');
+      const mockTestFn = sandbox.mock(); // eg jest.test
+      const mockTest = sandbox.mock().resolves();
+      const mockTestReject = sandbox.mock().rejects(new Error('Mock reject'));
+      const mockTestThrow = sandbox.mock().throws(new Error('Mock throw'));
+      const restoreSpy = sandbox.spy(yesno, 'restore');
 
       const recordedTest = yesno.test({ test: mockTestFn, dir });
 
