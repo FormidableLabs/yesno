@@ -11,9 +11,9 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "preversion": "npm run clean && npm run lint && npm run tests",
-    "version": "npm run compile",
-    "clean": "rimraf dist",
+    "preversion": "npm run clean && npm run lint && npm run prettier && npm run tests",
+    "version": "npm run compile && npm run docs",
+    "clean": "rimraf dist && rimraf docs",
     "compile": "tsc",
     "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
@@ -26,7 +26,8 @@
     "example-server": "./node_modules/.bin/ts-node ./examples/src/api-server.ts",
     "example-tests": "mocha --timeout 2000 \"./examples/*.spec.ts\"",
     "integration": "mocha --timeout 5000 \"test/integration/**/*.spec.ts\"",
-    "check": "npm run lint && npm run tests"
+    "check": "npm run lint && npm run tests",
+    "docs": "node ./node_modules/typedoc/bin/typedoc --mdHideSources --readme none --theme markdown --out ./docs ./src"
   },
   "repository": {
     "type": "git",
@@ -71,6 +72,8 @@
     "source-map-support": "^0.5.8",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
+    "typedoc": "^0.13.0",
+    "typedoc-plugin-markdown": "^1.1.19",
     "typescript": "^3.0.1"
   },
   "dependencies": {
