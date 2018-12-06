@@ -72,20 +72,29 @@ export class YesNo implements IFiltered {
     this.setMocks(mocks.map(file.hydrateHttpMock));
   }
 
-  public async recording(options: file.IFileOptions): Promise<Recording> {
+  public recording(options: file.IFileOptions): Promise<Recording> {
     const mode = this.getModeByEnv();
 
-    if (mode !== Mode.Mock) {
-      this.spy();
-    } else {
-      this.mock(await this.load(options));
-    }
-
-    return new Recording({
-      ...options,
-      getRecordsToSave: this.getRecordsToSave.bind(this),
-      mode,
-    });
+    return new Promise((resolve, reject) => {
+      if (mode !== Mode.Mock) {
+        this.spy();
+        resolve();
+      } else {
+        this.load(options)
+          .then((mock) => {
+            this.mock(mock);
+            resolve();
+          })
+          .catch(reject);
+      }
+    }).then(
+      () =>
+        new Recording({
+          ...options,
+          getRecordsToSave: this.getRecordsToSave.bind(this),
+          mode,
+        }),
+    );
   }
 
   /**
@@ -101,18 +110,33 @@ export class YesNo implements IFiltered {
     return (title: string, fn: GenericTest): GenericTestFunction => {
       const filename = file.getMockFilename(prefix ? `${prefix}-${title}` : title, dir);
 
-      return runTest(title, async () => {
+      return runTest(title, () => {
         debug('Running test "%s"', title);
         this.restore();
 
-        try {
-          const recording = await this.recording({ filename });
-          await fn();
-          debug('Saving test "%s"', filename);
-          await recording.complete();
-        } finally {
-          this.restore();
-        }
+        return this.recording({ filename })
+          .then((recording) => {
+            return new Promise((resolve, reject) => {
+              const results = fn();
+              if (results && results.then) {
+                results
+                  .then(() => {
+                    debug('Saving test "%s"', filename);
+                    resolve();
+                  })
+                  .catch(reject);
+              } else {
+                resolve();
+              }
+            }).then(() => recording.complete());
+          })
+          .then(() => {
+            this.restore();
+          })
+          .catch((error) => {
+            this.restore();
+            throw error;
+          });
       });
     };
   }
@@ -120,20 +144,20 @@ export class YesNo implements IFiltered {
   /**
    * Load request/response mocks from disk
    */
-  public async load(options: file.IFileOptions): Promise<ISerializedHttp[]> {
+  public load(options: file.IFileOptions): Promise<ISerializedHttp[]> {
     debug('Loading mocks');
-    const records = await file.load(options as file.IFileOptions);
 
-    validateSerializedHttpArray(records);
-
-    return records;
+    return file.load(options as file.IFileOptions).then((records) => {
+      validateSerializedHttpArray(records);
+      return records;
+    });
   }
   /**
    * Save intercepted requests
    *
    * @returns Full filename of saved JSON if generated
    */
-  public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
+  public save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
     options.records = options.records || this.getRecordsToSave();
 
     return file.save(options);
@@ -282,7 +306,7 @@ export class YesNo implements IFiltered {
     });
   }
 
-  private async mockResponse({
+  private mockResponse({
     clientRequest,
     interceptedRequest,
     interceptedResponse,
@@ -290,38 +314,47 @@ export class YesNo implements IFiltered {
     requestNumber,
   }: IInterceptEvent): Promise<void> {
     debug('Mock response');
-    try {
-      await (readable as any).pipeline(interceptedRequest, requestSerializer);
 
-      const serializedRequest = requestSerializer.serialize();
-      const mock = this.ctx.loadedMocks[requestNumber];
+    return new Promise((resolve, reject) => {
+      (readable as any).pipeline(interceptedRequest, requestSerializer, (error: Error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    })
+      .then(() => {
+        const serializedRequest = requestSerializer.serialize();
+        const mock = this.ctx.loadedMocks[requestNumber];
 
-      if (!mock) {
-        throw new YesNoError(`No mock found for request #${requestNumber}`);
-      }
+        if (!mock) {
+          throw new YesNoError(`No mock found for request #${requestNumber}`);
+        }
 
-      // Assertion must happen before promise -
-      // mitm does not support promise rejections on "request" event
-      comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
+        // Assertion must happen before promise -
+        // mitm does not support promise rejections on "request" event
+        comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
 
-      const bodyString = _.isPlainObject(mock.response.body)
-        ? JSON.stringify(mock.response.body)
-        : mock.response.body;
-      interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
-      interceptedResponse.write(bodyString);
-      interceptedResponse.end();
+        const bodyString = _.isPlainObject(mock.response.body)
+          ? JSON.stringify(mock.response.body)
+          : mock.response.body;
+        interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
+        interceptedResponse.write(bodyString);
+        interceptedResponse.end();
 
-      this.recordCompleted(serializedRequest, mock.response, requestNumber);
-    } catch (e) {
-      if (!(e instanceof YesNoError)) {
-        debug('Mock response failed unexpectedly', e);
-        e.message = `YesNo: Mock response failed: ${e.message}`;
-      } else {
-        debug('Mock response failed', e.message);
-      }
+        this.recordCompleted(serializedRequest, mock.response, requestNumber);
+      })
+      .catch((e: Error) => {
+        if (!(e instanceof YesNoError)) {
+          debug('Mock response failed unexpectedly', e);
+          e.message = `YesNo: Mock response failed: ${e.message}`;
+        } else {
+          debug('Mock response failed', e.message);
+        }
 
-      clientRequest.emit('error', e);
-    }
+        clientRequest.emit('error', e);
+      });
   }
 
   private recordCompleted(
