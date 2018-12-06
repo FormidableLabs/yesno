@@ -21,6 +21,7 @@
 ### Properties
 
 * [clientRequests](_interceptor_.interceptor.md#clientrequests)
+* [comparatorFn](_interceptor_.interceptor.md#comparatorfn)
 * [ignorePorts](_interceptor_.interceptor.md#ignoreports)
 * [mitm](_interceptor_.interceptor.md#mitm)
 * [origOnSocket](_interceptor_.interceptor.md#origonsocket)
@@ -83,6 +84,13 @@ ___
 ### `<Private>` clientRequests
 
 **● clientRequests**: *[ClientRequestTracker](../interfaces/_interceptor_.clientrequesttracker.md)*
+
+___
+<a id="comparatorfn"></a>
+
+### `<Private>``<Optional>` comparatorFn
+
+**● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)*
 
 ___
 <a id="ignoreports"></a>
