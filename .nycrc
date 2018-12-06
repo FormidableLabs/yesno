@@ -3,14 +3,19 @@
   "branches": 75,
   "check-coverage": true,
   "extension": [".ts"],
-  "exclude": ["src/**/*.d.ts"],
+  "exclude": ["**/*.d.ts"],
   "functions": 75,
   "include": ["src/**/*.ts"],
   "lines": 75,
   "per-file": false,
   "reporter": [
+    "html",
     "text",
     "text-summary"
+  ],
+  "require": [
+    "ts-node/register",
+    "source-map-support/register"
   ],
   "statements": 75
 }
