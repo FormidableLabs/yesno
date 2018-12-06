@@ -194,6 +194,8 @@ npm run example-tests
 
 YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax where possible.
 
+To see typedoc generated documentation, click [here](./docs/README.md).
+
 ##### [`YesNo`](#YesNo)
 - [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
 - [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
