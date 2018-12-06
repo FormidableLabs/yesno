@@ -21,3 +21,6 @@ script:
   - yarn run tests
   # TODO: Add coverage
   # https://github.com/FormidableLabs/yesno/issues/5
+
+after_success:
+  - yarn run codecov

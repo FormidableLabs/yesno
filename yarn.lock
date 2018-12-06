@@ -369,6 +369,11 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+argv@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/argv/-/argv-0.0.2.tgz#ecbd16f8949b157183711b1bda334f37840185ab"
+  integrity sha1-7L0W+JSbFXGDcRsb2jNPN4QBhas=
+
 array-flatten@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/array-flatten/-/array-flatten-1.1.1.tgz#9a5f699051b1e7073328f2a008968b64ea2955d2"
@@ -575,6 +580,17 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
+
+codecov@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.1.0.tgz#340bd968d361f256976b5af782dd8ba9f82bc849"
+  integrity sha512-aWQc/rtHbcWEQLka6WmBAOpV58J2TwyXqlpAQGhQaSiEUoigTTUk6lLd2vB3kXkhnDyzyH74RXfmV4dq2txmdA==
+  dependencies:
+    argv "^0.0.2"
+    ignore-walk "^3.0.1"
+    js-yaml "^3.12.0"
+    request "^2.87.0"
+    urlgrey "^0.4.4"
 
 color-convert@^1.9.0:
   version "1.9.3"
@@ -1133,6 +1149,13 @@ iconv-lite@0.4.23:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+ignore-walk@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/ignore-walk/-/ignore-walk-3.0.1.tgz#a83e62e7d272ac0e3b551aaa82831a19b69f82f8"
+  integrity sha512-DTVlMx3IYPe0/JJcYP7Gxg7ttZZu3IInhuEhbchuqneY9wWe5Ojy2mXLBaQFUQmo0AW2r3qG7m1mg86js+gnlQ==
+  dependencies:
+    minimatch "^3.0.4"
+
 imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/imurmurhash/-/imurmurhash-0.1.4.tgz#9218b9b2b928a238b13dc4fb6b6d576f231453ea"
@@ -1292,7 +1315,7 @@ js-tokens@^4.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@^3.7.0:
+js-yaml@^3.12.0, js-yaml@^3.7.0:
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.12.0.tgz#eaed656ec8344f10f527c6bfa1b6e2244de167d1"
   integrity sha512-PIt2cnwmPfL4hKNwqeiuz4bKfnzHTBv6HyVgjahA6mPLwPDzjDWrplJBMjHUFxku/N3FlmrbyPclad+I+4mJ3A==
@@ -1949,7 +1972,7 @@ request-promise@^4.2.2:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.3"
 
-request@^2.88.0:
+request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
@@ -2382,6 +2405,11 @@ unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
   integrity sha1-sr9O6FFKrmFltIF4KdIbLvSZBOw=
+
+urlgrey@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/urlgrey/-/urlgrey-0.4.4.tgz#892fe95960805e85519f1cd4389f2cb4cbb7652f"
+  integrity sha1-iS/pWWCAXoVRnxzUOJ8stMu3ZS8=
 
 util-deprecate@^1.0.1:
   version "1.0.2"
