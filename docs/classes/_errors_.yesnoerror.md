@@ -31,8 +31,6 @@
 
 ⊕ **new YesNoError**(message: *`string`*): [YesNoError](_errors_.yesnoerror.md)
 
-*Defined in [errors.ts:1](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/errors.ts#L1)*
-
 **Parameters:**
 
 | Name | Type |
@@ -51,20 +49,12 @@ ___
 
 **● message**: *`string`*
 
-*Inherited from Error.message*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:904*
-
 ___
 <a id="name"></a>
 
 ###  name
 
 **● name**: *`string`*
-
-*Inherited from Error.name*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:903*
 
 ___
 <a id="stack"></a>
@@ -74,20 +64,12 @@ ___
 **● stack**: * `undefined` &#124; `string`
 *
 
-*Inherited from Error.stack*
-
-*Overrides Error.stack*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:905*
-
 ___
 <a id="error"></a>
 
 ### `<Static>` Error
 
 **● Error**: *`ErrorConstructor`*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:914*
 
 ___
 

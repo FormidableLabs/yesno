@@ -48,16 +48,12 @@
   t.union([t.number, t.string, t.array(t.string), t.undefined]),
 )
 
-*Defined in [http-serializer.ts:14](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L14)*
-
 ___
 <a id="schema_version"></a>
 
 ### `<Const>` SCHEMA_VERSION
 
 **● SCHEMA_VERSION**: *"1.0.0"* = "1.0.0"
-
-*Defined in [http-serializer.ts:10](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L10)*
 
 ___
 <a id="serializedhttp"></a>
@@ -74,8 +70,6 @@ ___
   }),
 ])
 
-*Defined in [http-serializer.ts:47](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L47)*
-
 ___
 <a id="serializedhttpoptional"></a>
 
@@ -85,8 +79,6 @@ ___
   __duration: t.readonly(t.number), // Optional
   __timestamp: t.readonly(t.number), // Optional
 })
-
-*Defined in [http-serializer.ts:42](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L42)*
 
 ___
 <a id="serializedrequest"></a>
@@ -105,8 +97,6 @@ ___
   SerializedRequestOptional,
 ])
 
-*Defined in [http-serializer.ts:24](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L24)*
-
 ___
 <a id="serializedrequestoptional"></a>
 
@@ -116,8 +106,6 @@ ___
   body: t.readonly(t.union([t.string, t.object])), // Optional
   query: t.readonly(t.string), // Optional
 })
-
-*Defined in [http-serializer.ts:19](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L19)*
 
 ___
 <a id="serializedresponse"></a>
@@ -130,16 +118,12 @@ ___
   statusCode: t.readonly(t.Integer),
 })
 
-*Defined in [http-serializer.ts:36](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L36)*
-
 ___
 <a id="debug"></a>
 
 ### `<Const>` debug
 
 **● debug**: *`any`* =  require('debug')('yesno:http-serializer')
-
-*Defined in [http-serializer.ts:9](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L9)*
 
 ___
 
@@ -150,8 +134,6 @@ ___
 ###  createRecord
 
 ▸ **createRecord**(__namedParameters: *`object`*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
-
-*Defined in [http-serializer.ts:181](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L181)*
 
 **Parameters:**
 
@@ -172,8 +154,6 @@ ___
 
 ▸ **formatUrl**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, includePort?: *`boolean`*): `string`
 
-*Defined in [http-serializer.ts:175](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L175)*
-
 **Parameters:**
 
 | Name | Type | Default value |
@@ -190,8 +170,6 @@ ___
 
 ▸ **serializeJSON**(headers: *[IHeaders](../interfaces/_http_serializer_.iheaders.md)*, body?: * `undefined` &#124; `string`*):  `undefined` &#124; `string` &#124; `any`
 
-*Defined in [http-serializer.ts:70](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L70)*
-
 **Parameters:**
 
 | Name | Type |
@@ -207,8 +185,6 @@ ___
 ###  validateSerializedHttpArray
 
 ▸ **validateSerializedHttpArray**(records: *`any`[]*): `void`
-
-*Defined in [http-serializer.ts:200](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L200)*
 
 **Parameters:**
 

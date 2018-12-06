@@ -29,16 +29,12 @@
 **● body**: * `string` &#124; `any`
 *
 
-*Defined in [file.ts:26](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L26)*
-
 ___
 <a id="headers"></a>
 
 ### `<Optional>` headers
 
 **● headers**: *[IHeaders](_http_serializer_.iheaders.md)*
-
-*Defined in [file.ts:25](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L25)*
 
 ___
 <a id="host"></a>
@@ -47,16 +43,12 @@ ___
 
 **● host**: *`string`*
 
-*Defined in [file.ts:31](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L31)*
-
 ___
 <a id="method"></a>
 
 ###  method
 
 **● method**: *`string`*
-
-*Defined in [file.ts:29](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L29)*
 
 ___
 <a id="path"></a>
@@ -66,8 +58,6 @@ ___
 **● path**: * `undefined` &#124; `string`
 *
 
-*Defined in [file.ts:28](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L28)*
-
 ___
 <a id="port"></a>
 
@@ -76,8 +66,6 @@ ___
 **● port**: * `undefined` &#124; `number`
 *
 
-*Defined in [file.ts:27](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L27)*
-
 ___
 <a id="protocol"></a>
 
@@ -85,8 +73,6 @@ ___
 
 **● protocol**: * "http" &#124; "https"
 *
-
-*Defined in [file.ts:30](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L30)*
 
 ___
 

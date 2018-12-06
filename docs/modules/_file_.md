@@ -35,8 +35,6 @@
 
 **● debug**: *`IDebugger`* =  require('debug')('yesno:mocks')
 
-*Defined in [file.ts:10](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L10)*
-
 ___
 
 ## Functions
@@ -46,8 +44,6 @@ ___
 ###  getMockFilename
 
 ▸ **getMockFilename**(name: *`string`*, dir: *`string`*): `string`
-
-*Defined in [file.ts:134](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L134)*
 
 Get the generated filename for a mock name.
 
@@ -67,8 +63,6 @@ ___
 
 ▸ **helpMessageMissingMock**(filename: *`string`*): `string`
 
-*Defined in [file.ts:98](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L98)*
-
 **Parameters:**
 
 | Name | Type |
@@ -84,8 +78,6 @@ ___
 
 ▸ **hydrateHttpMock**(mock: *[IHttpMock](../interfaces/_file_.ihttpmock.md)*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
-*Defined in [file.ts:104](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L104)*
-
 **Parameters:**
 
 | Name | Type |
@@ -100,8 +92,6 @@ ___
 ###  load
 
 ▸ **load**(__namedParameters: *`object`*): `Promise`<[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]>
-
-*Defined in [file.ts:45](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L45)*
 
 **Parameters:**
 
@@ -119,8 +109,6 @@ ___
 ###  save
 
 ▸ **save**(__namedParameters: *`object`*): `Promise`<`string`>
-
-*Defined in [file.ts:80](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L80)*
 
 **Parameters:**
 

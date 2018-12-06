@@ -30,7 +30,5 @@
 
 **● debug**: *`IDebugger`* =  require('debug')('yesno:recording')
 
-*Defined in [recording.ts:4](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L4)*
-
 ___
 

@@ -27,8 +27,6 @@
 
 **Ƭ ComparatorFn**: *`function`*
 
-*Defined in [filtering/comparator.ts:9](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/comparator.ts#L9)*
-
 #### Type declaration
 ▸(intercepted: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, mock: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, metadata: *[IComparatorMetadata](../interfaces/_filtering_comparator_.icomparatormetadata.md)*): `boolean`
 
@@ -52,8 +50,6 @@ ___
 
 ▸ **assertEqual**<`T`>(unknown: *`T`*, known: *`T`*, message: *`string`*): `void`
 
-*Defined in [filtering/comparator.ts:66](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/comparator.ts#L66)*
-
 **Type parameters:**
 
 #### T 
@@ -73,8 +69,6 @@ ___
 ### `<Const>` byUrl
 
 ▸ **byUrl**(interceptedRequest: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, mockRequest: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, __namedParameters: *`object`*): `boolean`
-
-*Defined in [filtering/comparator.ts:17](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/comparator.ts#L17)*
 
 **Parameters:**
 

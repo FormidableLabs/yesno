@@ -28,8 +28,6 @@
 
 **Ƭ MatchFn**: *`function`*
 
-*Defined in [filtering/matcher.ts:18](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/matcher.ts#L18)*
-
 #### Type declaration
 ▸(serialized: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)*): `boolean`
 
@@ -48,8 +46,6 @@ ___
 
 **Ƭ RequestQuery**: *`object`*
 
-*Defined in [filtering/matcher.ts:9](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/matcher.ts#L9)*
-
 #### Type declaration
 
 ___
@@ -58,8 +54,6 @@ ___
 ###  ResponseQuery
 
 **Ƭ ResponseQuery**: *`object`*
-
-*Defined in [filtering/matcher.ts:10](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/matcher.ts#L10)*
 
 #### Type declaration
 
@@ -72,8 +66,6 @@ ___
 ###  match
 
 ▸ **match**(fnOrPartialMatch: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)*): `function`
-
-*Defined in [filtering/matcher.ts:27](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/matcher.ts#L27)*
 
 Curried function to determine whether a query matches an intercepted request.
 

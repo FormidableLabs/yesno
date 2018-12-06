@@ -40,8 +40,6 @@
 
 ⊕ **new FilteredHttpCollection**(__namedParameters: *`object`*): [FilteredHttpCollection](_filtering_collection_.filteredhttpcollection.md)
 
-*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L28)*
-
 **Parameters:**
 
 **__namedParameters: `object`**
@@ -63,8 +61,6 @@ ___
 
 **● ctx**: *[Context](_context_.context.md)*
 
-*Defined in [filtering/collection.ts:27](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L27)*
-
 ___
 <a id="matcher"></a>
 
@@ -72,8 +68,6 @@ ___
 
 **● matcher**: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](../modules/_filtering_matcher_.md#matchfn)
 *
-
-*Defined in [filtering/collection.ts:28](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L28)*
 
 ___
 
@@ -85,8 +79,6 @@ ___
 
 ▸ **intercepted**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
-*Defined in [filtering/collection.ts:35](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L35)*
-
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
 ___
@@ -95,8 +87,6 @@ ___
 ###  mocks
 
 ▸ **mocks**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
-
-*Defined in [filtering/collection.ts:39](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L39)*
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
@@ -107,8 +97,6 @@ ___
 
 ▸ **only**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
-*Defined in [filtering/collection.ts:79](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L79)*
-
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
 ___
@@ -117,8 +105,6 @@ ___
 ###  redact
 
 ▸ **redact**(property: * `string` &#124; `string`[]*, redactor?: *[Redactor](../modules/_filtering_redact_.md#redactor)*): `void`
-
-*Defined in [filtering/collection.ts:43](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L43)*
 
 **Parameters:**
 
@@ -136,8 +122,6 @@ ___
 
 ▸ **request**(): [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
 
-*Defined in [filtering/collection.ts:66](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L66)*
-
 Return serialized request part of the _single_ matching intercepted HTTP request.
 
 Throws an exception is multiple requests were matched.
@@ -150,8 +134,6 @@ ___
 ###  response
 
 ▸ **response**(): [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
-
-*Defined in [filtering/collection.ts:75](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/filtering/collection.ts#L75)*
 
 Return serialized response part of the _single_ matching intercepted HTTP request.
 

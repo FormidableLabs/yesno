@@ -28,8 +28,6 @@
 
 ▸ **on**(event: *"proxied"*, listener: *`function`*): `this`
 
-*Defined in [interceptor.ts:50](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L50)*
-
 **Parameters:**
 
 | Name | Type |
@@ -38,8 +36,6 @@
 | listener | `function` |
 
 **Returns:** `this`
-
-*Defined in [interceptor.ts:51](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L51)*
 
 **Parameters:**
 

@@ -40,10 +40,6 @@
 
 **● _defaultAgent**: *`Agent`*
 
-*Inherited from ClientRequestArgs._defaultAgent*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1176*
-
 ___
 <a id="agent"></a>
 
@@ -51,10 +47,6 @@ ___
 
 **● agent**: * `Agent` &#124; `boolean`
 *
-
-*Inherited from ClientRequestArgs.agent*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1175*
 
 ___
 <a id="auth"></a>
@@ -64,10 +56,6 @@ ___
 **● auth**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.auth*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1174*
-
 ___
 <a id="createconnection"></a>
 
@@ -75,10 +63,6 @@ ___
 
 **● createConnection**: * `undefined` &#124; `function`
 *
-
-*Inherited from ClientRequestArgs.createConnection*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1179*
 
 ___
 <a id="defaultport"></a>
@@ -88,10 +72,6 @@ ___
 **● defaultPort**: * `number` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.defaultPort*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1168*
-
 ___
 <a id="family"></a>
 
@@ -100,20 +80,12 @@ ___
 **● family**: * `undefined` &#124; `number`
 *
 
-*Inherited from ClientRequestArgs.family*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1166*
-
 ___
 <a id="headers"></a>
 
 ### `<Optional>` headers
 
 **● headers**: *`OutgoingHttpHeaders`*
-
-*Inherited from ClientRequestArgs.headers*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1173*
 
 ___
 <a id="host"></a>
@@ -123,10 +95,6 @@ ___
 **● host**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.host*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1164*
-
 ___
 <a id="hostname"></a>
 
@@ -134,10 +102,6 @@ ___
 
 **● hostname**: * `undefined` &#124; `string`
 *
-
-*Inherited from ClientRequestArgs.hostname*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1165*
 
 ___
 <a id="localaddress"></a>
@@ -147,10 +111,6 @@ ___
 **● localAddress**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.localAddress*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1169*
-
 ___
 <a id="method"></a>
 
@@ -158,10 +118,6 @@ ___
 
 **● method**: * `undefined` &#124; `string`
 *
-
-*Inherited from ClientRequestArgs.method*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1171*
 
 ___
 <a id="path"></a>
@@ -171,10 +127,6 @@ ___
 **● path**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.path*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1172*
-
 ___
 <a id="port"></a>
 
@@ -182,10 +134,6 @@ ___
 
 **● port**: * `number` &#124; `string`
 *
-
-*Inherited from ClientRequestArgs.port*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1167*
 
 ___
 <a id="protocol"></a>
@@ -195,10 +143,6 @@ ___
 **● protocol**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.protocol*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1163*
-
 ___
 <a id="proxying"></a>
 
@@ -206,8 +150,6 @@ ___
 
 **● proxying**: * `undefined` &#124; `false` &#124; `true`
 *
-
-*Defined in [interceptor.ts:28](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L28)*
 
 ___
 <a id="socketpath"></a>
@@ -217,10 +159,6 @@ ___
 **● socketPath**: * `undefined` &#124; `string`
 *
 
-*Inherited from ClientRequestArgs.socketPath*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1170*
-
 ___
 <a id="timeout"></a>
 
@@ -228,10 +166,6 @@ ___
 
 **● timeout**: * `undefined` &#124; `number`
 *
-
-*Inherited from ClientRequestArgs.timeout*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1177*
 
 ___
 

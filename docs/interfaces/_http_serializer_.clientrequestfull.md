@@ -90,12 +90,6 @@
 
 ⊕ **new ClientRequestFull**(url: * `string` &#124; `URL` &#124; `ClientRequestArgs`*, cb?: * `undefined` &#124; `function`*): [ClientRequestFull](_http_serializer_.clientrequestfull.md)
 
-*Inherited from ClientRequest.__constructor*
-
-*Overrides OutgoingMessage.__constructor*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1236*
-
 **Parameters:**
 
 | Name | Type |
@@ -115,10 +109,6 @@ ___
 
 **● aborted**: *`number`*
 
-*Inherited from ClientRequest.aborted*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1236*
-
 ___
 <a id="agent"></a>
 
@@ -127,18 +117,12 @@ ___
 **● agent**: * `undefined` &#124; `object`
 *
 
-*Defined in [http-serializer.ts:64](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L64)*
-
 ___
 <a id="chunkedencoding"></a>
 
 ###  chunkedEncoding
 
 **● chunkedEncoding**: *`boolean`*
-
-*Inherited from OutgoingMessage.chunkedEncoding*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1195*
 
 ___
 <a id="connection"></a>
@@ -147,22 +131,12 @@ ___
 
 **● connection**: *`Socket`*
 
-*Inherited from ClientRequest.connection*
-
-*Overrides OutgoingMessage.connection*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1234*
-
 ___
 <a id="finished"></a>
 
 ###  finished
 
 **● finished**: *`boolean`*
-
-*Inherited from OutgoingMessage.finished*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1199*
 
 ___
 <a id="headerssent"></a>
@@ -171,18 +145,12 @@ ___
 
 **● headersSent**: *`boolean`*
 
-*Inherited from OutgoingMessage.headersSent*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1200*
-
 ___
 <a id="path"></a>
 
 ###  path
 
 **● path**: *`string`*
-
-*Defined in [http-serializer.ts:67](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/http-serializer.ts#L67)*
 
 ___
 <a id="senddate"></a>
@@ -191,20 +159,12 @@ ___
 
 **● sendDate**: *`boolean`*
 
-*Inherited from OutgoingMessage.sendDate*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1198*
-
 ___
 <a id="shouldkeepalive"></a>
 
 ###  shouldKeepAlive
 
 **● shouldKeepAlive**: *`boolean`*
-
-*Inherited from OutgoingMessage.shouldKeepAlive*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1196*
 
 ___
 <a id="socket"></a>
@@ -213,20 +173,12 @@ ___
 
 **● socket**: *`Socket`*
 
-*Inherited from ClientRequest.socket*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1235*
-
 ___
 <a id="upgrading"></a>
 
 ###  upgrading
 
 **● upgrading**: *`boolean`*
-
-*Inherited from OutgoingMessage.upgrading*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1194*
 
 ___
 <a id="usechunkedencodingbydefault"></a>
@@ -235,20 +187,12 @@ ___
 
 **● useChunkedEncodingByDefault**: *`boolean`*
 
-*Inherited from OutgoingMessage.useChunkedEncodingByDefault*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1197*
-
 ___
 <a id="writable"></a>
 
 ###  writable
 
 **● writable**: *`boolean`*
-
-*Inherited from Writable.writable*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6584*
 
 ___
 <a id="writablehighwatermark"></a>
@@ -257,10 +201,6 @@ ___
 
 **● writableHighWaterMark**: *`number`*
 
-*Inherited from Writable.writableHighWaterMark*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6585*
-
 ___
 <a id="writablelength"></a>
 
@@ -268,20 +208,12 @@ ___
 
 **● writableLength**: *`number`*
 
-*Inherited from Writable.writableLength*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6586*
-
 ___
 <a id="defaultmaxlisteners"></a>
 
 ### `<Static>` defaultMaxListeners
 
 **● defaultMaxListeners**: *`number`*
-
-*Inherited from EventEmitter.defaultMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1080*
 
 ___
 
@@ -292,10 +224,6 @@ ___
 ###  _destroy
 
 ▸ **_destroy**(error: * `Error` &#124; `null`*, callback: *`function`*): `void`
-
-*Inherited from Writable._destroy*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6590*
 
 **Parameters:**
 
@@ -313,10 +241,6 @@ ___
 
 ▸ **_final**(callback: *`function`*): `void`
 
-*Inherited from Writable._final*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6591*
-
 **Parameters:**
 
 | Name | Type |
@@ -331,10 +255,6 @@ ___
 ###  _write
 
 ▸ **_write**(chunk: *`any`*, encoding: *`string`*, callback: *`function`*): `void`
-
-*Inherited from Writable._write*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6588*
 
 **Parameters:**
 
@@ -353,10 +273,6 @@ ___
 
 ▸ **_writev**(chunks: *`Array`<`object`>*, callback: *`function`*): `void`
 
-*Inherited from Writable._writev*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6589*
-
 **Parameters:**
 
 | Name | Type |
@@ -372,10 +288,6 @@ ___
 ###  abort
 
 ▸ **abort**(): `void`
-
-*Inherited from ClientRequest.abort*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1240*
 
 **Returns:** `void`
 
@@ -398,12 +310,6 @@ ___
 
 ▸ **addListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6612*
-
 Event emitter The defined events on documents including:
 
 1.  close
@@ -422,12 +328,6 @@ Event emitter The defined events on documents including:
 
 **Returns:** `this`
 
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6613*
-
 **Parameters:**
 
 | Name | Type |
@@ -436,12 +336,6 @@ Event emitter The defined events on documents including:
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6614*
 
 **Parameters:**
 
@@ -452,12 +346,6 @@ Event emitter The defined events on documents including:
 
 **Returns:** `this`
 
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6615*
-
 **Parameters:**
 
 | Name | Type |
@@ -466,12 +354,6 @@ Event emitter The defined events on documents including:
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6616*
 
 **Parameters:**
 
@@ -482,12 +364,6 @@ Event emitter The defined events on documents including:
 
 **Returns:** `this`
 
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6617*
-
 **Parameters:**
 
 | Name | Type |
@@ -496,12 +372,6 @@ Event emitter The defined events on documents including:
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6618*
 
 **Parameters:**
 
@@ -519,10 +389,6 @@ ___
 
 ▸ **addTrailers**(headers: * `OutgoingHttpHeaders` &#124; `Array`<[`string`, `string`]>*): `void`
 
-*Inherited from OutgoingMessage.addTrailers*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1212*
-
 **Parameters:**
 
 | Name | Type |
@@ -538,10 +404,6 @@ ___
 
 ▸ **cork**(): `void`
 
-*Inherited from Writable.cork*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6598*
-
 **Returns:** `void`
 
 ___
@@ -550,10 +412,6 @@ ___
 ###  destroy
 
 ▸ **destroy**(error?: *[Error](../classes/_errors_.yesnoerror.md#error)*): `void`
-
-*Inherited from Writable.destroy*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6600*
 
 **Parameters:**
 
@@ -582,12 +440,6 @@ ___
 
 ▸ **emit**(event: * `string` &#124; `symbol`*, ...args: *`any`[]*): `boolean`
 
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6620*
-
 **Parameters:**
 
 | Name | Type |
@@ -596,12 +448,6 @@ ___
 
 **Returns:** `boolean`
 
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6621*
-
 **Parameters:**
 
 | Name | Type |
@@ -609,12 +455,6 @@ ___
 | event | "drain" |
 
 **Returns:** `boolean`
-
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6622*
 
 **Parameters:**
 
@@ -625,12 +465,6 @@ ___
 
 **Returns:** `boolean`
 
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6623*
-
 **Parameters:**
 
 | Name | Type |
@@ -638,12 +472,6 @@ ___
 | event | "finish" |
 
 **Returns:** `boolean`
-
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6624*
 
 **Parameters:**
 
@@ -654,12 +482,6 @@ ___
 
 **Returns:** `boolean`
 
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6625*
-
 **Parameters:**
 
 | Name | Type |
@@ -668,12 +490,6 @@ ___
 | src | `Readable` |
 
 **Returns:** `boolean`
-
-*Inherited from Writable.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6626*
 
 **Parameters:**
 
@@ -695,10 +511,6 @@ ___
 
 ▸ **end**(chunk: *`any`*, encoding?: * `undefined` &#124; `string`*, cb?: * `undefined` &#124; `function`*): `void`
 
-*Inherited from Writable.end*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6595*
-
 **Parameters:**
 
 | Name | Type |
@@ -706,10 +518,6 @@ ___
 | `Optional` cb |  `undefined` &#124; `function`|
 
 **Returns:** `void`
-
-*Inherited from Writable.end*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6596*
 
 **Parameters:**
 
@@ -719,10 +527,6 @@ ___
 | `Optional` cb |  `undefined` &#124; `function`|
 
 **Returns:** `void`
-
-*Inherited from Writable.end*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6597*
 
 **Parameters:**
 
@@ -741,12 +545,6 @@ ___
 
 ▸ **eventNames**(): `Array`< `string` &#124; `symbol`>
 
-*Inherited from EventEmitter.eventNames*
-
-*Overrides EventEmitter.eventNames*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1095*
-
 **Returns:** `Array`< `string` &#124; `symbol`>
 
 ___
@@ -756,10 +554,6 @@ ___
 
 ▸ **flushHeaders**(): `void`
 
-*Inherited from OutgoingMessage.flushHeaders*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1213*
-
 **Returns:** `void`
 
 ___
@@ -768,10 +562,6 @@ ___
 ###  getHeader
 
 ▸ **getHeader**(name: *`string`*):  `number` &#124; `string` &#124; `string`[] &#124; `undefined`
-
-*Inherited from OutgoingMessage.getHeader*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1207*
 
 **Parameters:**
 
@@ -788,10 +578,6 @@ ___
 
 ▸ **getHeaderNames**(): `string`[]
 
-*Inherited from OutgoingMessage.getHeaderNames*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1209*
-
 **Returns:** `string`[]
 
 ___
@@ -800,10 +586,6 @@ ___
 ###  getHeaders
 
 ▸ **getHeaders**(): `OutgoingHttpHeaders`
-
-*Inherited from OutgoingMessage.getHeaders*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1208*
 
 **Returns:** `OutgoingHttpHeaders`
 
@@ -814,12 +596,6 @@ ___
 
 ▸ **getMaxListeners**(): `number`
 
-*Inherited from EventEmitter.getMaxListeners*
-
-*Overrides EventEmitter.getMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1091*
-
 **Returns:** `number`
 
 ___
@@ -828,10 +604,6 @@ ___
 ###  hasHeader
 
 ▸ **hasHeader**(name: *`string`*): `boolean`
-
-*Inherited from OutgoingMessage.hasHeader*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1210*
 
 **Parameters:**
 
@@ -848,12 +620,6 @@ ___
 
 ▸ **listenerCount**(type: * `string` &#124; `symbol`*): `number`
 
-*Inherited from EventEmitter.listenerCount*
-
-*Overrides EventEmitter.listenerCount*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1096*
-
 **Parameters:**
 
 | Name | Type |
@@ -869,12 +635,6 @@ ___
 
 ▸ **listeners**(event: * `string` &#124; `symbol`*): `Function`[]
 
-*Inherited from EventEmitter.listeners*
-
-*Overrides EventEmitter.listeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1092*
-
 **Parameters:**
 
 | Name | Type |
@@ -889,12 +649,6 @@ ___
 ###  off
 
 ▸ **off**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
-
-*Inherited from EventEmitter.off*
-
-*Overrides EventEmitter.off*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1088*
 
 **Parameters:**
 
@@ -924,12 +678,6 @@ ___
 
 ▸ **on**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6628*
-
 **Parameters:**
 
 | Name | Type |
@@ -938,12 +686,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6629*
 
 **Parameters:**
 
@@ -954,12 +696,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6630*
-
 **Parameters:**
 
 | Name | Type |
@@ -968,12 +704,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6631*
 
 **Parameters:**
 
@@ -984,12 +714,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6632*
-
 **Parameters:**
 
 | Name | Type |
@@ -999,12 +723,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6633*
-
 **Parameters:**
 
 | Name | Type |
@@ -1013,12 +731,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6634*
 
 **Parameters:**
 
@@ -1035,10 +747,6 @@ ___
 ###  onSocket
 
 ▸ **onSocket**(socket: *`Socket`*): `void`
-
-*Inherited from ClientRequest.onSocket*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1241*
 
 **Parameters:**
 
@@ -1067,12 +775,6 @@ ___
 
 ▸ **once**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6636*
-
 **Parameters:**
 
 | Name | Type |
@@ -1081,12 +783,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6637*
 
 **Parameters:**
 
@@ -1097,12 +793,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6638*
-
 **Parameters:**
 
 | Name | Type |
@@ -1111,12 +801,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6639*
 
 **Parameters:**
 
@@ -1127,12 +811,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6640*
-
 **Parameters:**
 
 | Name | Type |
@@ -1142,12 +820,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6641*
-
 **Parameters:**
 
 | Name | Type |
@@ -1156,12 +828,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6642*
 
 **Parameters:**
 
@@ -1178,10 +844,6 @@ ___
 ###  pipe
 
 ▸ **pipe**<`T`>(destination: *`T`*, options?: * `undefined` &#124; `object`*): `T`
-
-*Inherited from internal.pipe*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6480*
 
 **Type parameters:**
 
@@ -1214,12 +876,6 @@ ___
 
 ▸ **prependListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6644*
-
 **Parameters:**
 
 | Name | Type |
@@ -1228,12 +884,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6645*
 
 **Parameters:**
 
@@ -1244,12 +894,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6646*
-
 **Parameters:**
 
 | Name | Type |
@@ -1258,12 +902,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6647*
 
 **Parameters:**
 
@@ -1274,12 +912,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6648*
-
 **Parameters:**
 
 | Name | Type |
@@ -1289,12 +921,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6649*
-
 **Parameters:**
 
 | Name | Type |
@@ -1303,12 +929,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6650*
 
 **Parameters:**
 
@@ -1338,12 +958,6 @@ ___
 
 ▸ **prependOnceListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6652*
-
 **Parameters:**
 
 | Name | Type |
@@ -1352,12 +966,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6653*
 
 **Parameters:**
 
@@ -1368,12 +976,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6654*
-
 **Parameters:**
 
 | Name | Type |
@@ -1382,12 +984,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6655*
 
 **Parameters:**
 
@@ -1398,12 +994,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6656*
-
 **Parameters:**
 
 | Name | Type |
@@ -1413,12 +1003,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6657*
-
 **Parameters:**
 
 | Name | Type |
@@ -1427,12 +1011,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6658*
 
 **Parameters:**
 
@@ -1450,12 +1028,6 @@ ___
 
 ▸ **rawListeners**(event: * `string` &#124; `symbol`*): `Function`[]
 
-*Inherited from EventEmitter.rawListeners*
-
-*Overrides EventEmitter.rawListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1093*
-
 **Parameters:**
 
 | Name | Type |
@@ -1471,12 +1043,6 @@ ___
 
 ▸ **removeAllListeners**(event?: * `string` &#124; `symbol`*): `this`
 
-*Inherited from EventEmitter.removeAllListeners*
-
-*Overrides EventEmitter.removeAllListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1089*
-
 **Parameters:**
 
 | Name | Type |
@@ -1491,10 +1057,6 @@ ___
 ###  removeHeader
 
 ▸ **removeHeader**(name: *`string`*): `void`
-
-*Inherited from OutgoingMessage.removeHeader*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1211*
 
 **Parameters:**
 
@@ -1523,12 +1085,6 @@ ___
 
 ▸ **removeListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6660*
-
 **Parameters:**
 
 | Name | Type |
@@ -1537,12 +1093,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6661*
 
 **Parameters:**
 
@@ -1553,12 +1103,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6662*
-
 **Parameters:**
 
 | Name | Type |
@@ -1567,12 +1111,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6663*
 
 **Parameters:**
 
@@ -1583,12 +1121,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6664*
-
 **Parameters:**
 
 | Name | Type |
@@ -1598,12 +1130,6 @@ ___
 
 **Returns:** `this`
 
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6665*
-
 **Parameters:**
 
 | Name | Type |
@@ -1612,12 +1138,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-*Inherited from Writable.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6666*
 
 **Parameters:**
 
@@ -1635,10 +1155,6 @@ ___
 
 ▸ **setDefaultEncoding**(encoding: *`string`*): `this`
 
-*Inherited from Writable.setDefaultEncoding*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6594*
-
 **Parameters:**
 
 | Name | Type |
@@ -1653,10 +1169,6 @@ ___
 ###  setHeader
 
 ▸ **setHeader**(name: *`string`*, value: * `number` &#124; `string` &#124; `string`[]*): `void`
-
-*Inherited from OutgoingMessage.setHeader*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1206*
 
 **Parameters:**
 
@@ -1674,12 +1186,6 @@ ___
 
 ▸ **setMaxListeners**(n: *`number`*): `this`
 
-*Inherited from EventEmitter.setMaxListeners*
-
-*Overrides EventEmitter.setMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1090*
-
 **Parameters:**
 
 | Name | Type |
@@ -1695,10 +1201,6 @@ ___
 
 ▸ **setNoDelay**(noDelay?: * `undefined` &#124; `false` &#124; `true`*): `void`
 
-*Inherited from ClientRequest.setNoDelay*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1243*
-
 **Parameters:**
 
 | Name | Type |
@@ -1713,10 +1215,6 @@ ___
 ###  setSocketKeepAlive
 
 ▸ **setSocketKeepAlive**(enable?: * `undefined` &#124; `false` &#124; `true`*, initialDelay?: * `undefined` &#124; `number`*): `void`
-
-*Inherited from ClientRequest.setSocketKeepAlive*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1244*
 
 **Parameters:**
 
@@ -1734,12 +1232,6 @@ ___
 
 ▸ **setTimeout**(timeout: *`number`*, callback?: * `undefined` &#124; `function`*): `this`
 
-*Inherited from ClientRequest.setTimeout*
-
-*Overrides OutgoingMessage.setTimeout*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1242*
-
 **Parameters:**
 
 | Name | Type |
@@ -1756,10 +1248,6 @@ ___
 
 ▸ **uncork**(): `void`
 
-*Inherited from Writable.uncork*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6599*
-
 **Returns:** `void`
 
 ___
@@ -1771,10 +1259,6 @@ ___
 
 ▸ **write**(chunk: *`any`*, encoding?: * `undefined` &#124; `string`*, cb?: * `undefined` &#124; `function`*): `boolean`
 
-*Inherited from Writable.write*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6592*
-
 **Parameters:**
 
 | Name | Type |
@@ -1783,10 +1267,6 @@ ___
 | `Optional` cb |  `undefined` &#124; `function`|
 
 **Returns:** `boolean`
-
-*Inherited from Writable.write*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:6593*
 
 **Parameters:**
 
@@ -1804,10 +1284,6 @@ ___
 ### `<Static>` listenerCount
 
 ▸ **listenerCount**(emitter: *`EventEmitter`*, event: * `string` &#124; `symbol`*): `number`
-
-*Inherited from EventEmitter.listenerCount*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1079*
 
 *__deprecated__*: since v4.0.0
 

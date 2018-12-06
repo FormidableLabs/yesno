@@ -64,8 +64,6 @@
 
 ⊕ **new Interceptor**(options?: * `undefined` &#124; `object`*): [Interceptor](_interceptor_.interceptor.md)
 
-*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L60)*
-
 Begin intercepting requests on instantiation
 
 **Parameters:**
@@ -86,8 +84,6 @@ ___
 
 **● clientRequests**: *[ClientRequestTracker](../interfaces/_interceptor_.clientrequesttracker.md)*
 
-*Defined in [interceptor.ts:57](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L57)*
-
 ___
 <a id="ignoreports"></a>
 
@@ -95,16 +91,12 @@ ___
 
 **● ignorePorts**: *`number`[]* =  []
 
-*Defined in [interceptor.ts:60](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L60)*
-
 ___
 <a id="mitm"></a>
 
 ### `<Private>``<Optional>` mitm
 
 **● mitm**: *`Mitm.Mitm`*
-
-*Defined in [interceptor.ts:58](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L58)*
 
 ___
 <a id="origonsocket"></a>
@@ -114,16 +106,12 @@ ___
 **● origOnSocket**: * `undefined` &#124; `function`
 *
 
-*Defined in [interceptor.ts:59](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L59)*
-
 ___
 <a id="requestnumber"></a>
 
 ###  requestNumber
 
 **● requestNumber**: *`number`* = 0
-
-*Defined in [interceptor.ts:55](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L55)*
 
 ___
 <a id="shouldproxy"></a>
@@ -132,18 +120,12 @@ ___
 
 **● shouldProxy**: *`boolean`* = true
 
-*Defined in [interceptor.ts:56](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L56)*
-
 ___
 <a id="defaultmaxlisteners"></a>
 
 ### `<Static>` defaultMaxListeners
 
 **● defaultMaxListeners**: *`number`*
-
-*Inherited from EventEmitter.defaultMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1080*
 
 ___
 
@@ -154,12 +136,6 @@ ___
 ###  addListener
 
 ▸ **addListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
-
-*Inherited from EventEmitter.addListener*
-
-*Overrides EventEmitter.addListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1082*
 
 **Parameters:**
 
@@ -177,8 +153,6 @@ ___
 
 ▸ **disable**(): `void`
 
-*Defined in [interceptor.ts:110](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L110)*
-
 Disable request interception
 
 **Returns:** `void`
@@ -189,12 +163,6 @@ ___
 ###  emit
 
 ▸ **emit**(event: * `string` &#124; `symbol`*, ...args: *`any`[]*): `boolean`
-
-*Inherited from EventEmitter.emit*
-
-*Overrides EventEmitter.emit*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1094*
 
 **Parameters:**
 
@@ -212,8 +180,6 @@ ___
 
 ▸ **enable**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
 
-*Defined in [interceptor.ts:75](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L75)*
-
 **Parameters:**
 
 | Name | Type | Default value |
@@ -229,12 +195,6 @@ ___
 
 ▸ **eventNames**(): `Array`< `string` &#124; `symbol`>
 
-*Inherited from EventEmitter.eventNames*
-
-*Overrides EventEmitter.eventNames*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1095*
-
 **Returns:** `Array`< `string` &#124; `symbol`>
 
 ___
@@ -244,12 +204,6 @@ ___
 
 ▸ **getMaxListeners**(): `number`
 
-*Inherited from EventEmitter.getMaxListeners*
-
-*Overrides EventEmitter.getMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1091*
-
 **Returns:** `number`
 
 ___
@@ -258,8 +212,6 @@ ___
 ### `<Private>` getRequestId
 
 ▸ **getRequestId**(interceptedRequest: *`IncomingMessage`*): `string`
-
-*Defined in [interceptor.ts:239](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L239)*
 
 **Parameters:**
 
@@ -276,12 +228,6 @@ ___
 
 ▸ **listenerCount**(type: * `string` &#124; `symbol`*): `number`
 
-*Inherited from EventEmitter.listenerCount*
-
-*Overrides EventEmitter.listenerCount*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1096*
-
 **Parameters:**
 
 | Name | Type |
@@ -297,12 +243,6 @@ ___
 
 ▸ **listeners**(event: * `string` &#124; `symbol`*): `Function`[]
 
-*Inherited from EventEmitter.listeners*
-
-*Overrides EventEmitter.listeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1092*
-
 **Parameters:**
 
 | Name | Type |
@@ -317,8 +257,6 @@ ___
 ### `<Private>` mitmOnConnect
 
 ▸ **mitmOnConnect**(socket: *`BypassableSocket`*, options: *[ProxyRequestOptions](../interfaces/_interceptor_.proxyrequestoptions.md)*): `void`
-
-*Defined in [interceptor.ts:125](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L125)*
 
 Event handler for Mitm "connect" event.
 
@@ -337,8 +275,6 @@ ___
 ### `<Private>` mitmOnRequest
 
 ▸ **mitmOnRequest**(interceptedRequest: *`IncomingMessage`*, interceptedResponse: *`ServerResponse`*): `void`
-
-*Defined in [interceptor.ts:151](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L151)*
 
 Event handler for Mitm "request" event.
 
@@ -363,12 +299,6 @@ ___
 
 ▸ **off**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from EventEmitter.off*
-
-*Overrides EventEmitter.off*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1088*
-
 **Parameters:**
 
 | Name | Type |
@@ -384,12 +314,6 @@ ___
 ###  on
 
 ▸ **on**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
-
-*Inherited from EventEmitter.on*
-
-*Overrides EventEmitter.on*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1083*
 
 **Parameters:**
 
@@ -407,12 +331,6 @@ ___
 
 ▸ **once**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from EventEmitter.once*
-
-*Overrides EventEmitter.once*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1084*
-
 **Parameters:**
 
 | Name | Type |
@@ -428,12 +346,6 @@ ___
 ###  prependListener
 
 ▸ **prependListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
-
-*Inherited from EventEmitter.prependListener*
-
-*Overrides EventEmitter.prependListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1085*
 
 **Parameters:**
 
@@ -451,12 +363,6 @@ ___
 
 ▸ **prependOnceListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
 
-*Inherited from EventEmitter.prependOnceListener*
-
-*Overrides EventEmitter.prependOnceListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1086*
-
 **Parameters:**
 
 | Name | Type |
@@ -473,8 +379,6 @@ ___
 
 ▸ **proxy**(shouldProxy: *`boolean`*): `void`
 
-*Defined in [interceptor.ts:71](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L71)*
-
 **Parameters:**
 
 | Name | Type |
@@ -489,12 +393,6 @@ ___
 ###  rawListeners
 
 ▸ **rawListeners**(event: * `string` &#124; `symbol`*): `Function`[]
-
-*Inherited from EventEmitter.rawListeners*
-
-*Overrides EventEmitter.rawListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1093*
 
 **Parameters:**
 
@@ -511,12 +409,6 @@ ___
 
 ▸ **removeAllListeners**(event?: * `string` &#124; `symbol`*): `this`
 
-*Inherited from EventEmitter.removeAllListeners*
-
-*Overrides EventEmitter.removeAllListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1089*
-
 **Parameters:**
 
 | Name | Type |
@@ -531,12 +423,6 @@ ___
 ###  removeListener
 
 ▸ **removeListener**(event: * `string` &#124; `symbol`*, listener: *`function`*): `this`
-
-*Inherited from EventEmitter.removeListener*
-
-*Overrides EventEmitter.removeListener*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1087*
 
 **Parameters:**
 
@@ -554,12 +440,6 @@ ___
 
 ▸ **setMaxListeners**(n: *`number`*): `this`
 
-*Inherited from EventEmitter.setMaxListeners*
-
-*Overrides EventEmitter.setMaxListeners*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1090*
-
 **Parameters:**
 
 | Name | Type |
@@ -574,8 +454,6 @@ ___
 ### `<Private>` trackSocketAndClientOptions
 
 ▸ **trackSocketAndClientOptions**(socket: *[RegisteredSocket](../interfaces/_interceptor_.registeredsocket.md)*, clientOptions: *[ProxyRequestOptions](../interfaces/_interceptor_.proxyrequestoptions.md)*): `void`
-
-*Defined in [interceptor.ts:231](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L231)*
 
 **Parameters:**
 
@@ -592,10 +470,6 @@ ___
 ### `<Static>` listenerCount
 
 ▸ **listenerCount**(emitter: *`EventEmitter`*, event: * `string` &#124; `symbol`*): `number`
-
-*Inherited from EventEmitter.listenerCount*
-
-*Defined in E:/FormidableLabs/yesno/node_modules/@types/node/index.d.ts:1079*
 
 *__deprecated__*: since v4.0.0
 

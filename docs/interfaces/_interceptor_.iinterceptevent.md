@@ -26,16 +26,12 @@
 
 **● clientRequest**: *`ClientRequest`*
 
-*Defined in [interceptor.ts:32](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L32)*
-
 ___
 <a id="interceptedrequest"></a>
 
 ###  interceptedRequest
 
 **● interceptedRequest**: *`IncomingMessage`*
-
-*Defined in [interceptor.ts:33](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L33)*
 
 ___
 <a id="interceptedresponse"></a>
@@ -44,8 +40,6 @@ ___
 
 **● interceptedResponse**: *`ServerResponse`*
 
-*Defined in [interceptor.ts:34](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L34)*
-
 ___
 <a id="requestnumber"></a>
 
@@ -53,16 +47,12 @@ ___
 
 **● requestNumber**: *`number`*
 
-*Defined in [interceptor.ts:35](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L35)*
-
 ___
 <a id="requestserializer"></a>
 
 ###  requestSerializer
 
 **● requestSerializer**: *[RequestSerializer](../classes/_http_serializer_.requestserializer.md)*
-
-*Defined in [interceptor.ts:36](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L36)*
 
 ___
 

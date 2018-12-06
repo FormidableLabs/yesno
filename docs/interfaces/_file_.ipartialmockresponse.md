@@ -25,8 +25,6 @@
 **● body**: * `string` &#124; `any`
 *
 
-*Defined in [file.ts:35](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L35)*
-
 ___
 <a id="headers"></a>
 
@@ -34,16 +32,12 @@ ___
 
 **● headers**: *[IHeaders](_http_serializer_.iheaders.md)*
 
-*Defined in [file.ts:36](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L36)*
-
 ___
 <a id="statuscode"></a>
 
 ###  statusCode
 
 **● statusCode**: *`number`*
-
-*Defined in [file.ts:37](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/file.ts#L37)*
 
 ___
 

@@ -24,8 +24,6 @@
 
 **● requestNumber**: *`number`*
 
-*Defined in [interceptor.ts:46](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L46)*
-
 ___
 <a id="requestserializer"></a>
 
@@ -33,16 +31,12 @@ ___
 
 **● requestSerializer**: *[RequestSerializer](../classes/_http_serializer_.requestserializer.md)*
 
-*Defined in [interceptor.ts:44](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L44)*
-
 ___
 <a id="responseserializer"></a>
 
 ###  responseSerializer
 
 **● responseSerializer**: *[ResponseSerializer](../classes/_http_serializer_.responseserializer.md)*
-
-*Defined in [interceptor.ts:45](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/interceptor.ts#L45)*
 
 ___
 

@@ -57,8 +57,6 @@
 
 ⊕ **new YesNo**(ctx: *[Context](_context_.context.md)*): [YesNo](_yesno_.yesno.md)
 
-*Defined in [yesno.ts:40](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L40)*
-
 **Parameters:**
 
 | Name | Type |
@@ -77,8 +75,6 @@ ___
 
 **● ctx**: *[Context](_context_.context.md)*
 
-*Defined in [yesno.ts:40](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L40)*
-
 ___
 <a id="interceptor"></a>
 
@@ -86,16 +82,12 @@ ___
 
 **● interceptor**: *[Interceptor](_interceptor_.interceptor.md)*
 
-*Defined in [yesno.ts:39](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L39)*
-
 ___
 <a id="mode"></a>
 
 ### `<Private>` mode
 
 **● mode**: *`Mode`* =  Mode.Spy
-
-*Defined in [yesno.ts:38](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L38)*
 
 ___
 
@@ -106,8 +98,6 @@ ___
 ###  clear
 
 ▸ **clear**(): `void`
-
-*Defined in [yesno.ts:147](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L147)*
 
 Clear all stateful information about requests.
 
@@ -122,8 +112,6 @@ ___
 
 ▸ **createInterceptor**(): [Interceptor](_interceptor_.interceptor.md)
 
-*Defined in [yesno.ts:241](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L241)*
-
 **Returns:** [Interceptor](_interceptor_.interceptor.md)
 
 ___
@@ -132,8 +120,6 @@ ___
 ### `<Private>` enable
 
 ▸ **enable**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): [YesNo](_yesno_.yesno.md)
-
-*Defined in [yesno.ts:220](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L220)*
 
 Enable intercepting requests
 
@@ -152,8 +138,6 @@ ___
 
 ▸ **getCollection**(matcher?: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](../modules/_filtering_matcher_.md#matchfn)*): [FilteredHttpCollection](_filtering_collection_.filteredhttpcollection.md)
 
-*Defined in [yesno.ts:276](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L276)*
-
 **Parameters:**
 
 | Name | Type |
@@ -169,8 +153,6 @@ ___
 
 ▸ **getModeByEnv**(): `Mode`
 
-*Defined in [yesno.ts:185](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L185)*
-
 **Returns:** `Mode`
 
 ___
@@ -180,8 +162,6 @@ ___
 
 ▸ **getRecordsToSave**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
-*Defined in [yesno.ts:200](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L200)*
-
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
 ___
@@ -190,8 +170,6 @@ ___
 ###  intercepted
 
 ▸ **intercepted**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
-
-*Defined in [yesno.ts:167](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L167)*
 
 Get all intercepted requests
 
@@ -203,8 +181,6 @@ ___
 ### `<Private>` isMode
 
 ▸ **isMode**(mode: *`Mode`*): `boolean`
-
-*Defined in [yesno.ts:237](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L237)*
 
 Determine the current mode
 
@@ -223,8 +199,6 @@ ___
 
 ▸ **load**(options: *[IFileOptions](../interfaces/_file_.ifileoptions.md)*): `Promise`<[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]>
 
-*Defined in [yesno.ts:123](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L123)*
-
 Load request/response mocks from disk
 
 **Parameters:**
@@ -241,8 +215,6 @@ ___
 ###  matching
 
 ▸ **matching**(filter?: *[HttpFilter](../modules/_yesno_.md#httpfilter)*): [FilteredHttpCollection](_filtering_collection_.filteredhttpcollection.md)
-
-*Defined in [yesno.ts:157](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L157)*
 
 Create a filter collection
 *__todo__*: Convert everything to a match fn
@@ -262,8 +234,6 @@ ___
 
 ▸ **mock**(mocks: *[IHttpMock](../interfaces/_file_.ihttpmock.md)[]*, options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
 
-*Defined in [yesno.ts:68](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L68)*
-
 Mock responses for intercepted requests
 *__todo__*: Reset the request counter?
 
@@ -282,8 +252,6 @@ ___
 ### `<Private>` mockResponse
 
 ▸ **mockResponse**(__namedParameters: *`object`*): `Promise`<`void`>
-
-*Defined in [yesno.ts:285](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L285)*
 
 **Parameters:**
 
@@ -306,8 +274,6 @@ ___
 
 ▸ **mocks**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
-*Defined in [yesno.ts:174](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L174)*
-
 Get all loaded mocks
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
@@ -318,8 +284,6 @@ ___
 ### `<Private>` recordCompleted
 
 ▸ **recordCompleted**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, response: *[ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)*, requestNumber: *`number`*): `void`
-
-*Defined in [yesno.ts:327](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L327)*
 
 **Parameters:**
 
@@ -338,8 +302,6 @@ ___
 
 ▸ **recording**(options: *[IFileOptions](../interfaces/_file_.ifileoptions.md)*): `Promise`<[Recording](_recording_.recording.md)>
 
-*Defined in [yesno.ts:75](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L75)*
-
 **Parameters:**
 
 | Name | Type |
@@ -354,8 +316,6 @@ ___
 ###  redact
 
 ▸ **redact**(property: * `string` &#124; `string`[]*, redactor?: *[Redactor](../modules/_filtering_redact_.md#redactor)*): `void`
-
-*Defined in [yesno.ts:181](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L181)*
 
 Redact property on all records
 
@@ -375,8 +335,6 @@ ___
 
 ▸ **restore**(): `void`
 
-*Defined in [yesno.ts:50](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L50)*
-
 Restore HTTP functionality
 
 **Returns:** `void`
@@ -387,8 +345,6 @@ ___
 ###  save
 
 ▸ **save**(options: * [ISaveOptions](../interfaces/_file_.isaveoptions.md) & [IFileOptions](../interfaces/_file_.ifileoptions.md)*): `Promise`< `string` &#124; `void`>
-
-*Defined in [yesno.ts:136](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L136)*
 
 Save intercepted requests
 
@@ -408,8 +364,6 @@ ___
 
 ▸ **setMocks**(mocks: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]*): `void`
 
-*Defined in [yesno.ts:229](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L229)*
-
 **Parameters:**
 
 | Name | Type |
@@ -425,8 +379,6 @@ ___
 
 ▸ **setMode**(mode: *`Mode`*): `void`
 
-*Defined in [yesno.ts:268](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L268)*
-
 **Parameters:**
 
 | Name | Type |
@@ -441,8 +393,6 @@ ___
 ###  spy
 
 ▸ **spy**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
-
-*Defined in [yesno.ts:59](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L59)*
 
 Spy on intercepted requests
 
@@ -460,8 +410,6 @@ ___
 ###  test
 
 ▸ **test**(__namedParameters: *`object`*): [GenericTestFunction](../modules/_yesno_.md#generictestfunction)
-
-*Defined in [yesno.ts:94](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/yesno.ts#L94)*
 
 Create a test function that will wrap its provided test in a recording.
 

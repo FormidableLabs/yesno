@@ -30,8 +30,6 @@
 
 ⊕ **new Recording**(options: *[IRecordingOptions](../interfaces/_recording_.irecordingoptions.md)*): [Recording](_recording_.recording.md)
 
-*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L27)*
-
 **Parameters:**
 
 | Name | Type |
@@ -50,8 +48,6 @@ ___
 
 **● options**: *[IRecordingOptions](../interfaces/_recording_.irecordingoptions.md)*
 
-*Defined in [recording.ts:27](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L27)*
-
 ___
 
 ## Methods
@@ -61,8 +57,6 @@ ___
 ###  complete
 
 ▸ **complete**(): `Promise`< `string` &#124; `undefined`>
-
-*Defined in [recording.ts:33](https://github.com/FormidableLabs/yesno/blob/b6b210e/src/recording.ts#L33)*
 
 **Returns:** `Promise`< `string` &#124; `undefined`>
 
