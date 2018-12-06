@@ -17,7 +17,7 @@
     "compile": "tsc",
     "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
-    "codecov": "nyc report --reporter=text-lcov -- mocha --timeout 2000 \"test/unit/**/*.spec.ts\" > coverage.lcov && codecov",
+    "codecov": "nyc report --reporter=text-lcov -- mocha --timeout 2000 \"test/unit/**/*.spec.ts\" > coverage/coverage.lcov && codecov -t 5b8d8ce1-89c5-47c7-94e9-84f6d78afab3",
     "coverage": "nyc -- mocha --timeout 2000 \"test/unit/**/*.spec.ts\"",
     "tests": "npm run unit && npm run integration",
     "lint": "tslint \"src/**/*.ts\" \"test/**/*.ts\"",
