@@ -9,6 +9,8 @@ import { SinonSandbox as Sandbox } from 'sinon';
 import yesno from '../../src';
 import { YESNO_RECORDING_MODE_ENV_VAR } from '../../src/consts';
 import { IHttpMock } from '../../src/file';
+import { ComparatorFn, IComparatorMetadata } from '../../src/filtering/comparator';
+import { ISerializedRequest } from '../../src/http-serializer';
 import { RecordMode } from '../../src/recording';
 import * as testServer from '../test-server';
 
@@ -213,6 +215,22 @@ describe('Yesno', () => {
       await expect(mockedRequest({ uri: 'http://example.com/my/foobar' })).to.be.rejectedWith(
         /Request does not match mock. Expected request #0 "POST http:\/\/example.com:80" to have path "\/my\/path", not "\/my\/foobar"/,
       );
+    });
+
+    it('should accept an optional comparatorFn, which can throw to reject a mock', async () => {
+      const mockErrorMessage = 'some-error';
+      const mockError = new Error(mockErrorMessage);
+
+      const comparatorFn: ComparatorFn = (
+        intercepted: ISerializedRequest,
+        mock: ISerializedRequest,
+        metadata: IComparatorMetadata,
+      ): boolean => {
+        throw mockError;
+      };
+
+      yesno.mock([createMock()], { comparatorFn });
+      await expect(requestTestServer()).rejectedWith(mockErrorMessage);
     });
   });
 
