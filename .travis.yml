@@ -19,7 +19,12 @@ script:
   - yarn run clean
   - yarn run compile
   - yarn run lint
-  - yarn run tests
+
+  - >
+    node_version=$(node -v);
+    if [ ${node_version:1:1} > 6 ]; then
+      yarn run tests
+    fi
   # TODO: Add coverage
   # https://github.com/FormidableLabs/yesno/issues/5
 
