@@ -198,8 +198,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       proxying: true,
     } as ProxyRequestOptions);
 
-    (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
-
     interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
     interceptedRequest.on('aborted', () => {
       debugReq('Intercepted request aborted');
@@ -215,7 +213,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       if (proxiedResponse.statusCode) {
         interceptedResponse.writeHead(proxiedResponse.statusCode);
       }
-      (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
 
       proxiedResponse.on('end', () => {
         debugReq('Emitting "proxied"');
@@ -225,6 +222,23 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
           responseSerializer,
         });
       });
+
+      (readable as any).pipeline(
+        proxiedResponse,
+        responseSerializer,
+        interceptedResponse,
+        (e: any) => {
+          if (e) {
+            debugReq('Proxied pipeline error', e);
+          }
+        },
+      );
+    });
+
+    (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest, (e: any) => {
+      if (e) {
+        debugReq('Intercepted pipeline error', e);
+      }
     });
   }
 

@@ -48,51 +48,46 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
-export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
+export function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
-  let data: Buffer;
-  try {
-    data = await readFile(filename);
-  } catch (e) {
-    if ((e as any).code === 'ENOENT') {
-      throw new YesNoError(
-        `${helpMessageMissingMock(filename)}${EOL}${EOL}Original error: ${e.message}`,
-      );
-    }
+  return readFile(filename)
+    .then((data: Buffer) => {
+      let obj: ISaveFile;
+      const dataString: string = data.toString();
 
-    throw e;
-  }
+      try {
+        obj = JSON.parse(dataString);
+      } catch (e) {
+        throw new YesNoError(`Failed to parse JSON from ${filename}: ${e}`);
+      }
 
-  let obj: ISaveFile;
-  const dataString: string = data.toString();
+      if (!obj.records) {
+        throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
+      }
 
-  try {
-    obj = JSON.parse(dataString);
-  } catch (e) {
-    throw new YesNoError(`Failed to parse JSON from ${filename}: ${e}`);
-  }
+      return obj.records;
+    })
+    .catch((e: any) => {
+      if (e.code === 'ENOENT') {
+        throw new YesNoError(
+          `${helpMessageMissingMock(filename)}${EOL}${EOL}Original error: ${e.message}`,
+        );
+      }
 
-  if (!obj.records) {
-    throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
-  }
-
-  return obj.records;
+      throw e;
+    });
 }
 
-export async function save({
-  filename,
-  records = [],
-}: ISaveOptions & IFileOptions): Promise<string> {
+export function save({ filename, records = [] }: ISaveOptions & IFileOptions): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
 
-  await ensureDir(path.dirname(filename));
+  return ensureDir(path.dirname(filename)).then(() => {
+    const payload: ISaveFile = { records };
+    const contents = JSON.stringify(payload, null, 2);
 
-  const payload: ISaveFile = { records };
-  const contents = JSON.stringify(payload, null, 2);
-  await writeFile(filename, contents);
-
-  return filename;
+    return writeFile(filename, contents).then(() => filename);
+  });
 }
 
 function helpMessageMissingMock(filename: string): string {
