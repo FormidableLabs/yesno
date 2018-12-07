@@ -232,6 +232,23 @@ describe('Yesno', () => {
       yesno.mock([createMock()], { comparatorFn });
       await expect(requestTestServer()).rejectedWith(mockErrorMessage);
     });
+
+    it('should accept an optional comparatorFn, which can accept a mock when it does not throw', async () => {
+      const comparatorFn: ComparatorFn = (
+        intercepted: ISerializedRequest,
+        mock: ISerializedRequest,
+        metadata: IComparatorMetadata,
+      ): boolean => {
+        return true;
+      };
+
+      yesno.mock([createMock()], { comparatorFn });
+
+      expect(yesno.intercepted()).to.have.lengthOf(0);
+      const response = await requestTestServer();
+      expect(response).to.eql('foobar');
+      expect(yesno.intercepted()).to.have.lengthOf(1);
+    });
   });
 
   describe('#recording', () => {
