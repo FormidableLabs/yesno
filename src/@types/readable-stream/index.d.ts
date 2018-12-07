@@ -3,5 +3,5 @@
 import * as Stream from 'stream';
 
 declare module 'readable-stream' {
-  export namespace Stream {  }
+  export namespace Stream {}
 }
