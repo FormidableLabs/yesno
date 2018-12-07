@@ -117,18 +117,19 @@ export class YesNo implements IFiltered {
         return this.recording({ filename })
           .then((recording) => {
             return new Promise((resolve, reject) => {
+              // invoke their function
               const results = fn();
+
+              // conditionally follow a promise, if it is returned
               if (results && results.then) {
-                results
-                  .then(() => {
-                    debug('Saving test "%s"', filename);
-                    resolve();
-                  })
-                  .catch(reject);
+                results.then(resolve).catch(reject);
               } else {
                 resolve();
               }
-            }).then(() => recording.complete());
+            }).then(() => {
+              debug('Saving test "%s"', filename);
+              return recording.complete();
+            });
           })
           .then(() => {
             this.restore();
