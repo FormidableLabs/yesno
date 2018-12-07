@@ -1,6 +1,12 @@
 History
 =======
 
+## 0.0.6
+
+- Make the filter in `yesno.matching()` optional
+- Export GenericTest and Recording types
+- Improved test coverage and cross platform support
+
 ## 0.0.5
 
 - Various bug fixes
