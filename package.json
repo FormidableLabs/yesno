@@ -13,7 +13,7 @@
   "scripts": {
     "preversion": "npm run clean && npm run lint && npm run prettier && npm run tests",
     "version": "npm run compile && npm run docs",
-    "clean": "rimraf dist && rimraf docs",
+    "clean": "rimraf dist",
     "compile": "tsc",
     "watch": "npm run compile -- -w",
     "test": "npm run lint && npm run coverage",
