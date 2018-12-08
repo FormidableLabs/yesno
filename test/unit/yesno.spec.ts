@@ -182,6 +182,31 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 
+    it('should scan for and use a mock just once', async () => {
+      yesno.mock([
+        createMock(),
+        createMock({
+          request: {
+            port: 4000,
+          },
+        }),
+        createMock(),
+      ]);
+
+      expect(yesno.intercepted()).to.have.lengthOf(0);
+
+      // consumes first mock
+      await requestTestServer();
+
+      // consumes third mock
+      await requestTestServer();
+
+      expect(yesno.intercepted()).to.have.lengthOf(2);
+
+      // fails because the remaining mock is not matching
+      await expect(mockedRequest()).to.be.rejectedWith(/YesNo: No mock found for request #2/);
+    });
+
     it('should reject a request for which no mock has been provided');
     it('should handle unexpected errors');
 

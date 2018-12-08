@@ -282,6 +282,60 @@ export class YesNo implements IFiltered {
     });
   }
 
+  /**
+   * Try to consume the mock.
+   * @param serializedRequest
+   * @param mock
+   * @param requestIndex
+   */
+  private tryConsumeMock(
+    serializedRequest: ISerializedRequest,
+    mock: ISerializedHttp,
+    requestIndex: number,
+  ) {
+    if (this.ctx.consumedMocks[requestIndex]) {
+      return false;
+    }
+
+    try {
+      // compare the request and the mock
+      comparator.byUrl(serializedRequest, mock.request, { requestIndex });
+
+      // if the comparator does not throw, then the mock is matching- mark it as consumed
+      this.ctx.consumedMocks[requestIndex] = true;
+      return true;
+    } catch (error) {
+      // if there is only one loaded mock, and it doesn't match, throw the detailed error
+      if (this.ctx.loadedMocks.length === 1) {
+        throw error;
+      }
+
+      return false;
+    }
+  }
+
+  /**
+   * Given a serialized request and request number, find the appropriately-matching mock.
+   * @param serializedRequest
+   * @param requestNumber
+   */
+  private findMatchingMock(
+    serializedRequest: ISerializedRequest,
+    requestNumber: number,
+  ): ISerializedHttp | undefined {
+    // first see if the mock in the ordinal position can be consumed
+    const ordinalMock: ISerializedHttp = this.ctx.loadedMocks[requestNumber];
+    if (this.tryConsumeMock(serializedRequest, ordinalMock, requestNumber)) {
+      return ordinalMock;
+    }
+
+    // otherwise, try to consume the first matching mock
+    return this.ctx.loadedMocks.find(
+      (mock: ISerializedHttp, index: number): boolean =>
+        this.tryConsumeMock(serializedRequest, mock, index),
+    );
+  }
+
   private async mockResponse({
     clientRequest,
     interceptedRequest,
@@ -294,15 +348,11 @@ export class YesNo implements IFiltered {
       await (readable as any).pipeline(interceptedRequest, requestSerializer);
 
       const serializedRequest = requestSerializer.serialize();
-      const mock = this.ctx.loadedMocks[requestNumber];
+      const mock = this.findMatchingMock(serializedRequest, requestNumber);
 
       if (!mock) {
         throw new YesNoError(`No mock found for request #${requestNumber}`);
       }
-
-      // Assertion must happen before promise -
-      // mitm does not support promise rejections on "request" event
-      comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
 
       const bodyString = _.isPlainObject(mock.response.body)
         ? JSON.stringify(mock.response.body)
