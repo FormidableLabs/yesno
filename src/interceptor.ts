@@ -8,7 +8,8 @@ import Mitm from 'mitm';
 import { Socket } from 'net';
 import * as readable from 'readable-stream';
 import { v4 as uuidv4 } from 'uuid';
-import { DEFAULT_PORT_HTTP, DEFAULT_PORT_HTTPS, YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
+import { ComparatorFn } from './filtering/comparator';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 
 const debug: IDebugger = require('debug')('yesno:proxy');
@@ -30,6 +31,7 @@ interface ProxyRequestOptions extends http.RequestOptions {
 
 export interface IInterceptEvent {
   clientRequest: http.ClientRequest;
+  comparatorFn?: ComparatorFn;
   interceptedRequest: http.IncomingMessage;
   interceptedResponse: http.ServerResponse;
   requestNumber: number;
@@ -37,6 +39,7 @@ export interface IInterceptEvent {
 }
 
 export interface IInterceptOptions {
+  comparatorFn?: ComparatorFn;
   ignorePorts?: number[];
 }
 
@@ -55,6 +58,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   public requestNumber: number = 0;
   private shouldProxy: boolean = true;
   private clientRequests: ClientRequestTracker = {};
+  private comparatorFn?: ComparatorFn;
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
   private ignorePorts: number[] = [];
@@ -73,6 +77,10 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   }
 
   public enable(options: IInterceptOptions = {}): void {
+    // switch comparator functions when specified
+    this.comparatorFn =
+      options.comparatorFn === undefined ? this.comparatorFn : options.comparatorFn;
+
     if (this.mitm || this.origOnSocket) {
       debug('Interceptor already enabled. Do nothing.');
       return;
@@ -114,6 +122,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     }
 
     ClientRequest.prototype.onSocket = this.origOnSocket;
+    this.comparatorFn = undefined;
     this.mitm.disable();
     this.mitm = undefined;
     this.origOnSocket = undefined;
@@ -180,6 +189,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     debugReq('Emitting "intercept"');
     this.emit('intercept', {
       clientRequest,
+      comparatorFn: this.comparatorFn,
       interceptedRequest,
       interceptedResponse,
       requestNumber,

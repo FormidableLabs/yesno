@@ -61,7 +61,7 @@ export default class FilteredHttpCollection implements IFiltered {
   /**
    * Return serialized request part of the _single_ matching intercepted HTTP request.
    *
-   * Throws an exception is multiple requests were matched.
+   * Throws an exception if multiple requests were matched.
    */
   public request(): ISerializedRequest {
     return this.only().request;
@@ -70,7 +70,7 @@ export default class FilteredHttpCollection implements IFiltered {
   /**
    * Return serialized response part of the _single_ matching intercepted HTTP request.
    *
-   * Throws an exception is multiple requests were matched.
+   * Throws an exception if multiple requests were matched.
    */
   public response(): ISerializedResponse {
     return this.only().response;

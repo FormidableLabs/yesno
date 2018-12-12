@@ -260,6 +260,7 @@ ___
 | Name | Type |
 | ------ | ------ |
 | clientRequest | `ClientRequest` |
+| comparatorFn |  `undefined` &#124; `function`|
 | interceptedRequest | `IncomingMessage` |
 | interceptedResponse | `ServerResponse` |
 | requestNumber | `number` |
