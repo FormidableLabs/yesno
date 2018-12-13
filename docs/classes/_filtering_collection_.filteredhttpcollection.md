@@ -124,7 +124,7 @@ ___
 
 Return serialized request part of the _single_ matching intercepted HTTP request.
 
-Throws an exception is multiple requests were matched.
+Throws an exception if multiple requests were matched.
 
 **Returns:** [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
 
@@ -137,7 +137,7 @@ ___
 
 Return serialized response part of the _single_ matching intercepted HTTP request.
 
-Throws an exception is multiple requests were matched.
+Throws an exception if multiple requests were matched.
 
 **Returns:** [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 

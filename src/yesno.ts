@@ -243,10 +243,10 @@ export class YesNo implements IFiltered {
    * Enable intercepting requests
    */
   private enable(options?: IInterceptOptions): YesNo {
-    const { ignorePorts = [] }: IInterceptOptions = options || {};
+    const { comparatorFn, ignorePorts = [] }: IInterceptOptions = options || {};
 
     debug('Enabling intercept. Ignoring ports', ignorePorts);
-    this.interceptor.enable({ ignorePorts });
+    this.interceptor.enable({ comparatorFn, ignorePorts });
 
     return this;
   }
@@ -309,6 +309,7 @@ export class YesNo implements IFiltered {
 
   private mockResponse({
     clientRequest,
+    comparatorFn,
     interceptedRequest,
     interceptedResponse,
     requestSerializer,
@@ -333,16 +334,25 @@ export class YesNo implements IFiltered {
           throw new YesNoError(`No mock found for request #${requestNumber}`);
         }
 
-        // Assertion must happen before promise -
-        // mitm does not support promise rejections on "request" event
-        comparator.byUrl(serializedRequest, mock.request, { requestIndex: requestNumber });
+      // Assertion must happen before promise -
+      // mitm does not support promise rejections on "request" event
+      try {
+        // determine how we'll compare the request and the mock
+        const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
 
-        const bodyString = _.isPlainObject(mock.response.body)
-          ? JSON.stringify(mock.response.body)
-          : mock.response.body;
-        interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
-        interceptedResponse.write(bodyString);
-        interceptedResponse.end();
+        // the comparison function must throw an error to signal a mismatch
+        compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });
+      } catch (err) {
+        // ensure any user-thrown error is wrapped in our YesNoError
+        throw new YesNoError(err.message);
+      }
+
+      const bodyString = _.isPlainObject(mock.response.body)
+        ? JSON.stringify(mock.response.body)
+        : mock.response.body;
+      interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
+      interceptedResponse.write(bodyString);
+      interceptedResponse.end();
 
         this.recordCompleted(serializedRequest, mock.response, requestNumber);
       })
