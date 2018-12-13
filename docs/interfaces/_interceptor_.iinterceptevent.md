@@ -11,6 +11,7 @@
 ### Properties
 
 * [clientRequest](_interceptor_.iinterceptevent.md#clientrequest)
+* [comparatorFn](_interceptor_.iinterceptevent.md#comparatorfn)
 * [interceptedRequest](_interceptor_.iinterceptevent.md#interceptedrequest)
 * [interceptedResponse](_interceptor_.iinterceptevent.md#interceptedresponse)
 * [requestNumber](_interceptor_.iinterceptevent.md#requestnumber)
@@ -25,6 +26,13 @@
 ###  clientRequest
 
 **● clientRequest**: *`ClientRequest`*
+
+___
+<a id="comparatorfn"></a>
+
+### `<Optional>` comparatorFn
+
+**● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)*
 
 ___
 <a id="interceptedrequest"></a>

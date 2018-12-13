@@ -12,6 +12,7 @@
 ### Interfaces
 
 * [ClientRequestFull](../interfaces/_http_serializer_.clientrequestfull.md)
+* [ICreateRecord](../interfaces/_http_serializer_.icreaterecord.md)
 * [IHeaders](../interfaces/_http_serializer_.iheaders.md)
 * [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 * [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)

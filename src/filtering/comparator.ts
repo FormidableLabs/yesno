@@ -2,11 +2,11 @@ import * as assert from 'assert';
 import { YesNoError } from '../errors';
 import { ISerializedRequest } from '../http-serializer';
 
-interface IComparatorMetadata {
+export interface IComparatorMetadata {
   requestIndex: number;
 }
 
-type ComparatorFn = (
+export type ComparatorFn = (
   intercepted: ISerializedRequest,
   mock: ISerializedRequest,
   metadata: IComparatorMetadata,
