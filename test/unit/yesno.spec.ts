@@ -89,8 +89,34 @@ describe('Yesno', () => {
 
     it('should proxy status code', async () => {
       yesno.spy();
-      await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
-      expect(yesno.matching(/get/).response()).to.have.property('statusCode', 500);
+
+      const response = await rp({
+        headers: { 'x-status-code': 201 },
+        method: 'GET',
+        resolveWithFullResponse: true,
+        uri: 'http://localhost:3001/get',
+      });
+
+      // verify both the proxied and intercepted response
+      expect(response).to.have.property('statusCode', 201);
+      expect(yesno.matching(/get/).response()).to.have.property('statusCode', 201);
+    });
+
+    it('should proxy headers', async () => {
+      yesno.spy();
+
+      const response = await rp({
+        method: 'GET',
+        resolveWithFullResponse: true,
+        uri: 'http://localhost:3001/get',
+      });
+
+      // verify both the proxied and intercepted response
+      expect(response).to.have.nested.property('headers.x-test-server-header', 'foo');
+      expect(yesno.matching(/get/).response()).to.have.nested.property(
+        'headers.x-test-server-header',
+        'foo',
+      );
     });
 
     it('should support multipart/form-data', async () => {

@@ -22,12 +22,14 @@ export function start(port: number = PORT): Promise<ITestServer> {
   app.get('/get', ({ headers }: express.Request, res: express.Response) => {
     debug('Received GET request');
     res.status(headers['x-status-code'] ? parseInt(headers['x-status-code'] as string, 10) : 200);
+    res.setHeader('x-test-server-header', 'foo');
     res.send({ headers, method: 'GET', path: '/get' });
   });
 
   app.post('/post', ({ headers, body }: express.Request, res: express.Response) => {
     debug('Received POST request');
     res.status(headers['x-status-code'] ? parseInt(headers['x-status-code'] as string, 10) : 200);
+    res.setHeader('x-test-server-header', 'foo');
     res.send({ headers, body, method: 'POST', path: '/post' });
   });
 
