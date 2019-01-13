@@ -6,6 +6,7 @@ History
 - Make the filter in `yesno.matching()` optional
 - Export GenericTest and Recording types
 - Improved test coverage and cross platform support
+- Fix bug where headers were not sent in response (#43)
 
 ## 0.0.5
 
