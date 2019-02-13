@@ -8,6 +8,7 @@ import * as sinon from 'sinon';
 import { SinonSandbox as Sandbox } from 'sinon';
 import yesno from '../../src';
 import { YESNO_RECORDING_MODE_ENV_VAR } from '../../src/consts';
+import { YesNoError } from '../../src/errors';
 import { IHttpMock } from '../../src/file';
 import { ComparatorFn, IComparatorMetadata } from '../../src/filtering/comparator';
 import { ISerializedRequest } from '../../src/http-serializer';
@@ -398,6 +399,34 @@ describe('Yesno', () => {
       await callbackPrefix();
 
       expect(fse.existsSync(expectedFilenamePrefix)).to.be.true;
+
+      expect(() => recordedTest.only('test title', mockTest)).to.throw(
+        'Provided test runner missing "only()" method.',
+      );
+      expect(() => recordedTest.skip('test title', mockTest)).to.throw(
+        'Provided test runner missing "skip()" method.',
+      );
+    });
+
+    it('should expose "skip" and "only" if available on the test runner', () => {
+      const mockTestFn = sandbox.mock();
+      const mockTest = sandbox.mock();
+      const mockOnly = sandbox.mock();
+      const mockSkip = sandbox.mock();
+      (mockTestFn as any).only = mockOnly;
+      (mockTestFn as any).skip = mockSkip;
+      const recordedTest = yesno.test({ test: mockTestFn, dir });
+
+      recordedTest.skip('foobar', mockTest);
+      expect(mockSkip).to.have.callCount(1);
+      expect(mockOnly).to.have.callCount(0);
+
+      mockSkip.reset();
+      mockOnly.reset();
+
+      recordedTest.only('foobar', mockTest);
+      expect(mockSkip).to.have.callCount(0);
+      expect(mockOnly).to.have.callCount(1);
     });
 
     it('should restore behavior before and after the test regardless of whether it passes', async () => {

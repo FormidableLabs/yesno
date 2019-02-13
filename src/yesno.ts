@@ -24,12 +24,30 @@ const debug: IDebugger = require('debug')('yesno');
 
 export type GenericTest = (...args: any) => Promise<any> | void;
 export type GenericTestFunction = (title: string, fn: GenericTest) => any;
+export interface IGenericTestRunner {
+  (title: string, fn: GenericTest): any;
+  /**
+   * @see https://jestjs.io/docs/en/api#testonlyname-fn-timeout
+   */
+  only?: GenericTestFunction;
+  /**
+   * @see https://jestjs.io/docs/en/api#testskipname-fn
+   */
+  skip?: GenericTestFunction;
+  // Allow unknown properties
+  [key: string]: any;
+}
+
+export interface IWrappedGenericTestRunner extends IGenericTestRunner {
+  only: GenericTestFunction;
+  skip: GenericTestFunction;
+}
 
 export type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn;
 
 export interface IRecordableTest {
-  test?: GenericTestFunction;
-  it?: GenericTestFunction;
+  test?: IGenericTestRunner;
+  it?: IGenericTestRunner;
   prefix?: string;
   dir: string;
 }
@@ -91,30 +109,44 @@ export class YesNo implements IFiltered {
   /**
    * Create a test function that will wrap its provided test in a recording.
    */
-  public test({ it, test, dir, prefix }: IRecordableTest): GenericTestFunction {
-    const runTest = test || it;
+  public test({ it, test, dir, prefix }: IRecordableTest): IWrappedGenericTestRunner {
+    const testRunner = test || it;
 
-    if (!runTest) {
+    if (!testRunner) {
       throw new YesNoError('Missing "test" or "it" test function');
     }
 
-    return (title: string, fn: GenericTest): GenericTestFunction => {
-      const filename = file.getMockFilename(prefix ? `${prefix}-${title}` : title, dir);
+    const createTestFn = (runTest: GenericTestFunction): GenericTestFunction => {
+      return (title: string, fn: GenericTest): GenericTestFunction => {
+        const filename = file.getMockFilename(prefix ? `${prefix}-${title}` : title, dir);
 
-      return runTest(title, async () => {
-        debug('Running test "%s"', title);
-        this.restore();
-
-        try {
-          const recording = await this.recording({ filename });
-          await fn();
-          debug('Saving test "%s"', filename);
-          await recording.complete();
-        } finally {
+        return runTest(title, async () => {
+          debug('Running test "%s"', title);
           this.restore();
-        }
-      });
+
+          try {
+            const recording = await this.recording({ filename });
+            await fn();
+            debug('Saving test "%s"', filename);
+            await recording.complete();
+          } finally {
+            this.restore();
+          }
+        });
+      };
     };
+
+    const wrappedTest: IGenericTestRunner = createTestFn(testRunner);
+    const notifyMissing = (prop: string) => {
+      return () => {
+        throw new YesNoError(`Provided test runner missing "${prop}()" method.`);
+      };
+    };
+
+    wrappedTest.only = testRunner.only ? createTestFn(testRunner.only) : notifyMissing('only');
+    wrappedTest.skip = testRunner.skip ? createTestFn(testRunner.skip) : notifyMissing('skip');
+
+    return wrappedTest as IWrappedGenericTestRunner;
   }
 
   /**
