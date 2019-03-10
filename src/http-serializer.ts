@@ -16,8 +16,10 @@ const Headers = t.dictionary(
   t.union([t.number, t.string, t.array(t.string), t.undefined]),
 );
 
+const JSONBody = t.dictionary(t.string, t.any);
+
 const SerializedRequestOptional = t.partial({
-  body: t.readonly(t.union([t.string, t.object])), // Optional
+  body: t.readonly(t.union([t.string, t.object, JSONBody])), // Optional
   query: t.readonly(t.string), // Optional
 });
 
@@ -34,7 +36,7 @@ const SerializedRequest = t.intersection([
 ]);
 
 const SerializedResponse = t.interface({
-  body: t.readonly(t.union([t.string, t.object])),
+  body: t.readonly(t.union([t.string, JSONBody])),
   headers: t.readonly(Headers),
   statusCode: t.readonly(t.Integer),
 });
@@ -54,9 +56,23 @@ const SerializedHttp = t.intersection([
   }),
 ]);
 
-export interface ISerializedHttp extends t.TypeOf<typeof SerializedHttp> {}
-export interface ISerializedResponse extends t.TypeOf<typeof SerializedResponse> {}
-export interface ISerializedRequest extends t.TypeOf<typeof SerializedRequest> {}
+export interface IJSONBody extends t.TypeOf<typeof JSONBody> {}
+
+type SerializedHttpBody = string | IJSONBody;
+
+export interface ISerializedResponse<T = SerializedHttpBody>
+  extends t.TypeOf<typeof SerializedResponse> {
+  body: T;
+}
+export interface ISerializedRequest<T = SerializedHttpBody>
+  extends t.TypeOf<typeof SerializedRequest> {
+  body: T;
+}
+export interface ISerializedHttp<T = SerializedHttpBody, S = SerializedHttpBody>
+  extends t.TypeOf<typeof SerializedHttp> {
+  request: ISerializedRequest<T>;
+  response: ISerializedResponse<S>;
+}
 export interface IHeaders extends t.TypeOf<typeof Headers> {}
 
 // Some properties are not present in the TS definition
@@ -67,7 +83,7 @@ export interface ClientRequestFull extends ClientRequest {
   path: string;
 }
 
-function serializeJSON(headers: IHeaders, body?: string): undefined | string | object {
+function serializeJSON(headers: IHeaders, body?: string): SerializedHttpBody {
   const isJSON =
     headers[HEADER_CONTENT_TYPE] &&
     (headers[HEADER_CONTENT_TYPE] as string).includes(MIME_TYPE_JSON);
@@ -81,11 +97,11 @@ function serializeJSON(headers: IHeaders, body?: string): undefined | string | o
     }
   }
 
-  return body;
+  return body || '';
 }
 
 export class RequestSerializer extends Transform implements ISerializedRequest {
-  public body: string | undefined;
+  public body: string;
   public headers: IHeaders = {};
   public host: string;
   public path: string;
@@ -113,6 +129,7 @@ export class RequestSerializer extends Transform implements ISerializedRequest {
 
     // @see https://github.com/nodejs/node/blob/v10.11.0/lib/_http_client.js#L125
     const [path, query] = (originalClientReq as ClientRequestFull).path.split('?');
+    this.body = '';
     this.host = originalClientOpts.hostname || originalClientOpts.host || 'localhost';
     this.method = (interceptedServerReq.method as string).toUpperCase();
     this.path = path;
@@ -122,7 +139,6 @@ export class RequestSerializer extends Transform implements ISerializedRequest {
   }
 
   public _transform(chunk: Buffer, encoding: string, done: () => void) {
-    this.body = this.body || '';
     this.body += chunk.toString(); // @todo Do we really need to convert to string for each chunk?
 
     this.push(chunk);
@@ -172,7 +188,10 @@ export class ResponseSerializer extends Transform implements ISerializedResponse
   }
 }
 
-export function formatUrl(request: ISerializedRequest, includePort: boolean = false): string {
+export function formatUrl(
+  request: Partial<ISerializedRequest>,
+  includePort: boolean = false,
+): string {
   const port = includePort ? `:${request.port}` : '';
   const query = request.query || '';
   return `${request.protocol}://${request.host}${port}${request.path}${query}`;

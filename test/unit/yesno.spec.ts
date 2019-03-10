@@ -208,6 +208,9 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(0);
       expect(await requestTestServer({ json: true })).to.eql({ foo: 'bar' });
       expect(yesno.intercepted()).to.have.lengthOf(1);
+      expect(yesno.intercepted<unknown, { [key: string]: any }>()[0].response.body.foo).to.eql(
+        'bar',
+      );
     });
 
     it('should reject a request for which no mock has been provided');

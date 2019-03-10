@@ -13,6 +13,7 @@ import { Redactor } from './filtering/redact';
 import {
   createRecord,
   formatUrl,
+  IJSONBody,
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
@@ -164,8 +165,8 @@ export class YesNo implements IFiltered {
   /**
    * Get all intercepted requests
    */
-  public intercepted(): ISerializedHttp[] {
-    return this.getCollection().intercepted();
+  public intercepted<T = IJSONBody, S = IJSONBody>(): Array<ISerializedHttp<T, S>> {
+    return this.getCollection().intercepted<T, S>();
   }
 
   /**

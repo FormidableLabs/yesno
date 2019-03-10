@@ -116,6 +116,7 @@ export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
     duration: 0,
     request: {
       // supply defaults for headers, path, and port
+      body: request.body || '',
       headers: {},
       path: '/',
       port: request.protocol === 'https' ? DEFAULT_PORT_HTTPS : DEFAULT_PORT_HTTP,

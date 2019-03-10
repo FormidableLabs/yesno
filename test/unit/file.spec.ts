@@ -259,6 +259,7 @@ describe('file', () => {
     const expectedOptions: ICreateRecord = {
       duration: 0,
       request: {
+        body: mockRequest.body || '',
         headers: {},
         path: '/',
         port: DEFAULT_PORT_HTTPS,

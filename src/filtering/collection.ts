@@ -5,6 +5,7 @@ import Context from '../context';
 import { YesNoError } from '../errors';
 import {
   formatUrl,
+  IJSONBody,
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
@@ -32,8 +33,10 @@ export default class FilteredHttpCollection implements IFiltered {
     this.matcher = matcher;
   }
 
-  public intercepted(): ISerializedHttp[] {
-    return this.ctx.interceptedRequestsCompleted.filter(match(this.matcher));
+  public intercepted<T = IJSONBody, S = IJSONBody>(): Array<ISerializedHttp<T, S>> {
+    return this.ctx.interceptedRequestsCompleted.filter(match(this.matcher)) as Array<
+      ISerializedHttp<T, S>
+    >;
   }
 
   public mocks(): ISerializedHttp[] {
@@ -63,8 +66,8 @@ export default class FilteredHttpCollection implements IFiltered {
    *
    * Throws an exception if multiple requests were matched.
    */
-  public request(): ISerializedRequest {
-    return this.only().request;
+  public request<T = IJSONBody, S = IJSONBody>(): ISerializedRequest<T> {
+    return this.only<T, S>().request;
   }
 
   /**
@@ -72,11 +75,11 @@ export default class FilteredHttpCollection implements IFiltered {
    *
    * Throws an exception if multiple requests were matched.
    */
-  public response(): ISerializedResponse {
-    return this.only().response;
+  public response<T = IJSONBody, S = IJSONBody>(): ISerializedResponse<S> {
+    return this.only<T, S>().response;
   }
 
-  private only(): ISerializedHttp {
+  private only<T, S>(): ISerializedHttp<T, S> {
     const intercepted = this.intercepted();
     const all = this.ctx.interceptedRequestsCompleted;
 
@@ -107,6 +110,6 @@ export default class FilteredHttpCollection implements IFiltered {
       throw new YesNoError(`Query unexpectedly matched multiple (${intercepted.length}) requests.`);
     }
 
-    return intercepted[0];
+    return intercepted[0] as ISerializedHttp<T, S>;
   }
 }
