@@ -174,6 +174,10 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       throw new Error(`Missing client options for yesno req ${id}`);
     }
 
+    interceptedResponse.on('finish', () => {
+      debugReq('Response finished');
+    });
+
     const { clientOptions } = this.clientRequests[id];
     const clientRequest = this.clientRequests[id].clientRequest as ClientRequestFull;
     const isHttps: boolean = (interceptedRequest.connection as any).encrypted;
@@ -187,6 +191,8 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     this.requestNumber++;
 
     debugReq('Emitting "intercept"');
+
+    // YesNo will listen for this event to mock the response
     this.emit('intercept', {
       clientRequest,
       comparatorFn: this.comparatorFn,

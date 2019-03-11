@@ -290,7 +290,7 @@ export class YesNo implements IFiltered {
     requestSerializer,
     requestNumber,
   }: IInterceptEvent): Promise<void> {
-    debug('Mock response');
+    debug(`[#${requestNumber}] Mock response`);
     try {
       await (readable as any).pipeline(interceptedRequest, requestSerializer);
 
@@ -316,18 +316,28 @@ export class YesNo implements IFiltered {
 
       const bodyString = _.isPlainObject(mock.response.body)
         ? JSON.stringify(mock.response.body)
-        : mock.response.body;
-      interceptedResponse.writeHead(mock.response.statusCode, mock.response.headers);
+        : (mock.response.body as string);
+
+      const responseHeaders = { ...mock.response.headers };
+      if (
+        responseHeaders['content-length'] &&
+        parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
+      ) {
+        debug(`[#${requestNumber}] Overriding content length`);
+        responseHeaders['content-length'] = Buffer.byteLength(bodyString);
+      }
+
+      interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
       interceptedResponse.write(bodyString);
       interceptedResponse.end();
 
       this.recordCompleted(serializedRequest, mock.response, requestNumber);
     } catch (e) {
       if (!(e instanceof YesNoError)) {
-        debug('Mock response failed unexpectedly', e);
+        debug(`[#${requestNumber}] Mock response failed unexpectedly`, e);
         e.message = `YesNo: Mock response failed: ${e.message}`;
       } else {
-        debug('Mock response failed', e.message);
+        debug(`[#${requestNumber}] Mock response failed`, e.message);
       }
 
       clientRequest.emit('error', e);

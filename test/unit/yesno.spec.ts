@@ -275,6 +275,32 @@ describe('Yesno', () => {
       expect(response).to.eql('foobar');
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
+
+    it('should override the "content-length" header in the server response if incorrect', async () => {
+      const mocks = await yesno.load({ filename: `${mocksDir}/mock-x-www-form-urlencoded.json` });
+      const mockContentLength = mocks[0].response.headers['content-length'];
+      expect(mockContentLength).to.eql('999999999');
+
+      yesno.mock(mocks);
+
+      const response = await rp({
+        form: {
+          description: 'YesNo test',
+          email: 'example@example.com',
+        },
+        method: 'POST',
+        resolveWithFullResponse: true,
+        uri: 'https://example.com/my/path',
+      });
+
+      const intercepted = yesno.intercepted();
+      expect(intercepted).to.have.lengthOf(1);
+      const overriddenContentLength = response.headers['content-length'];
+      expect(overriddenContentLength).to.be.ok;
+      expect(overriddenContentLength, 'Had to override content length').to.not.eql(
+        mockContentLength,
+      );
+    });
   });
 
   describe('#recording', () => {
