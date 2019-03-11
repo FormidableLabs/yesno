@@ -1,0 +1,38 @@
+{
+  "records": [
+    {
+      "__duration": 0,
+      "__id": "3814c497-cded-4e4d-8dff-3fde6feebcc9",
+      "__timestamp": 1540332352920,
+      "__version": "1.0.0",
+      "request": {
+        "body": "email=example%40example.com&description=YesNo%20test",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "application/x-www-form-urlencoded",
+          "content-length": 59,
+          "host": "example.com"
+        },
+        "host": "example.com",
+        "method": "POST",
+        "path": "/my/path",
+        "port": 443,
+        "protocol": "https"
+      },
+      "response": {
+        "body": {
+          "foo": "bar"
+        },
+        "headers": {
+          "server": "nginx",
+          "date": "Mon, 11 Mar 2019 15:58:15 GMT",
+          "content-type": "application/json",
+          "content-length": "999999999",
+          "connection": "keep-alive"
+        },
+        "statusCode": 200
+      },
+      "url": "https://example.com:443/my/path"
+    }
+  ]
+}
