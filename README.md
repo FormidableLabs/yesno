@@ -7,6 +7,10 @@ YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/
 
 _Note:_ YesNo is still in beta! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
 
+### Maintenance Status: Active
+
+Formidable is actively working on this project, and we expect to continue for work for the foreseeable future. Bug reports, feature requests and pull requests are welcome. 
+
 - [Why?](#Why)
 - [Installation](#installation)
 - [Usage](#Usage)
