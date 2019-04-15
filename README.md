@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
 [![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/master/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
+[![Maintenance Status][maintenance-image]](#maintenance-status)
+
 
 # YesNo
 
@@ -461,3 +463,10 @@ export interface SerializedRequest {
  readonly query?: string;
  readonly protocol: 'http' | 'https';
 }
+```
+
+## Maintenance Status
+
+**Active:** Formidable is actively working on this project, and we expect to continue for work for the foreseeable future. Bug reports, feature requests and pull requests are welcome. 
+
+[maintenance-image]: https://img.shields.io/badge/maintenance-active-green.svg
