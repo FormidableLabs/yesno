@@ -1,15 +1,13 @@
 [![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
 [![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/master/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
+[![Maintenance Status][maintenance-image]](#maintenance-status)
+
 
 # YesNo
 
 YesNo is an HTTP testing library for NodeJS that uses [Mitm](https://github.com/moll/node-mitm) to intercept outgoing HTTP requests. YesNo provides a simple API to access, manipulate and record requests, using mocks or live services, so that you can easily define what requests should and should not be made by your app.
 
 _Note:_ YesNo is still in beta! We're actively working toward our [first major release](https://github.com/FormidableLabs/yesno/projects/1), meaning the API is subject to change. Any and all feedback is appreciated.
-
-### Maintenance Status: Active
-
-Formidable is actively working on this project, and we expect to continue for work for the foreseeable future. Bug reports, feature requests and pull requests are welcome. 
 
 - [Why?](#Why)
 - [Installation](#installation)
@@ -465,3 +463,10 @@ export interface SerializedRequest {
  readonly query?: string;
  readonly protocol: 'http' | 'https';
 }
+```
+
+## Maintenance Status
+
+**Active:** Formidable is actively working on this project, and we expect to continue for work for the foreseeable future. Bug reports, feature requests and pull requests are welcome. 
+
+[maintenance-image]: https://img.shields.io/badge/maintenance-active-green.svg
