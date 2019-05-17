@@ -100,7 +100,7 @@ Mocks also allow us to easily test the behavior of our application when it recei
 While mocking is useful mocks themselves are hard to maintain. When APIs changes (sometimes unexpectedly!) our mocks become stale, meaning we're testing for the wrong behavior. To solve this problem YesNo allows you to _record_ requests, saving the requests we've intercepted to a local file.
 
 ```javascript
-const recording = await yesno.record({ filename: './get-users-yesno.json' });
+const recording = await yesno.recording({ filename: './get-users-yesno.json' });
 await myApi.getUsers();
   expect(yesno.matching(/users/).response()).to.have.property('statusCode', 200);
 
