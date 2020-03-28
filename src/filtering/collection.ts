@@ -25,7 +25,7 @@ export interface IFilteredHttpCollectionParams {
 
 /**
  * Represents a collection of HTTP requests which match the provided filter.
- * 
+ *
  * Can filter both intercepted HTTP requests and loaded mocks.
  */
 export default class FilteredHttpCollection implements IFiltered {
