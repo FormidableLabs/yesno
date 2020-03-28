@@ -1,13 +1,11 @@
 import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
-import * as readable from 'readable-stream';
 import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
-import * as comparator from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
 import { Redactor } from './filtering/redact';
 import {
@@ -19,7 +17,9 @@ import {
   validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
+import MockResponse from './mock-response';
 import Recording, { RecordMode as Mode } from './recording';
+
 const debug: IDebugger = require('debug')('yesno');
 
 export type GenericTest = (...args: any) => Promise<any> | void;
@@ -261,14 +261,27 @@ export class YesNo implements IFiltered {
     return interceptor;
   }
 
-  private onIntercept(event: IInterceptEvent): void {
+  private async onIntercept(event: IInterceptEvent): Promise<void> {
     this.ctx.inFlightRequests[event.requestNumber] = {
       requestSerializer: event.requestSerializer,
       startTime: Date.now(),
     };
 
     if (this.isMode(Mode.Mock)) {
-      this.mockResponse(event);
+      const mockResponse = new MockResponse(event, this.ctx);
+      try {
+        const { request, response } = await mockResponse.send();
+        this.recordRequestResponse(request, response, event.requestNumber);
+      } catch (e) {
+        if (!(e instanceof YesNoError)) {
+          debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
+          e.message = `YesNo: Mock response failed: ${e.message}`;
+        } else {
+          debug(`[#${event.requestNumber}] Mock response failed`, e.message);
+        }
+
+        event.clientRequest.emit('error', e);
+      }
     }
   }
 
@@ -295,93 +308,6 @@ export class YesNo implements IFiltered {
       context: this.ctx,
       matcher,
     });
-  }
-
-  private async mockResponse(event: IInterceptEvent): Promise<void> {
-    const {
-      clientRequest,
-      comparatorFn,
-      interceptedRequest,
-      interceptedResponse,
-      requestSerializer,
-      requestNumber,
-    } = event;
-
-    debug(`[#${requestNumber}] Mock response`);
-    try {
-      const mock = this.getMockForIntecept(event);
-      await (readable as any).pipeline(interceptedRequest, requestSerializer);
-
-      const serializedRequest = requestSerializer.serialize();
-
-      // Assertion must happen before promise -
-      // mitm does not support promise rejections on "request" event
-      this.assertMockMatches({ mock, serializedRequest, requestNumber, comparatorFn });
-
-      this.writeMockResponse(mock, interceptedResponse);
-      this.recordRequestResponse(serializedRequest, mock.response, requestNumber);
-    } catch (e) {
-      if (!(e instanceof YesNoError)) {
-        debug(`[#${requestNumber}] Mock response failed unexpectedly`, e);
-        e.message = `YesNo: Mock response failed: ${e.message}`;
-      } else {
-        debug(`[#${requestNumber}] Mock response failed`, e.message);
-      }
-
-      clientRequest.emit('error', e);
-    }
-  }
-
-  private getMockForIntecept({ requestNumber }: IInterceptEvent): ISerializedHttp {
-    const mock = this.ctx.loadedMocks[requestNumber];
-
-    if (!mock) {
-      throw new YesNoError('No mock found for request');
-    }
-
-    return mock;
-  }
-
-  private assertMockMatches({
-    mock,
-    serializedRequest,
-    comparatorFn,
-    requestNumber,
-  }: { mock: ISerializedHttp; serializedRequest: ISerializedRequest } & Pick<
-    IInterceptEvent,
-    'comparatorFn' | 'requestNumber'
-  >): void {
-    try {
-      // determine how we'll compare the request and the mock
-      const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
-
-      // the comparison function must throw an error to signal a mismatch
-      compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });
-    } catch (err) {
-      // ensure any user-thrown error is wrapped in our YesNoError
-      throw new YesNoError(err.message);
-    }
-  }
-
-  private writeMockResponse(
-    mock: ISerializedHttp,
-    interceptedResponse: IInterceptEvent['interceptedResponse'],
-  ): void {
-    const bodyString = _.isPlainObject(mock.response.body)
-      ? JSON.stringify(mock.response.body)
-      : (mock.response.body as string);
-
-    const responseHeaders = { ...mock.response.headers };
-    if (
-      responseHeaders['content-length'] &&
-      parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
-    ) {
-      responseHeaders['content-length'] = Buffer.byteLength(bodyString);
-    }
-
-    interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
-    interceptedResponse.write(bodyString);
-    interceptedResponse.end();
   }
 
   private recordRequestResponse(
