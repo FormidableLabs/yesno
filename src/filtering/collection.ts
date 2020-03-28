@@ -23,6 +23,11 @@ export interface IFilteredHttpCollectionParams {
   matcher?: ISerializedHttpPartialDeepMatch | MatchFn;
 }
 
+/**
+ * Represents a collection of HTTP requests which match the provided filter.
+ * 
+ * Can filter both intercepted HTTP requests and loaded mocks.
+ */
 export default class FilteredHttpCollection implements IFiltered {
   private readonly ctx: Context;
   private readonly matcher: ISerializedHttpPartialDeepMatch | MatchFn;
@@ -32,14 +37,30 @@ export default class FilteredHttpCollection implements IFiltered {
     this.matcher = matcher;
   }
 
+  /**
+   * Return all intercepted requests matching the current filter
+   */
   public intercepted(): ISerializedHttp[] {
     return this.ctx.interceptedRequestsCompleted.filter(match(this.matcher));
   }
 
+  /**
+   * Return all intercepted mocks matching the current filter
+   */
   public mocks(): ISerializedHttp[] {
     return this.ctx.loadedMocks.filter(match(this.matcher));
   }
 
+  /**
+   * Redact given property/properties on all intercepted requests matching current filter.
+   *
+   * Useful whenever your HTTP requests contain sensitive details such as an API key that should not
+   * be saved to disc.
+   * @param property Nested path(s) for properties to redact from intercepted HTTP requests.
+   *  Works for all properties on serialized HTTP request/response objects.
+   *  Accepts dot notation for nested properties (eg `response.body.foobars[0].id`)
+   * @param redactor Custom redactor. Defaults to replacing matching values with "*****"
+   */
   public redact(
     property: string | string[],
     redactor: Redactor = () => DEFAULT_REDACT_SYMBOL,
@@ -76,6 +97,10 @@ export default class FilteredHttpCollection implements IFiltered {
     return this.only().response;
   }
 
+  /**
+   * If the current filter only matches a single request, then return the single matching instance.
+   * Otherwise, throw an error.
+   */
   private only(): ISerializedHttp {
     const intercepted = this.intercepted();
     const all = this.ctx.interceptedRequestsCompleted;

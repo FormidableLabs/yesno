@@ -34,6 +34,9 @@ export interface IRecordableTest {
   dir: string;
 }
 
+/**
+ * Client API for YesNo
+ */
 export class YesNo implements IFiltered {
   private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
@@ -72,6 +75,17 @@ export class YesNo implements IFiltered {
     this.setMocks(mocks.map(file.hydrateHttpMock));
   }
 
+  /**
+   * Start a new recording.
+   *
+   * Depending on the configured mode, will either spy on all outbound HTTP requests
+   * or return mocks loaded from disc.
+   *
+   * When done, call the `complete()` on the returned recording
+   * to save all intercepted requests to disc if applicable.
+   * @param options Where to load/save mocks
+   * @returns A new recording.
+   */
   public async recording(options: file.IFileOptions): Promise<Recording> {
     const mode = this.getModeByEnv();
 

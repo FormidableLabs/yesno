@@ -54,6 +54,11 @@ interface IInterceptEvents {
   on(event: 'proxied', listener: (event: IProxiedEvent) => void): this;
 }
 
+/**
+ * Intercept outbound HTTP requests and provide mock responses through an event API.
+ *
+ * Uses MITM library to spy on HTTP requests made in current NodeJS process.
+ */
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
   private shouldProxy: boolean = true;
@@ -63,19 +68,24 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   private origOnSocket?: (socket: Socket) => void;
   private ignorePorts: number[] = [];
 
-  /**
-   * Begin intercepting requests on instantiation
-   */
   constructor(options?: { shouldProxy: boolean }) {
     super();
     const { shouldProxy = true } = options || {};
     this.shouldProxy = shouldProxy;
   }
 
+  /**
+   * Enable/disable proxying. If proxying, requests are not sent to their original destination.
+   * @param shouldProxy Whether or not to proxy
+   */
   public proxy(shouldProxy: boolean): void {
     this.shouldProxy = shouldProxy;
   }
 
+  /**
+   * Enables intercepting all outbound HTTP requests.
+   * @param options Intercept options
+   */
   public enable(options: IInterceptOptions = {}): void {
     // switch comparator functions when specified
     this.comparatorFn =
@@ -113,7 +123,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   }
 
   /**
-   * Disable request interception
+   * Disables intercepting outbound HTTP requests.
    */
   public disable() {
     if (!this.mitm || !this.origOnSocket) {
