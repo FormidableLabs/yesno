@@ -254,29 +254,30 @@ export class YesNo implements IFiltered {
 
   private createInterceptor() {
     const interceptor = new Interceptor({ shouldProxy: !this.isMode(Mode.Mock) });
-    interceptor.on('intercept', (event: IInterceptEvent) => {
-      this.ctx.inFlightRequests[event.requestNumber] = {
-        requestSerializer: event.requestSerializer,
-        startTime: Date.now(),
-      };
 
-      if (this.isMode(Mode.Mock)) {
-        this.mockResponse(event);
-      }
-    });
-
-    interceptor.on(
-      'proxied',
-      ({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent) => {
-        this.recordCompleted(
-          requestSerializer.serialize(),
-          responseSerializer.serialize(),
-          requestNumber,
-        );
-      },
-    );
+    interceptor.on('intercept', this.onIntercept.bind(this));
+    interceptor.on('proxied', this.onProxied.bind(this));
 
     return interceptor;
+  }
+
+  private onIntercept(event: IInterceptEvent): void {
+    this.ctx.inFlightRequests[event.requestNumber] = {
+      requestSerializer: event.requestSerializer,
+      startTime: Date.now(),
+    };
+
+    if (this.isMode(Mode.Mock)) {
+      this.mockResponse(event);
+    }
+  }
+
+  private onProxied({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent): void {
+    this.recordRequestResponse(
+      requestSerializer.serialize(),
+      responseSerializer.serialize(),
+      requestNumber,
+    );
   }
 
   private setMode(mode: Mode) {
@@ -296,56 +297,29 @@ export class YesNo implements IFiltered {
     });
   }
 
-  private async mockResponse({
-    clientRequest,
-    comparatorFn,
-    interceptedRequest,
-    interceptedResponse,
-    requestSerializer,
-    requestNumber,
-  }: IInterceptEvent): Promise<void> {
+  private async mockResponse(event: IInterceptEvent): Promise<void> {
+    const {
+      clientRequest,
+      comparatorFn,
+      interceptedRequest,
+      interceptedResponse,
+      requestSerializer,
+      requestNumber,
+    } = event;
+
     debug(`[#${requestNumber}] Mock response`);
     try {
+      const mock = this.getMockForIntecept(event);
       await (readable as any).pipeline(interceptedRequest, requestSerializer);
 
       const serializedRequest = requestSerializer.serialize();
-      const mock = this.ctx.loadedMocks[requestNumber];
-
-      if (!mock) {
-        throw new YesNoError(`No mock found for request #${requestNumber}`);
-      }
 
       // Assertion must happen before promise -
       // mitm does not support promise rejections on "request" event
-      try {
-        // determine how we'll compare the request and the mock
-        const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
+      this.assertMockMatches({ mock, serializedRequest, requestNumber, comparatorFn });
 
-        // the comparison function must throw an error to signal a mismatch
-        compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });
-      } catch (err) {
-        // ensure any user-thrown error is wrapped in our YesNoError
-        throw new YesNoError(err.message);
-      }
-
-      const bodyString = _.isPlainObject(mock.response.body)
-        ? JSON.stringify(mock.response.body)
-        : (mock.response.body as string);
-
-      const responseHeaders = { ...mock.response.headers };
-      if (
-        responseHeaders['content-length'] &&
-        parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
-      ) {
-        debug(`[#${requestNumber}] Overriding content length`);
-        responseHeaders['content-length'] = Buffer.byteLength(bodyString);
-      }
-
-      interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
-      interceptedResponse.write(bodyString);
-      interceptedResponse.end();
-
-      this.recordCompleted(serializedRequest, mock.response, requestNumber);
+      this.writeMockResponse(mock, interceptedResponse);
+      this.recordRequestResponse(serializedRequest, mock.response, requestNumber);
     } catch (e) {
       if (!(e instanceof YesNoError)) {
         debug(`[#${requestNumber}] Mock response failed unexpectedly`, e);
@@ -358,7 +332,59 @@ export class YesNo implements IFiltered {
     }
   }
 
-  private recordCompleted(
+  private getMockForIntecept({ requestNumber }: IInterceptEvent): ISerializedHttp {
+    const mock = this.ctx.loadedMocks[requestNumber];
+
+    if (!mock) {
+      throw new YesNoError('No mock found for request');
+    }
+
+    return mock;
+  }
+
+  private assertMockMatches({
+    mock,
+    serializedRequest,
+    comparatorFn,
+    requestNumber,
+  }: { mock: ISerializedHttp; serializedRequest: ISerializedRequest } & Pick<
+    IInterceptEvent,
+    'comparatorFn' | 'requestNumber'
+  >): void {
+    try {
+      // determine how we'll compare the request and the mock
+      const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
+
+      // the comparison function must throw an error to signal a mismatch
+      compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });
+    } catch (err) {
+      // ensure any user-thrown error is wrapped in our YesNoError
+      throw new YesNoError(err.message);
+    }
+  }
+
+  private writeMockResponse(
+    mock: ISerializedHttp,
+    interceptedResponse: IInterceptEvent['interceptedResponse'],
+  ): void {
+    const bodyString = _.isPlainObject(mock.response.body)
+      ? JSON.stringify(mock.response.body)
+      : (mock.response.body as string);
+
+    const responseHeaders = { ...mock.response.headers };
+    if (
+      responseHeaders['content-length'] &&
+      parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
+    ) {
+      responseHeaders['content-length'] = Buffer.byteLength(bodyString);
+    }
+
+    interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
+    interceptedResponse.write(bodyString);
+    interceptedResponse.end();
+  }
+
+  private recordRequestResponse(
     request: ISerializedRequest,
     response: ISerializedResponse,
     requestNumber: number,
