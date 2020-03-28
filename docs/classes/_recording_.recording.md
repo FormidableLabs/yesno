@@ -2,6 +2,8 @@
 
 # Class: Recording
 
+Represents a single YesNo recording
+
 ## Hierarchy
 
 **Recording**
@@ -57,6 +59,8 @@ ___
 ###  complete
 
 ▸ **complete**(): `Promise`< `string` &#124; `undefined`>
+
+Complete recording by saving all HTTP requests to disc if in record mode. No-op otherwise.
 
 **Returns:** `Promise`< `string` &#124; `undefined`>
 

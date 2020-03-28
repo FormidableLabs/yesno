@@ -136,6 +136,8 @@ ___
 
 ▸ **createRecord**(__namedParameters: *`object`*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
+Create record for an HTTP request, which may be saved in a mock file.
+
 **Parameters:**
 
 **__namedParameters: `object`**

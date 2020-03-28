@@ -2,6 +2,8 @@
 
 # Class: YesNo
 
+Client API for YesNo
+
 ## Hierarchy
 
 **YesNo**
@@ -303,13 +305,20 @@ ___
 
 ▸ **recording**(options: *[IFileOptions](../interfaces/_file_.ifileoptions.md)*): `Promise`<[Recording](_recording_.recording.md)>
 
+Start a new recording.
+
+Depending on the configured mode, will either spy on all outbound HTTP requests or return mocks loaded from disc.
+
+When done, call the `complete()` on the returned recording to save all intercepted requests to disc if applicable.
+
 **Parameters:**
 
-| Name | Type |
-| ------ | ------ |
-| options | [IFileOptions](../interfaces/_file_.ifileoptions.md) |
+| Name | Type | Description |
+| ------ | ------ | ------ |
+| options | [IFileOptions](../interfaces/_file_.ifileoptions.md) |  Where to load/save mocks |
 
 **Returns:** `Promise`<[Recording](_recording_.recording.md)>
+A new recording.
 
 ___
 <a id="redact"></a>

@@ -33,6 +33,8 @@ ___
 
 **● getRecordsToSave**: *`function`*
 
+Get all recorded HTTP requests we need to save to disc
+
 #### Type declaration
 ▸(): [ISerializedHttp](_http_serializer_.iserializedhttp.md)[]
 
@@ -44,6 +46,8 @@ ___
 ###  mode
 
 **● mode**: *[RecordMode](../enums/_recording_.recordmode.md)*
+
+Current record mode. Determines whether or not we'll save to disc on completion.
 
 ___
 

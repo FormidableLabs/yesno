@@ -93,6 +93,9 @@ ___
 
 ▸ **load**(__namedParameters: *`object`*): `Promise`<[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]>
 
+Read mocks from a specified file.
+*__throws__*: YesNoError If file is improperly formatted
+
 **Parameters:**
 
 **__namedParameters: `object`**
@@ -109,6 +112,8 @@ ___
 ###  save
 
 ▸ **save**(__namedParameters: *`object`*): `Promise`<`string`>
+
+Save HTTP records to the specified file
 
 **Parameters:**
 

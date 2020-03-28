@@ -2,6 +2,8 @@
 
 # Class: Context
 
+Store the current execution context for YesNo by tracking requests & mocks.
+
 ## Hierarchy
 
 **Context**
