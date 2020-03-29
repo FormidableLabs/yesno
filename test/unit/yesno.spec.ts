@@ -35,7 +35,7 @@ describe('Yesno', () => {
   function requestTestServer(options: object = {}) {
     return rp({
       method: 'GET',
-      uri: 'http://localhost:3001/get',
+      uri: testServer.URI_ENDPOINT_GET,
       ...options,
     });
   }
@@ -541,18 +541,37 @@ describe('Yesno', () => {
 
         yesno
           .matching({ request: { path: '/get' } })
-          .respond({ statusCode: 400, body: { foo: 'bar' } });
+          .respond({ statusCode: 400, headers: { 'x-fiz': 'baz' }, body: { foo: 'bar' } });
 
         const mockedResponse = await requestTestServer({
           json: true,
           resolveWithFullResponse: true,
           simple: false,
         });
-        // tslint:disable-next-line: no-console
-        console.log('Responded!');
 
         expect(mockedResponse).to.have.property('statusCode', 400);
         expect(mockedResponse).to.have.deep.property('body', { foo: 'bar' });
+        expect(mockedResponse).to.have.nested.property('headers.x-fiz', 'baz');
+      });
+
+      it('allows defining mocks dynamically', async () => {
+        yesno.spy();
+        yesno
+          .matching({ request: { path: '/post' } })
+          .respond((request) => ({ statusCode: 401, body: request.body }));
+
+        const body = { now: Date.now(), random: Math.random() };
+        const mockedResponse = await requestTestServer({
+          body,
+          json: true,
+          method: 'post',
+          resolveWithFullResponse: true,
+          simple: false,
+          uri: testServer.URI_ENDPOINT_POST,
+        });
+
+        expect(mockedResponse).to.have.property('statusCode', 401);
+        expect(mockedResponse).to.have.deep.property('body', body);
       });
     });
   });
