@@ -5,8 +5,14 @@ import * as readable from 'readable-stream';
 import Context from './context';
 import { YesNoError } from './errors';
 import * as comparator from './filtering/comparator';
-import { ISerializedHttp, ISerializedRequest } from './http-serializer';
+import {
+  ISeralizedRequestResponse,
+  ISerializedHttp,
+  ISerializedRequest,
+  ISerializedResponse,
+} from './http-serializer';
 import { IInterceptEvent } from './interceptor';
+import { RecordMode as Mode } from './recording';
 
 const debug: IDebugger = require('debug')('yesno:mock-response');
 
@@ -19,7 +25,7 @@ export default class MockResponse {
     this.event = event;
   }
 
-  public async send(): Promise<Pick<ISerializedHttp, 'request' | 'response'>> {
+  public async send(): Promise<ISeralizedRequestResponse | undefined> {
     const {
       comparatorFn,
       interceptedRequest,
@@ -27,22 +33,28 @@ export default class MockResponse {
       requestSerializer,
       requestNumber,
     } = this.event;
+    let response: ISerializedResponse | undefined;
 
     debug(`[#${requestNumber}] Mock response`);
-    const mock = this.getMockForIntecept(this.event);
+
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
+    const request = requestSerializer.serialize();
+    response = this.ctx.getResponseDefinedMatching(request);
 
-    const serializedRequest = requestSerializer.serialize();
+    if (!response && this.ctx.mode === Mode.Mock) {
+      const mock = this.getMockForIntecept(this.event);
 
-    // Assertion must happen before promise -
-    // mitm does not support promise rejections on "request" event
-    this.assertMockMatches({ mock, serializedRequest, requestNumber, comparatorFn });
-    this.writeMockResponse(mock, interceptedResponse);
+      // Assertion must happen before promise -
+      // mitm does not support promise rejections on "request" event
+      this.assertMockMatches({ mock, serializedRequest: request, requestNumber, comparatorFn });
 
-    return {
-      request: serializedRequest,
-      response: mock.response,
-    };
+      response = mock.response;
+    }
+
+    if (response) {
+      this.writeMockResponse(response, interceptedResponse);
+      return { request, response };
+    }
   }
 
   private getMockForIntecept({ requestNumber }: IInterceptEvent): ISerializedHttp {
@@ -77,14 +89,14 @@ export default class MockResponse {
   }
 
   private writeMockResponse(
-    mock: ISerializedHttp,
+    response: ISerializedResponse,
     interceptedResponse: IInterceptEvent['interceptedResponse'],
   ): void {
-    const bodyString = _.isPlainObject(mock.response.body)
-      ? JSON.stringify(mock.response.body)
-      : (mock.response.body as string);
+    const bodyString = _.isPlainObject(response.body)
+      ? JSON.stringify(response.body)
+      : (response.body as string);
 
-    const responseHeaders = { ...mock.response.headers };
+    const responseHeaders = { ...response.headers };
     if (
       responseHeaders['content-length'] &&
       parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
@@ -92,7 +104,7 @@ export default class MockResponse {
       responseHeaders['content-length'] = Buffer.byteLength(bodyString);
     }
 
-    interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
+    interceptedResponse.writeHead(response.statusCode, responseHeaders);
     interceptedResponse.write(bodyString);
     interceptedResponse.end();
   }

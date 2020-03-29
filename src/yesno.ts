@@ -1,6 +1,7 @@
 import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
+
 import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
@@ -38,7 +39,6 @@ export interface IRecordableTest {
  * Client API for YesNo
  */
 export class YesNo implements IFiltered {
-  private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
   private readonly ctx: Context;
 
@@ -249,7 +249,7 @@ export class YesNo implements IFiltered {
    * Determine the current mode
    */
   private isMode(mode: Mode): boolean {
-    return this.mode === mode;
+    return this.ctx.mode === mode;
   }
 
   private createInterceptor() {
@@ -267,21 +267,28 @@ export class YesNo implements IFiltered {
       startTime: Date.now(),
     };
 
-    if (this.isMode(Mode.Mock)) {
-      const mockResponse = new MockResponse(event, this.ctx);
-      try {
-        const { request, response } = await mockResponse.send();
-        this.recordRequestResponse(request, response, event.requestNumber);
-      } catch (e) {
-        if (!(e instanceof YesNoError)) {
-          debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
-          e.message = `YesNo: Mock response failed: ${e.message}`;
-        } else {
-          debug(`[#${event.requestNumber}] Mock response failed`, e.message);
-        }
+    if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
+      return;
+    }
 
-        event.clientRequest.emit('error', e);
+    try {
+      const mockResponse = new MockResponse(event, this.ctx);
+      const sent = await mockResponse.send();
+
+      if (sent) {
+        this.recordRequestResponse(sent.request, sent.response, event.requestNumber);
+      } else if (this.isMode(Mode.Mock)) {
+        throw new Error('Unexpectedly failed to send mock respond');
       }
+    } catch (e) {
+      if (!(e instanceof YesNoError)) {
+        debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
+        e.message = `YesNo: Mock response failed: ${e.message}`;
+      } else {
+        debug(`[#${event.requestNumber}] Mock response failed`, e.message);
+      }
+
+      event.clientRequest.emit('error', e);
     }
   }
 
@@ -294,7 +301,7 @@ export class YesNo implements IFiltered {
   }
 
   private setMode(mode: Mode) {
-    this.mode = mode;
+    this.ctx.mode = mode;
 
     if (this.interceptor) {
       this.interceptor.proxy(!this.isMode(Mode.Mock));

@@ -9,7 +9,7 @@ import {
   ISerializedRequest,
   ISerializedResponse,
 } from '../http-serializer';
-import { ISerializedHttpPartialDeepMatch, match, MatchFn } from './matcher';
+import { ISerializedHttpPartialDeepMatch, Matcher, MatchFn } from './matcher';
 import { redact, Redactor } from './redact';
 
 export interface IFiltered {
@@ -20,8 +20,12 @@ export interface IFiltered {
 
 export interface IFilteredHttpCollectionParams {
   context: Context;
-  matcher?: ISerializedHttpPartialDeepMatch | MatchFn;
+  matcher?: Matcher;
 }
+
+export type ResponseForRequest =
+  | ISerializedResponse
+  | ((request: ISerializedRequest) => ISerializedResponse);
 
 /**
  * Represents a collection of HTTP requests which match the provided filter.
@@ -41,14 +45,22 @@ export default class FilteredHttpCollection implements IFiltered {
    * Return all intercepted requests matching the current filter
    */
   public intercepted(): ISerializedHttp[] {
-    return this.ctx.interceptedRequestsCompleted.filter(match(this.matcher));
+    return this.ctx.getMatchingIntercepted(this.matcher);
   }
 
   /**
    * Return all intercepted mocks matching the current filter
    */
   public mocks(): ISerializedHttp[] {
-    return this.ctx.loadedMocks.filter(match(this.matcher));
+    return this.ctx.getMatchingMocks(this.matcher);
+  }
+
+  /**
+   * Provide a mock response for all matching requests
+   * @param response Serialized response or a callback to define the response per request
+   */
+  public respond(response: ResponseForRequest): void {
+    this.ctx.addResponseForMatchingRequests({ response, matcher: this.matcher });
   }
 
   /**
