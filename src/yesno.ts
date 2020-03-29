@@ -15,6 +15,7 @@ import {
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
+  RequestSerializer,
   validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
@@ -262,10 +263,7 @@ export class YesNo implements IFiltered {
   }
 
   private async onIntercept(event: IInterceptEvent): Promise<void> {
-    this.ctx.inFlightRequests[event.requestNumber] = {
-      requestSerializer: event.requestSerializer,
-      startTime: Date.now(),
-    };
+    this.recordRequest(event.requestSerializer, event.requestNumber);
 
     if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
       return;
@@ -276,7 +274,7 @@ export class YesNo implements IFiltered {
       const sent = await mockResponse.send();
 
       if (sent) {
-        this.recordRequestResponse(sent.request, sent.response, event.requestNumber);
+        this.recordResponse(sent.request, sent.response, event.requestNumber);
       } else if (this.isMode(Mode.Mock)) {
         throw new Error('Unexpectedly failed to send mock respond');
       }
@@ -293,7 +291,8 @@ export class YesNo implements IFiltered {
   }
 
   private onProxied({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent): void {
-    this.recordRequestResponse(
+    this.recordRequest(requestSerializer, requestNumber);
+    this.recordResponse(
       requestSerializer.serialize(),
       responseSerializer.serialize(),
       requestNumber,
@@ -317,7 +316,14 @@ export class YesNo implements IFiltered {
     });
   }
 
-  private recordRequestResponse(
+  private recordRequest(requestSerializer: RequestSerializer, requestNumber: number): void {
+    this.ctx.inFlightRequests[requestNumber] = {
+      requestSerializer,
+      startTime: Date.now(),
+    };
+  }
+
+  private recordResponse(
     request: ISerializedRequest,
     response: ISerializedResponse,
     requestNumber: number,

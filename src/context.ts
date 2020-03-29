@@ -1,4 +1,4 @@
-import { ResponseForRequest } from './filtering/collection';
+import { PartialResponseForRequest } from './filtering/collection';
 import { match, Matcher } from './filtering/matcher';
 import {
   ISerializedHttp,
@@ -14,7 +14,7 @@ export interface IInFlightRequest {
 }
 
 export interface IResponseForMatchingRequest {
-  response: ResponseForRequest;
+  response: PartialResponseForRequest;
   matcher: Matcher;
 }
 
@@ -74,7 +74,11 @@ export default class Context {
       const doesMatch = match(matcher)({ request });
 
       if (doesMatch) {
-        firstMatchingResponse = typeof response === 'function' ? response(request) : response;
+        firstMatchingResponse = {
+          body: {},
+          headers: {},
+          ...(typeof response === 'function' ? response(request) : response),
+        };
         break;
       }
     }

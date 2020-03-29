@@ -23,9 +23,11 @@ export interface IFilteredHttpCollectionParams {
   matcher?: Matcher;
 }
 
-export type ResponseForRequest =
-  | ISerializedResponse
-  | ((request: ISerializedRequest) => ISerializedResponse);
+export type PartialResponse = Partial<ISerializedResponse> & { statusCode: number };
+
+export type PartialResponseForRequest =
+  | PartialResponse
+  | ((request: ISerializedRequest) => PartialResponse);
 
 /**
  * Represents a collection of HTTP requests which match the provided filter.
@@ -59,7 +61,7 @@ export default class FilteredHttpCollection implements IFiltered {
    * Provide a mock response for all matching requests
    * @param response Serialized response or a callback to define the response per request
    */
-  public respond(response: ResponseForRequest): void {
+  public respond(response: PartialResponseForRequest): void {
     this.ctx.addResponseForMatchingRequests({ response, matcher: this.matcher });
   }
 

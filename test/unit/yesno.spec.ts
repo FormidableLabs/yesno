@@ -28,6 +28,10 @@ describe('Yesno', () => {
     await new Promise((res, rej) => rimraf(`${__dirname}/tmp/*`, (e) => (e ? rej(e) : res())));
   });
 
+  /**
+   * Make a request to the local test server. Defaults to `/get`
+   * @param options Request lib options
+   */
   function requestTestServer(options: object = {}) {
     return rp({
       method: 'GET',
@@ -36,6 +40,12 @@ describe('Yesno', () => {
     });
   }
 
+  /**
+   * Make a request matching the `mock-test` file
+   *
+   * Defaults to `example.com`
+   * @param options Request lib options
+   */
   function mockedRequest(options: object = {}) {
     return rp({
       headers: {
@@ -515,6 +525,35 @@ describe('Yesno', () => {
       yesno.spy();
       await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
       expect(yesno.matching().response()).to.have.property('statusCode', 500);
+    });
+
+    describe('#respond', () => {
+      it('allows defining mocks statically', async () => {
+        yesno.spy();
+
+        const unmockedResponse = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+
+        expect(unmockedResponse).to.have.property('statusCode', 200);
+
+        yesno
+          .matching({ request: { path: '/get' } })
+          .respond({ statusCode: 400, body: { foo: 'bar' } });
+
+        const mockedResponse = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        // tslint:disable-next-line: no-console
+        console.log('Responded!');
+
+        expect(mockedResponse).to.have.property('statusCode', 400);
+        expect(mockedResponse).to.have.deep.property('body', { foo: 'bar' });
+      });
     });
   });
 });

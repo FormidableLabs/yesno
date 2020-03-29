@@ -61,6 +61,9 @@ interface IInterceptEvents {
  */
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
+  /**
+   * Whether or not to send requests to their original destination
+   */
   private shouldProxy: boolean = true;
   private clientRequests: ClientRequestTracker = {};
   private comparatorFn?: ComparatorFn;
@@ -75,7 +78,7 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
   }
 
   /**
-   * Enable/disable proxying. If proxying, requests are not sent to their original destination.
+   * Enable/disable proxying. If proxying, requests are sent to their original destination.
    * @param shouldProxy Whether or not to proxy
    */
   public proxy(shouldProxy: boolean): void {
