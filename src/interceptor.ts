@@ -52,10 +52,25 @@ export interface IInterceptEvent {
   requestSerializer: RequestSerializer;
 }
 
+/**
+ * Configure intercept
+ */
 export interface IInterceptOptions {
+  /**
+   * Do not intercept outbound requests on these ports.
+   *
+   * By default MITM will intercept activity on any socket, HTTP or otherwise.
+   * If you need to ignore a port (eg for a database connection), provide that port number here.
+   *
+   * In practice YesNo normally runs after long running connections have been established,
+   * so this won't be a problem.
+   */
   ignorePorts?: number[];
 }
 
+/**
+ * Emit whenever we have proxied a request to its original destination
+ */
 export interface IProxiedEvent {
   requestSerializer: RequestSerializer;
   responseSerializer: ResponseSerializer;

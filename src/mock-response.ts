@@ -16,6 +16,9 @@ import { RecordMode as Mode } from './recording';
 
 const debug: IDebugger = require('debug')('yesno:mock-response');
 
+/**
+ * Encapsulates logic for sending a response for an intercepted HTTP request
+ */
 export default class MockResponse {
   private event: IInterceptEvent;
   private ctx: Context;
@@ -25,6 +28,14 @@ export default class MockResponse {
     this.event = event;
   }
 
+  /**
+   * Send a respond for our wrapped intercept event if able.
+   *
+   * Give precedence to matching responses in shared context (from `yesno.matching().respond()`).
+   * Else, if we're in mock mode, lookup the mock response.
+   *
+   * @returns The received request & sent response. Returns `undefined` if unable to respond
+   */
   public async send(): Promise<ISeralizedRequestResponse | undefined> {
     const {
       interceptedRequest,

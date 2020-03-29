@@ -37,7 +37,14 @@ export interface IRecordableTest {
   dir: string;
 }
 
+/**
+ * Options to configure intercept of HTTP requests
+ */
 export interface IYesNoInterceptingOptions extends IInterceptOptions {
+  /**
+   * Comparator function used to determine whether an intercepted request
+   * matches a loaded mock.
+   */
   comparatorFn?: ComparatorFn;
 }
 
