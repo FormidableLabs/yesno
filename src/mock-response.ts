@@ -27,7 +27,6 @@ export default class MockResponse {
 
   public async send(): Promise<ISeralizedRequestResponse | undefined> {
     const {
-      comparatorFn,
       interceptedRequest,
       interceptedResponse,
       requestSerializer,
@@ -46,7 +45,7 @@ export default class MockResponse {
 
       // Assertion must happen before promise -
       // mitm does not support promise rejections on "request" event
-      this.assertMockMatches({ mock, serializedRequest: request, requestNumber, comparatorFn });
+      this.assertMockMatches({ mock, serializedRequest: request, requestNumber });
 
       response = mock.response;
     }
@@ -70,15 +69,14 @@ export default class MockResponse {
   private assertMockMatches({
     mock,
     serializedRequest,
-    comparatorFn,
     requestNumber,
   }: { mock: ISerializedHttp; serializedRequest: ISerializedRequest } & Pick<
     IInterceptEvent,
-    'comparatorFn' | 'requestNumber'
+    'requestNumber'
   >): void {
     try {
       // determine how we'll compare the request and the mock
-      const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
+      const compareBy: comparator.ComparatorFn = this.ctx.comparatorFn;
 
       // the comparison function must throw an error to signal a mismatch
       compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });

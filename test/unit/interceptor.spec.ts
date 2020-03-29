@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as http from 'http';
-import { ComparatorFn, IComparatorMetadata } from '../../src/filtering/comparator';
 import { ISerializedRequest, RequestSerializer } from '../../src/http-serializer';
 import Interceptor, { IInterceptEvent } from '../../src/interceptor';
 import * as testClient from '../test-client';
@@ -120,29 +119,6 @@ describe('Interceptor', () => {
         .to.have.property('requestSerializer')
         .instanceof(RequestSerializer);
       expect(interceptEvent).to.have.property('requestNumber', 0);
-    });
-
-    it('should allow for specifying a custom comparatorFn', async () => {
-      const comparatorFn: ComparatorFn = (
-        intercepted: ISerializedRequest,
-        mock: ISerializedRequest,
-        metadata: IComparatorMetadata,
-      ): boolean => true;
-
-      interceptor = new Interceptor();
-      interceptor.enable({ comparatorFn });
-
-      let interceptEvent: IInterceptEvent | undefined;
-      interceptor.on('intercept', (e: IInterceptEvent) => {
-        interceptEvent = e;
-        e.proxy();
-      });
-
-      const body = { foo: 'bar' };
-      await testClient.postRequest({ json: true, body });
-
-      // the comparatorFn is captured on the event
-      expect(interceptEvent).property('comparatorFn', comparatorFn);
     });
   });
 

@@ -1,4 +1,5 @@
 import { PartialResponseForRequest } from './filtering/collection';
+import { byUrl as comparatorByUrl, ComparatorFn } from './filtering/comparator';
 import { match, Matcher } from './filtering/matcher';
 import {
   ISerializedHttp,
@@ -44,11 +45,14 @@ export default class Context {
 
   public responsesForMatchingRequests: IResponseForMatchingRequest[] = [];
 
+  public comparatorFn: ComparatorFn = comparatorByUrl;
+
   public clear() {
     this.interceptedRequestsCompleted = [];
     this.inFlightRequests = [];
     this.loadedMocks = [];
     this.responsesForMatchingRequests = [];
+    this.comparatorFn = comparatorByUrl;
   }
 
   public getMatchingMocks(matcher: Matcher): ISerializedHttp[] {

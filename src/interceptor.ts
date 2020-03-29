@@ -9,7 +9,6 @@ import { Socket } from 'net';
 import * as readable from 'readable-stream';
 import { v4 as uuidv4 } from 'uuid';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
-import { ComparatorFn } from './filtering/comparator';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
 
 const debug: IDebugger = require('debug')('yesno:proxy');
@@ -37,7 +36,6 @@ export interface IInterceptEvent {
    * The client request which initiated the HTTP request
    */
   clientRequest: http.ClientRequest;
-  comparatorFn?: ComparatorFn;
   /**
    * Request arriving to our MITM proxy
    */
@@ -55,7 +53,6 @@ export interface IInterceptEvent {
 }
 
 export interface IInterceptOptions {
-  comparatorFn?: ComparatorFn;
   ignorePorts?: number[];
 }
 
@@ -78,7 +75,6 @@ interface IInterceptEvents {
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
   private clientRequests: ClientRequestTracker = {};
-  private comparatorFn?: ComparatorFn;
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
   private ignorePorts: number[] = [];
@@ -88,10 +84,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
    * @param options Intercept options
    */
   public enable(options: IInterceptOptions = {}): void {
-    // switch comparator functions when specified
-    this.comparatorFn =
-      options.comparatorFn === undefined ? this.comparatorFn : options.comparatorFn;
-
     if (this.mitm || this.origOnSocket) {
       debug('Interceptor already enabled. Do nothing.');
       return;
@@ -133,7 +125,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     }
 
     ClientRequest.prototype.onSocket = this.origOnSocket;
-    this.comparatorFn = undefined;
     this.mitm.disable();
     this.mitm = undefined;
     this.origOnSocket = undefined;
@@ -245,7 +236,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     // YesNo will listen for this event to mock the response
     this.emit('intercept', {
       clientRequest,
-      comparatorFn: this.comparatorFn,
       interceptedRequest,
       interceptedResponse,
       proxy,

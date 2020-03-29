@@ -7,6 +7,7 @@ import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
+import { ComparatorFn } from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
 import { Redactor } from './filtering/redact';
 import {
@@ -36,6 +37,10 @@ export interface IRecordableTest {
   dir: string;
 }
 
+export interface IYesNoInterceptingOptions extends IInterceptOptions {
+  comparatorFn?: ComparatorFn;
+}
+
 /**
  * Client API for YesNo
  */
@@ -60,7 +65,7 @@ export class YesNo implements IFiltered {
   /**
    * Spy on intercepted requests
    */
-  public spy(options?: IInterceptOptions): void {
+  public spy(options?: IYesNoInterceptingOptions): void {
     this.enable(options);
     this.setMode(Mode.Spy);
   }
@@ -69,7 +74,7 @@ export class YesNo implements IFiltered {
    * Mock responses for intercepted requests
    * @todo Reset the request counter?
    */
-  public mock(mocks: file.IHttpMock[], options?: IInterceptOptions): void {
+  public mock(mocks: file.IHttpMock[], options?: IYesNoInterceptingOptions): void {
     this.enable(options);
     this.setMode(Mode.Mock);
 
@@ -232,11 +237,12 @@ export class YesNo implements IFiltered {
   /**
    * Enable intercepting requests
    */
-  private enable(options?: IInterceptOptions): YesNo {
-    const { comparatorFn, ignorePorts = [] }: IInterceptOptions = options || {};
+  private enable(options?: IYesNoInterceptingOptions): YesNo {
+    const { comparatorFn, ignorePorts = [] }: IYesNoInterceptingOptions = options || {};
 
     debug('Enabling intercept. Ignoring ports', ignorePorts);
-    this.interceptor.enable({ comparatorFn, ignorePorts });
+    this.interceptor.enable({ ignorePorts });
+    this.ctx.comparatorFn = comparatorFn || this.ctx.comparatorFn;
 
     return this;
   }
