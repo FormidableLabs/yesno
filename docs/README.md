@@ -16,6 +16,7 @@
 * ["http-serializer"](modules/_http_serializer_.md)
 * ["index"](modules/_index_.md)
 * ["interceptor"](modules/_interceptor_.md)
+* ["mock-response"](modules/_mock_response_.md)
 * ["recording"](modules/_recording_.md)
 * ["yesno"](modules/_yesno_.md)
 

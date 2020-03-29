@@ -11,6 +11,7 @@
 ### Interfaces
 
 * [IRecordableTest](../interfaces/_yesno_.irecordabletest.md)
+* [IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md)
 
 ### Type aliases
 

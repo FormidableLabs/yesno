@@ -22,7 +22,6 @@ Client API for YesNo
 
 * [ctx](_yesno_.yesno.md#ctx)
 * [interceptor](_yesno_.yesno.md#interceptor)
-* [mode](_yesno_.yesno.md#mode)
 
 ### Methods
 
@@ -37,9 +36,11 @@ Client API for YesNo
 * [load](_yesno_.yesno.md#load)
 * [matching](_yesno_.yesno.md#matching)
 * [mock](_yesno_.yesno.md#mock)
-* [mockResponse](_yesno_.yesno.md#mockresponse)
 * [mocks](_yesno_.yesno.md#mocks)
-* [recordCompleted](_yesno_.yesno.md#recordcompleted)
+* [onIntercept](_yesno_.yesno.md#onintercept)
+* [onProxied](_yesno_.yesno.md#onproxied)
+* [recordRequest](_yesno_.yesno.md#recordrequest)
+* [recordResponse](_yesno_.yesno.md#recordresponse)
 * [recording](_yesno_.yesno.md#recording)
 * [redact](_yesno_.yesno.md#redact)
 * [restore](_yesno_.yesno.md#restore)
@@ -85,13 +86,6 @@ ___
 **● interceptor**: *[Interceptor](_interceptor_.interceptor.md)*
 
 ___
-<a id="mode"></a>
-
-### `<Private>` mode
-
-**● mode**: *`Mode`* =  Mode.Spy
-
-___
 
 ## Methods
 
@@ -121,7 +115,7 @@ ___
 
 ### `<Private>` enable
 
-▸ **enable**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): [YesNo](_yesno_.yesno.md)
+▸ **enable**(options?: *[IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md)*): [YesNo](_yesno_.yesno.md)
 
 Enable intercepting requests
 
@@ -129,7 +123,7 @@ Enable intercepting requests
 
 | Name | Type |
 | ------ | ------ |
-| `Optional` options | [IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md) |
+| `Optional` options | [IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md) |
 
 **Returns:** [YesNo](_yesno_.yesno.md)
 
@@ -234,7 +228,7 @@ ___
 
 ###  mock
 
-▸ **mock**(mocks: *[IHttpMock](../interfaces/_file_.ihttpmock.md)[]*, options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
+▸ **mock**(mocks: *[IHttpMock](../interfaces/_file_.ihttpmock.md)[]*, options?: *[IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md)*): `void`
 
 Mock responses for intercepted requests
 *__todo__*: Reset the request counter?
@@ -244,31 +238,9 @@ Mock responses for intercepted requests
 | Name | Type |
 | ------ | ------ |
 | mocks | [IHttpMock](../interfaces/_file_.ihttpmock.md)[] |
-| `Optional` options | [IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md) |
+| `Optional` options | [IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md) |
 
 **Returns:** `void`
-
-___
-<a id="mockresponse"></a>
-
-### `<Private>` mockResponse
-
-▸ **mockResponse**(__namedParameters: *`object`*): `Promise`<`void`>
-
-**Parameters:**
-
-**__namedParameters: `object`**
-
-| Name | Type |
-| ------ | ------ |
-| clientRequest | `ClientRequest` |
-| comparatorFn |  `undefined` &#124; `function`|
-| interceptedRequest | `IncomingMessage` |
-| interceptedResponse | `ServerResponse` |
-| requestNumber | `number` |
-| requestSerializer | [RequestSerializer](_http_serializer_.requestserializer.md) |
-
-**Returns:** `Promise`<`void`>
 
 ___
 <a id="mocks"></a>
@@ -282,11 +254,61 @@ Get all loaded mocks
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 
 ___
-<a id="recordcompleted"></a>
+<a id="onintercept"></a>
 
-### `<Private>` recordCompleted
+### `<Private>` onIntercept
 
-▸ **recordCompleted**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, response: *[ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)*, requestNumber: *`number`*): `void`
+▸ **onIntercept**(event: *[IInterceptEvent](../interfaces/_interceptor_.iinterceptevent.md)*): `Promise`<`void`>
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| event | [IInterceptEvent](../interfaces/_interceptor_.iinterceptevent.md) |
+
+**Returns:** `Promise`<`void`>
+
+___
+<a id="onproxied"></a>
+
+### `<Private>` onProxied
+
+▸ **onProxied**(__namedParameters: *`object`*): `void`
+
+**Parameters:**
+
+**__namedParameters: `object`**
+
+| Name | Type |
+| ------ | ------ |
+| requestNumber | `number` |
+| requestSerializer | [RequestSerializer](_http_serializer_.requestserializer.md) |
+| responseSerializer | [ResponseSerializer](_http_serializer_.responseserializer.md) |
+
+**Returns:** `void`
+
+___
+<a id="recordrequest"></a>
+
+### `<Private>` recordRequest
+
+▸ **recordRequest**(requestSerializer: *[RequestSerializer](_http_serializer_.requestserializer.md)*, requestNumber: *`number`*): `void`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| requestSerializer | [RequestSerializer](_http_serializer_.requestserializer.md) |
+| requestNumber | `number` |
+
+**Returns:** `void`
+
+___
+<a id="recordresponse"></a>
+
+### `<Private>` recordResponse
+
+▸ **recordResponse**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*, response: *[ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)*, requestNumber: *`number`*): `void`
 
 **Parameters:**
 
@@ -402,7 +424,7 @@ ___
 
 ###  spy
 
-▸ **spy**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
+▸ **spy**(options?: *[IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md)*): `void`
 
 Spy on intercepted requests
 
@@ -410,7 +432,7 @@ Spy on intercepted requests
 
 | Name | Type |
 | ------ | ------ |
-| `Optional` options | [IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md) |
+| `Optional` options | [IYesNoInterceptingOptions](../interfaces/_yesno_.iyesnointerceptingoptions.md) |
 
 **Returns:** `void`
 

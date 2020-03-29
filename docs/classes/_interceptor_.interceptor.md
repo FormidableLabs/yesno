@@ -18,19 +18,13 @@ Uses MITM library to spy on HTTP requests made in current NodeJS process.
 
 ## Index
 
-### Constructors
-
-* [constructor](_interceptor_.interceptor.md#constructor)
-
 ### Properties
 
 * [clientRequests](_interceptor_.interceptor.md#clientrequests)
-* [comparatorFn](_interceptor_.interceptor.md#comparatorfn)
 * [ignorePorts](_interceptor_.interceptor.md#ignoreports)
 * [mitm](_interceptor_.interceptor.md#mitm)
 * [origOnSocket](_interceptor_.interceptor.md#origonsocket)
 * [requestNumber](_interceptor_.interceptor.md#requestnumber)
-* [shouldProxy](_interceptor_.interceptor.md#shouldproxy)
 * [defaultMaxListeners](_interceptor_.interceptor.md#defaultmaxlisteners)
 
 ### Methods
@@ -51,7 +45,6 @@ Uses MITM library to spy on HTTP requests made in current NodeJS process.
 * [once](_interceptor_.interceptor.md#once)
 * [prependListener](_interceptor_.interceptor.md#prependlistener)
 * [prependOnceListener](_interceptor_.interceptor.md#prependoncelistener)
-* [proxy](_interceptor_.interceptor.md#proxy)
 * [rawListeners](_interceptor_.interceptor.md#rawlisteners)
 * [removeAllListeners](_interceptor_.interceptor.md#removealllisteners)
 * [removeListener](_interceptor_.interceptor.md#removelistener)
@@ -61,24 +54,6 @@ Uses MITM library to spy on HTTP requests made in current NodeJS process.
 
 ---
 
-## Constructors
-
-<a id="constructor"></a>
-
-###  constructor
-
-⊕ **new Interceptor**(options?: * `undefined` &#124; `object`*): [Interceptor](_interceptor_.interceptor.md)
-
-**Parameters:**
-
-| Name | Type |
-| ------ | ------ |
-| `Optional` options |  `undefined` &#124; `object`|
-
-**Returns:** [Interceptor](_interceptor_.interceptor.md)
-
-___
-
 ## Properties
 
 <a id="clientrequests"></a>
@@ -86,13 +61,6 @@ ___
 ### `<Private>` clientRequests
 
 **● clientRequests**: *[ClientRequestTracker](../interfaces/_interceptor_.clientrequesttracker.md)*
-
-___
-<a id="comparatorfn"></a>
-
-### `<Private>``<Optional>` comparatorFn
-
-**● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)*
 
 ___
 <a id="ignoreports"></a>
@@ -122,13 +90,6 @@ ___
 ###  requestNumber
 
 **● requestNumber**: *`number`* = 0
-
-___
-<a id="shouldproxy"></a>
-
-### `<Private>` shouldProxy
-
-**● shouldProxy**: *`boolean`* = true
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -383,23 +344,6 @@ ___
 | listener | `function` |
 
 **Returns:** `this`
-
-___
-<a id="proxy"></a>
-
-###  proxy
-
-▸ **proxy**(shouldProxy: *`boolean`*): `void`
-
-Enable/disable proxying. If proxying, requests are not sent to their original destination.
-
-**Parameters:**
-
-| Name | Type | Description |
-| ------ | ------ | ------ |
-| shouldProxy | `boolean` |  Whether or not to proxy |
-
-**Returns:** `void`
 
 ___
 <a id="rawlisteners"></a>

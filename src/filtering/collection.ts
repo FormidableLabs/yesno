@@ -58,8 +58,12 @@ export default class FilteredHttpCollection implements IFiltered {
   }
 
   /**
-   * Provide a mock response for all matching requests
-   * @param response Serialized response or a callback to define the response per request
+   * Provide a mock response for all matching requests.
+   *
+   * Use callback to dynamically generate response per request.
+   *
+   * Matching responses defined here take _precedence_ over mocks loaded normally.
+   * @param response Serialized HTTP response or callback
    */
   public respond(response: PartialResponseForRequest): void {
     this.ctx.addResponseForMatchingRequests({ response, matcher: this.matcher });

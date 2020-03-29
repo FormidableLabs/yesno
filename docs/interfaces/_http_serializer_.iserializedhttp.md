@@ -2,7 +2,7 @@
 
 # Interface: ISerializedHttp
 
-HTTP request/response serialized in a consistent format to be stored on disk in a mocks file
+HTTP request/response serialized in a consistent format
 
 ## Hierarchy
 
