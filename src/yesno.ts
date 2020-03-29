@@ -254,7 +254,7 @@ export class YesNo implements IFiltered {
   }
 
   private createInterceptor() {
-    const interceptor = new Interceptor({ shouldProxy: !this.isMode(Mode.Mock) });
+    const interceptor = new Interceptor();
 
     interceptor.on('intercept', this.onIntercept.bind(this));
     interceptor.on('proxied', this.onProxied.bind(this));
@@ -266,7 +266,8 @@ export class YesNo implements IFiltered {
     this.recordRequest(event.requestSerializer, event.requestNumber);
 
     if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
-      return;
+      // No need to mock, send event to its original destination
+      return event.proxy();
     }
 
     try {
@@ -291,7 +292,6 @@ export class YesNo implements IFiltered {
   }
 
   private onProxied({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent): void {
-    this.recordRequest(requestSerializer, requestNumber);
     this.recordResponse(
       requestSerializer.serialize(),
       responseSerializer.serialize(),
@@ -301,10 +301,6 @@ export class YesNo implements IFiltered {
 
   private setMode(mode: Mode) {
     this.ctx.mode = mode;
-
-    if (this.interceptor) {
-      this.interceptor.proxy(!this.isMode(Mode.Mock));
-    }
   }
 
   private getCollection(

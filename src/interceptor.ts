@@ -29,11 +29,27 @@ interface ProxyRequestOptions extends http.RequestOptions {
   proxying?: boolean;
 }
 
+/**
+ * Event emitted whenever we intercept an HTTP request
+ */
 export interface IInterceptEvent {
+  /**
+   * The client request which initiated the HTTP request
+   */
   clientRequest: http.ClientRequest;
   comparatorFn?: ComparatorFn;
+  /**
+   * Request arriving to our MITM proxy
+   */
   interceptedRequest: http.IncomingMessage;
+  /**
+   * Response from our MITM proxy
+   */
   interceptedResponse: http.ServerResponse;
+  /**
+   * Proxy the intercepted request to its original destination
+   */
+  proxy: () => void;
   requestNumber: number;
   requestSerializer: RequestSerializer;
 }
@@ -61,29 +77,11 @@ interface IInterceptEvents {
  */
 export default class Interceptor extends EventEmitter implements IInterceptEvents {
   public requestNumber: number = 0;
-  /**
-   * Whether or not to send requests to their original destination
-   */
-  private shouldProxy: boolean = true;
   private clientRequests: ClientRequestTracker = {};
   private comparatorFn?: ComparatorFn;
   private mitm?: Mitm.Mitm;
   private origOnSocket?: (socket: Socket) => void;
   private ignorePorts: number[] = [];
-
-  constructor(options?: { shouldProxy: boolean }) {
-    super();
-    const { shouldProxy = true } = options || {};
-    this.shouldProxy = shouldProxy;
-  }
-
-  /**
-   * Enable/disable proxying. If proxying, requests are sent to their original destination.
-   * @param shouldProxy Whether or not to proxy
-   */
-  public proxy(shouldProxy: boolean): void {
-    this.shouldProxy = shouldProxy;
-  }
 
   /**
    * Enables intercepting all outbound HTTP requests.
@@ -205,56 +203,55 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
 
     debugReq('Emitting "intercept"');
 
+    const proxy = () => {
+      const request = isHttps ? https.request : http.request;
+      const proxiedRequest: http.ClientRequest = request({
+        ...clientOptions,
+        headers: _.omit(clientRequest.getHeaders(), YESNO_INTERNAL_HTTP_HEADER),
+        path: (clientRequest as ClientRequestFull).path,
+        proxying: true,
+      } as ProxyRequestOptions);
+
+      (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
+
+      interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
+      interceptedRequest.on('aborted', () => {
+        debugReq('Intercepted request aborted');
+        proxiedRequest.abort();
+      });
+
+      proxiedRequest.on('timeout', (e: any) => debugReq('Proxied request timeout', e));
+      proxiedRequest.on('error', (e: any) => debugReq('Proxied request error', e));
+      proxiedRequest.on('aborted', () => debugReq('Proxied request aborted'));
+      proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
+        const responseSerializer = new ResponseSerializer(proxiedResponse);
+        debugReq('proxied response (%d)', proxiedResponse.statusCode);
+        if (proxiedResponse.statusCode) {
+          interceptedResponse.writeHead(proxiedResponse.statusCode, proxiedResponse.headers);
+        }
+        (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
+
+        proxiedResponse.on('end', () => {
+          debugReq('Emitting "proxied"');
+          this.emit('proxied', {
+            requestNumber,
+            requestSerializer,
+            responseSerializer,
+          });
+        });
+      });
+    };
+
     // YesNo will listen for this event to mock the response
     this.emit('intercept', {
       clientRequest,
       comparatorFn: this.comparatorFn,
       interceptedRequest,
       interceptedResponse,
+      proxy,
       requestNumber,
       requestSerializer,
     } as IInterceptEvent);
-
-    if (!this.shouldProxy) {
-      return;
-    }
-
-    const request = isHttps ? https.request : http.request;
-    const proxiedRequest: http.ClientRequest = request({
-      ...clientOptions,
-      headers: _.omit(clientRequest.getHeaders(), YESNO_INTERNAL_HTTP_HEADER),
-      path: (clientRequest as ClientRequestFull).path,
-      proxying: true,
-    } as ProxyRequestOptions);
-
-    (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
-
-    interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
-    interceptedRequest.on('aborted', () => {
-      debugReq('Intercepted request aborted');
-      proxiedRequest.abort();
-    });
-
-    proxiedRequest.on('timeout', (e: any) => debugReq('Proxied request timeout', e));
-    proxiedRequest.on('error', (e: any) => debugReq('Proxied request error', e));
-    proxiedRequest.on('aborted', () => debugReq('Proxied request aborted'));
-    proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
-      const responseSerializer = new ResponseSerializer(proxiedResponse);
-      debugReq('proxied response (%d)', proxiedResponse.statusCode);
-      if (proxiedResponse.statusCode) {
-        interceptedResponse.writeHead(proxiedResponse.statusCode, proxiedResponse.headers);
-      }
-      (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
-
-      proxiedResponse.on('end', () => {
-        debugReq('Emitting "proxied"');
-        this.emit('proxied', {
-          requestNumber,
-          requestSerializer,
-          responseSerializer,
-        });
-      });
-    });
   }
 
   private trackSocketAndClientOptions(
