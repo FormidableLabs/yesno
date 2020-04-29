@@ -54,9 +54,21 @@ const SerializedHttp = t.intersection([
   }),
 ]);
 
+/**
+ * HTTP request/response serialized in a consistent format to be stored on disk in a mocks file
+ */
 export interface ISerializedHttp extends t.TypeOf<typeof SerializedHttp> {}
+
+/**
+ * HTTP request serialized in a consistent format
+ */
 export interface ISerializedResponse extends t.TypeOf<typeof SerializedResponse> {}
+
+/**
+ * HTTP response serialized in a consistent format
+ */
 export interface ISerializedRequest extends t.TypeOf<typeof SerializedRequest> {}
+
 export interface IHeaders extends t.TypeOf<typeof Headers> {}
 
 // Some properties are not present in the TS definition
@@ -184,6 +196,9 @@ export interface ICreateRecord {
   duration: number;
 }
 
+/**
+ * Create record for an HTTP request, which may be saved in a mock file.
+ */
 export function createRecord({ request, response, duration }: ICreateRecord): ISerializedHttp {
   return {
     __duration: duration,

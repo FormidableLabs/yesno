@@ -2,6 +2,8 @@
 
 # Interface: ISerializedResponse
 
+HTTP request serialized in a consistent format
+
 ## Hierarchy
 
  `object`

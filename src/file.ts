@@ -48,6 +48,11 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
+/**
+ * Read mocks from a specified file.
+ *
+ * @throws YesNoError If file is improperly formatted
+ */
 export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
   debug('Loading mocks from', filename);
 
@@ -80,6 +85,9 @@ export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[
   return obj.records;
 }
 
+/**
+ * Save HTTP records to the specified file
+ */
 export async function save({
   filename,
   records = [],

@@ -5,6 +5,9 @@ export interface IInFlightRequest {
   requestSerializer: RequestSerializer;
 }
 
+/**
+ * Store the current execution context for YesNo by tracking requests & mocks.
+ */
 export default class Context {
   /**
    * Completed serialized request-response objects. Used for:

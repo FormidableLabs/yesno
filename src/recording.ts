@@ -19,10 +19,19 @@ export enum RecordMode {
 }
 
 export interface IRecordingOptions extends IFileOptions {
+  /**
+   * Get all recorded HTTP requests we need to save to disc
+   */
   getRecordsToSave: () => ISerializedHttp[];
+  /**
+   * Current record mode. Determines whether or not we'll save to disc on completion.
+   */
   mode: RecordMode;
 }
 
+/**
+ * Represents a single YesNo recording
+ */
 export default class Recording {
   private options: IRecordingOptions;
 
@@ -30,6 +39,10 @@ export default class Recording {
     this.options = options;
   }
 
+  /**
+   * Complete recording by saving all HTTP requests to disc if in record mode.
+   * No-op otherwise.
+   */
   public complete(): Promise<string | undefined> {
     if (this.options.mode === RecordMode.Record) {
       debug('Record mode, saving');

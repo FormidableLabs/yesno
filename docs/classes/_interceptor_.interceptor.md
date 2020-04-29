@@ -2,6 +2,10 @@
 
 # Class: Interceptor
 
+Intercept outbound HTTP requests and provide mock responses through an event API.
+
+Uses MITM library to spy on HTTP requests made in current NodeJS process.
+
 ## Hierarchy
 
  `EventEmitter`
@@ -64,8 +68,6 @@
 ###  constructor
 
 ⊕ **new Interceptor**(options?: * `undefined` &#124; `object`*): [Interceptor](_interceptor_.interceptor.md)
-
-Begin intercepting requests on instantiation
 
 **Parameters:**
 
@@ -161,7 +163,7 @@ ___
 
 ▸ **disable**(): `void`
 
-Disable request interception
+Disables intercepting outbound HTTP requests.
 
 **Returns:** `void`
 
@@ -188,11 +190,13 @@ ___
 
 ▸ **enable**(options?: *[IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md)*): `void`
 
+Enables intercepting all outbound HTTP requests.
+
 **Parameters:**
 
-| Name | Type | Default value |
-| ------ | ------ | ------ |
-| `Default value` options | [IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md) |  {} |
+| Name | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `Default value` options | [IInterceptOptions](../interfaces/_interceptor_.iinterceptoptions.md) |  {} |  Intercept options |
 
 **Returns:** `void`
 
@@ -387,11 +391,13 @@ ___
 
 ▸ **proxy**(shouldProxy: *`boolean`*): `void`
 
+Enable/disable proxying. If proxying, requests are not sent to their original destination.
+
 **Parameters:**
 
-| Name | Type |
-| ------ | ------ |
-| shouldProxy | `boolean` |
+| Name | Type | Description |
+| ------ | ------ | ------ |
+| shouldProxy | `boolean` |  Whether or not to proxy |
 
 **Returns:** `void`
 
