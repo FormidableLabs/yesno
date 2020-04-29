@@ -6,9 +6,9 @@ import Context from './context';
 import { YesNoError } from './errors';
 import * as comparator from './filtering/comparator';
 import {
-  ISerializedRequestResponse,
   ISerializedHttp,
   ISerializedRequest,
+  ISerializedRequestResponse,
   ISerializedResponse,
 } from './http-serializer';
 import { IInterceptEvent } from './interceptor';

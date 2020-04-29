@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import {
   formatUrl,
-  ISerializedRequestResponse,
   ISerializedRequest,
+  ISerializedRequestResponse,
   ISerializedResponse,
 } from '../http-serializer';
 
