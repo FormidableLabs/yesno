@@ -2,6 +2,8 @@
 
 # Class: MockResponse
 
+Encapsulates logic for sending a response for an intercepted HTTP request
+
 ## Hierarchy
 
 **MockResponse**
@@ -106,7 +108,12 @@ ___
 
 ▸ **send**(): `Promise`< [ISeralizedRequestResponse](../interfaces/_http_serializer_.iseralizedrequestresponse.md) &#124; `undefined`>
 
+Send a respond for our wrapped intercept event if able.
+
+Give precedence to matching responses in shared context (from `yesno.matching().respond()`). Else, if we're in mock mode, lookup the mock response.
+
 **Returns:** `Promise`< [ISeralizedRequestResponse](../interfaces/_http_serializer_.iseralizedrequestresponse.md) &#124; `undefined`>
+The received request & sent response. Returns `undefined` if unable to respond
 
 ___
 <a id="writemockresponse"></a>

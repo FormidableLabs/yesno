@@ -6,8 +6,8 @@
 
 ### Interfaces
 
-* [ISeralizedRequestResponseToMatch](../interfaces/_filtering_matcher_.iseralizedrequestresponsetomatch.md)
 * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md)
+* [ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md)
 
 ### Type aliases
 
@@ -80,13 +80,13 @@ ___
 **Ƭ UnsafeMatchFn**: *`function`*
 
 #### Type declaration
-▸(serialized: *[ISeralizedRequestResponseToMatch](../interfaces/_filtering_matcher_.iseralizedrequestresponsetomatch.md)*): `boolean`
+▸(serialized: *[ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md)*): `boolean`
 
 **Parameters:**
 
 | Name | Type |
 | ------ | ------ |
-| serialized | [ISeralizedRequestResponseToMatch](../interfaces/_filtering_matcher_.iseralizedrequestresponsetomatch.md) |
+| serialized | [ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md) |
 
 **Returns:** `boolean`
 

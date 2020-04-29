@@ -15,14 +15,14 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
-export interface ISeralizedRequestResponseToMatch {
+export interface ISerializedRequestResponseToMatch {
   request: ISerializedRequest;
   response?: ISerializedResponse;
 }
 
 export type MatchFn = (serialized: ISeralizedRequestResponse) => boolean;
 
-export type UnsafeMatchFn = (serialized: ISeralizedRequestResponseToMatch) => boolean;
+export type UnsafeMatchFn = (serialized: ISerializedRequestResponseToMatch) => boolean;
 
 export type Matcher = ISerializedHttpPartialDeepMatch | MatchFn;
 
@@ -72,7 +72,7 @@ export function match(fnOrPartialMatch: ISerializedHttpPartialDeepMatch | MatchF
         return isMatch;
       };
 
-  return (serialized: ISeralizedRequestResponseToMatch) =>
+  return (serialized: ISerializedRequestResponseToMatch) =>
     matcher({
       request: serialized.request,
       // Response will be empty if matching against requests

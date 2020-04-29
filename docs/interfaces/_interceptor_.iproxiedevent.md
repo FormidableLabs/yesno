@@ -2,6 +2,8 @@
 
 # Interface: IProxiedEvent
 
+Emit whenever we have proxied a request to its original destination
+
 ## Hierarchy
 
 **IProxiedEvent**
