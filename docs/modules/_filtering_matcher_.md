@@ -7,16 +7,23 @@
 ### Interfaces
 
 * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md)
+* [ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md)
 
 ### Type aliases
 
 * [MatchFn](_filtering_matcher_.md#matchfn)
+* [Matcher](_filtering_matcher_.md#matcher)
 * [RequestQuery](_filtering_matcher_.md#requestquery)
 * [ResponseQuery](_filtering_matcher_.md#responsequery)
+* [UnsafeMatchFn](_filtering_matcher_.md#unsafematchfn)
 
 ### Functions
 
 * [match](_filtering_matcher_.md#match)
+
+### Object literals
+
+* [EMPTY_RESPONSE](_filtering_matcher_.md#empty_response)
 
 ---
 
@@ -29,15 +36,23 @@
 **Ƭ MatchFn**: *`function`*
 
 #### Type declaration
-▸(serialized: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)*): `boolean`
+▸(serialized: *[ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md)*): `boolean`
 
 **Parameters:**
 
 | Name | Type |
 | ------ | ------ |
-| serialized | [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md) |
+| serialized | [ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md) |
 
 **Returns:** `boolean`
+
+___
+<a id="matcher"></a>
+
+###  Matcher
+
+**Ƭ Matcher**: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)
+*
 
 ___
 <a id="requestquery"></a>
@@ -58,6 +73,24 @@ ___
 #### Type declaration
 
 ___
+<a id="unsafematchfn"></a>
+
+###  UnsafeMatchFn
+
+**Ƭ UnsafeMatchFn**: *`function`*
+
+#### Type declaration
+▸(serialized: *[ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md)*): `boolean`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| serialized | [ISerializedRequestResponseToMatch](../interfaces/_filtering_matcher_.iserializedrequestresponsetomatch.md) |
+
+**Returns:** `boolean`
+
+___
 
 ## Functions
 
@@ -65,7 +98,7 @@ ___
 
 ###  match
 
-▸ **match**(fnOrPartialMatch: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)*): `function`
+▸ **match**(fnOrPartialMatch: * [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)*): [UnsafeMatchFn](_filtering_matcher_.md#unsafematchfn)
 
 Curried function to determine whether a query matches an intercepted request.
 
@@ -79,7 +112,43 @@ RegEx values are tested for match.
 | ------ | ------ |
 | fnOrPartialMatch |  [ISerializedHttpPartialDeepMatch](../interfaces/_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](_filtering_matcher_.md#matchfn)|
 
-**Returns:** `function`
+**Returns:** [UnsafeMatchFn](_filtering_matcher_.md#unsafematchfn)
+
+___
+
+## Object literals
+
+<a id="empty_response"></a>
+
+### `<Const>` EMPTY_RESPONSE
+
+**EMPTY_RESPONSE**: *`object`*
+
+<a id="empty_response.body"></a>
+
+####  body
+
+**● body**: *`object`*
+
+#### Type declaration
+
+___
+<a id="empty_response.headers"></a>
+
+####  headers
+
+**● headers**: *`object`*
+
+#### Type declaration
+
+___
+<a id="empty_response.statuscode"></a>
+
+####  statusCode
+
+**● statusCode**: *`number`* = 0
+
+___
 
 ___
 

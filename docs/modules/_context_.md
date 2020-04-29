@@ -11,6 +11,7 @@
 ### Interfaces
 
 * [IInFlightRequest](../interfaces/_context_.iinflightrequest.md)
+* [IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)
 
 ---
 

@@ -28,14 +28,24 @@ describe('Yesno', () => {
     await new Promise((res, rej) => rimraf(`${__dirname}/tmp/*`, (e) => (e ? rej(e) : res())));
   });
 
+  /**
+   * Make a request to the local test server. Defaults to `/get`
+   * @param options Request lib options
+   */
   function requestTestServer(options: object = {}) {
     return rp({
       method: 'GET',
-      uri: 'http://localhost:3001/get',
+      uri: testServer.URI_ENDPOINT_GET,
       ...options,
     });
   }
 
+  /**
+   * Make a request matching the `mock-test` file
+   *
+   * Defaults to `example.com`
+   * @param options Request lib options
+   */
   function mockedRequest(options: object = {}) {
     return rp({
       headers: {
@@ -515,6 +525,54 @@ describe('Yesno', () => {
       yesno.spy();
       await expect(requestTestServer({ headers: { 'x-status-code': 500 } })).to.be.rejected;
       expect(yesno.matching().response()).to.have.property('statusCode', 500);
+    });
+
+    describe('#respond', () => {
+      it('allows defining mocks statically', async () => {
+        yesno.spy();
+
+        const unmockedResponse = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+
+        expect(unmockedResponse).to.have.property('statusCode', 200);
+
+        yesno
+          .matching({ request: { path: '/get' } })
+          .respond({ statusCode: 400, headers: { 'x-fiz': 'baz' }, body: { foo: 'bar' } });
+
+        const mockedResponse = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+
+        expect(mockedResponse).to.have.property('statusCode', 400);
+        expect(mockedResponse).to.have.deep.property('body', { foo: 'bar' });
+        expect(mockedResponse).to.have.nested.property('headers.x-fiz', 'baz');
+      });
+
+      it('allows defining mocks dynamically', async () => {
+        yesno.spy();
+        yesno
+          .matching({ request: { path: '/post' } })
+          .respond((request) => ({ statusCode: 401, body: request.body }));
+
+        const body = { now: Date.now(), random: Math.random() };
+        const mockedResponse = await requestTestServer({
+          body,
+          json: true,
+          method: 'post',
+          resolveWithFullResponse: true,
+          simple: false,
+          uri: testServer.URI_ENDPOINT_POST,
+        });
+
+        expect(mockedResponse).to.have.property('statusCode', 401);
+        expect(mockedResponse).to.have.deep.property('body', body);
+      });
     });
   });
 });

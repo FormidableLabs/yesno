@@ -1,13 +1,13 @@
 import { IDebugger } from 'debug';
 import * as _ from 'lodash';
 import { EOL } from 'os';
-import * as readable from 'readable-stream';
+
 import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
-import * as comparator from './filtering/comparator';
+import { ComparatorFn } from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
 import { Redactor } from './filtering/redact';
 import {
@@ -16,10 +16,13 @@ import {
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
+  RequestSerializer,
   validateSerializedHttpArray,
 } from './http-serializer';
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
+import MockResponse from './mock-response';
 import Recording, { RecordMode as Mode } from './recording';
+
 const debug: IDebugger = require('debug')('yesno');
 
 export type GenericTest = (...args: any) => Promise<any> | void;
@@ -35,10 +38,20 @@ export interface IRecordableTest {
 }
 
 /**
+ * Options to configure intercept of HTTP requests
+ */
+export interface IYesNoInterceptingOptions extends IInterceptOptions {
+  /**
+   * Comparator function used to determine whether an intercepted request
+   * matches a loaded mock.
+   */
+  comparatorFn?: ComparatorFn;
+}
+
+/**
  * Client API for YesNo
  */
 export class YesNo implements IFiltered {
-  private mode: Mode = Mode.Spy;
   private readonly interceptor: Interceptor;
   private readonly ctx: Context;
 
@@ -59,7 +72,7 @@ export class YesNo implements IFiltered {
   /**
    * Spy on intercepted requests
    */
-  public spy(options?: IInterceptOptions): void {
+  public spy(options?: IYesNoInterceptingOptions): void {
     this.enable(options);
     this.setMode(Mode.Spy);
   }
@@ -68,7 +81,7 @@ export class YesNo implements IFiltered {
    * Mock responses for intercepted requests
    * @todo Reset the request counter?
    */
-  public mock(mocks: file.IHttpMock[], options?: IInterceptOptions): void {
+  public mock(mocks: file.IHttpMock[], options?: IYesNoInterceptingOptions): void {
     this.enable(options);
     this.setMode(Mode.Mock);
 
@@ -231,11 +244,12 @@ export class YesNo implements IFiltered {
   /**
    * Enable intercepting requests
    */
-  private enable(options?: IInterceptOptions): YesNo {
-    const { comparatorFn, ignorePorts = [] }: IInterceptOptions = options || {};
+  private enable(options?: IYesNoInterceptingOptions): YesNo {
+    const { comparatorFn, ignorePorts = [] }: IYesNoInterceptingOptions = options || {};
 
     debug('Enabling intercept. Ignoring ports', ignorePorts);
-    this.interceptor.enable({ comparatorFn, ignorePorts });
+    this.interceptor.enable({ ignorePorts });
+    this.ctx.comparatorFn = comparatorFn || this.ctx.comparatorFn;
 
     return this;
   }
@@ -249,42 +263,57 @@ export class YesNo implements IFiltered {
    * Determine the current mode
    */
   private isMode(mode: Mode): boolean {
-    return this.mode === mode;
+    return this.ctx.mode === mode;
   }
 
   private createInterceptor() {
-    const interceptor = new Interceptor({ shouldProxy: !this.isMode(Mode.Mock) });
-    interceptor.on('intercept', (event: IInterceptEvent) => {
-      this.ctx.inFlightRequests[event.requestNumber] = {
-        requestSerializer: event.requestSerializer,
-        startTime: Date.now(),
-      };
+    const interceptor = new Interceptor();
 
-      if (this.isMode(Mode.Mock)) {
-        this.mockResponse(event);
-      }
-    });
-
-    interceptor.on(
-      'proxied',
-      ({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent) => {
-        this.recordCompleted(
-          requestSerializer.serialize(),
-          responseSerializer.serialize(),
-          requestNumber,
-        );
-      },
-    );
+    interceptor.on('intercept', this.onIntercept.bind(this));
+    interceptor.on('proxied', this.onProxied.bind(this));
 
     return interceptor;
   }
 
-  private setMode(mode: Mode) {
-    this.mode = mode;
+  private async onIntercept(event: IInterceptEvent): Promise<void> {
+    this.recordRequest(event.requestSerializer, event.requestNumber);
 
-    if (this.interceptor) {
-      this.interceptor.proxy(!this.isMode(Mode.Mock));
+    if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
+      // No need to mock, send event to its original destination
+      return event.proxy();
     }
+
+    try {
+      const mockResponse = new MockResponse(event, this.ctx);
+      const sent = await mockResponse.send();
+
+      if (sent) {
+        this.recordResponse(sent.request, sent.response, event.requestNumber);
+      } else if (this.isMode(Mode.Mock)) {
+        throw new Error('Unexpectedly failed to send mock respond');
+      }
+    } catch (e) {
+      if (!(e instanceof YesNoError)) {
+        debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
+        e.message = `YesNo: Mock response failed: ${e.message}`;
+      } else {
+        debug(`[#${event.requestNumber}] Mock response failed`, e.message);
+      }
+
+      event.clientRequest.emit('error', e);
+    }
+  }
+
+  private onProxied({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent): void {
+    this.recordResponse(
+      requestSerializer.serialize(),
+      responseSerializer.serialize(),
+      requestNumber,
+    );
+  }
+
+  private setMode(mode: Mode) {
+    this.ctx.mode = mode;
   }
 
   private getCollection(
@@ -296,69 +325,14 @@ export class YesNo implements IFiltered {
     });
   }
 
-  private async mockResponse({
-    clientRequest,
-    comparatorFn,
-    interceptedRequest,
-    interceptedResponse,
-    requestSerializer,
-    requestNumber,
-  }: IInterceptEvent): Promise<void> {
-    debug(`[#${requestNumber}] Mock response`);
-    try {
-      await (readable as any).pipeline(interceptedRequest, requestSerializer);
-
-      const serializedRequest = requestSerializer.serialize();
-      const mock = this.ctx.loadedMocks[requestNumber];
-
-      if (!mock) {
-        throw new YesNoError(`No mock found for request #${requestNumber}`);
-      }
-
-      // Assertion must happen before promise -
-      // mitm does not support promise rejections on "request" event
-      try {
-        // determine how we'll compare the request and the mock
-        const compareBy: comparator.ComparatorFn = comparatorFn || comparator.byUrl;
-
-        // the comparison function must throw an error to signal a mismatch
-        compareBy(serializedRequest, mock.request, { requestIndex: requestNumber });
-      } catch (err) {
-        // ensure any user-thrown error is wrapped in our YesNoError
-        throw new YesNoError(err.message);
-      }
-
-      const bodyString = _.isPlainObject(mock.response.body)
-        ? JSON.stringify(mock.response.body)
-        : (mock.response.body as string);
-
-      const responseHeaders = { ...mock.response.headers };
-      if (
-        responseHeaders['content-length'] &&
-        parseInt(responseHeaders['content-length'] as string, 10) !== Buffer.byteLength(bodyString)
-      ) {
-        debug(`[#${requestNumber}] Overriding content length`);
-        responseHeaders['content-length'] = Buffer.byteLength(bodyString);
-      }
-
-      interceptedResponse.writeHead(mock.response.statusCode, responseHeaders);
-      interceptedResponse.write(bodyString);
-      interceptedResponse.end();
-
-      this.recordCompleted(serializedRequest, mock.response, requestNumber);
-    } catch (e) {
-      if (!(e instanceof YesNoError)) {
-        debug(`[#${requestNumber}] Mock response failed unexpectedly`, e);
-        e.message = `YesNo: Mock response failed: ${e.message}`;
-      } else {
-        debug(`[#${requestNumber}] Mock response failed`, e.message);
-      }
-
-      clientRequest.emit('error', e);
-    }
+  private recordRequest(requestSerializer: RequestSerializer, requestNumber: number): void {
+    this.ctx.inFlightRequests[requestNumber] = {
+      requestSerializer,
+      startTime: Date.now(),
+    };
   }
 
-  private recordCompleted(
+  private recordResponse(
     request: ISerializedRequest,
     response: ISerializedResponse,
     requestNumber: number,

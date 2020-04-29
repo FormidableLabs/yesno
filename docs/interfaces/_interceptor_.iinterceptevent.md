@@ -2,6 +2,8 @@
 
 # Interface: IInterceptEvent
 
+Event emitted whenever we intercept an HTTP request
+
 ## Hierarchy
 
 **IInterceptEvent**
@@ -11,9 +13,9 @@
 ### Properties
 
 * [clientRequest](_interceptor_.iinterceptevent.md#clientrequest)
-* [comparatorFn](_interceptor_.iinterceptevent.md#comparatorfn)
 * [interceptedRequest](_interceptor_.iinterceptevent.md#interceptedrequest)
 * [interceptedResponse](_interceptor_.iinterceptevent.md#interceptedresponse)
+* [proxy](_interceptor_.iinterceptevent.md#proxy)
 * [requestNumber](_interceptor_.iinterceptevent.md#requestnumber)
 * [requestSerializer](_interceptor_.iinterceptevent.md#requestserializer)
 
@@ -27,12 +29,7 @@
 
 **● clientRequest**: *`ClientRequest`*
 
-___
-<a id="comparatorfn"></a>
-
-### `<Optional>` comparatorFn
-
-**● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)*
+The client request which initiated the HTTP request
 
 ___
 <a id="interceptedrequest"></a>
@@ -41,12 +38,30 @@ ___
 
 **● interceptedRequest**: *`IncomingMessage`*
 
+Request arriving to our MITM proxy
+
 ___
 <a id="interceptedresponse"></a>
 
 ###  interceptedResponse
 
 **● interceptedResponse**: *`ServerResponse`*
+
+Response from our MITM proxy
+
+___
+<a id="proxy"></a>
+
+###  proxy
+
+**● proxy**: *`function`*
+
+Proxy the intercepted request to its original destination
+
+#### Type declaration
+▸(): `void`
+
+**Returns:** `void`
 
 ___
 <a id="requestnumber"></a>

@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as http from 'http';
-import { ComparatorFn, IComparatorMetadata } from '../../src/filtering/comparator';
 import { ISerializedRequest, RequestSerializer } from '../../src/http-serializer';
 import Interceptor, { IInterceptEvent } from '../../src/interceptor';
 import * as testClient from '../test-client';
@@ -25,24 +24,16 @@ describe('Interceptor', () => {
   });
 
   describe('#enable', () => {
-    it('should enable request intercept via "intercept" events', async () => {
-      interceptor = new Interceptor();
-      interceptor.enable();
-
-      let intercepted = false;
-      interceptor.on('intercept', () => (intercepted = true));
-      await testClient.postRequest();
-
-      expect(intercepted, 'Failed to receive "intercept" event').to.be.true;
-    });
-
-    it('should proxy by default', async () => {
+    it('should allow us to proxy via the intercept event', async () => {
       interceptor = new Interceptor();
       interceptor.enable();
 
       const serverCount = server.getRequestCount();
       let intercepted = 0;
-      interceptor.on('intercept', () => intercepted++);
+      interceptor.on('intercept', ({ proxy }) => {
+        intercepted++;
+        proxy();
+      });
 
       const body = { foo: 'bar' };
       const response = await testClient.postRequest({ json: true, body });
@@ -84,7 +75,10 @@ describe('Interceptor', () => {
 
       const serverCount = server.getRequestCount();
       let intercepted = 0;
-      interceptor.on('intercept', () => intercepted++);
+      interceptor.on('intercept', ({ proxy }) => {
+        intercepted++;
+        proxy();
+      });
 
       await testClient.getRequest(); // 1
       await testClient.getRequest(); // 2
@@ -103,7 +97,10 @@ describe('Interceptor', () => {
       interceptor.enable();
 
       let interceptEvent: IInterceptEvent | undefined;
-      interceptor.on('intercept', (e: IInterceptEvent) => (interceptEvent = e));
+      interceptor.on('intercept', (e: IInterceptEvent) => {
+        interceptEvent = e;
+        e.proxy();
+      });
 
       const body = { foo: 'bar' };
       await testClient.postRequest({ json: true, body });
@@ -123,31 +120,30 @@ describe('Interceptor', () => {
         .instanceof(RequestSerializer);
       expect(interceptEvent).to.have.property('requestNumber', 0);
     });
-
-    it('should allow for specifying a custom comparatorFn', async () => {
-      const comparatorFn: ComparatorFn = (
-        intercepted: ISerializedRequest,
-        mock: ISerializedRequest,
-        metadata: IComparatorMetadata,
-      ): boolean => true;
-
-      interceptor = new Interceptor();
-      interceptor.enable({ comparatorFn });
-
-      let interceptEvent: IInterceptEvent | undefined;
-      interceptor.on('intercept', (e: IInterceptEvent) => (interceptEvent = e));
-
-      const body = { foo: 'bar' };
-      await testClient.postRequest({ json: true, body });
-
-      // the comparatorFn is captured on the event
-      expect(interceptEvent).property('comparatorFn', comparatorFn);
-    });
-
-    it('should allow us to mock a response if proxying is disabled');
   });
 
   describe('event "proxied"', () => {
-    it('should emit a "proxied" event when a request is proxied');
+    it('should emit a "proxied" event when a request is proxied', async () => {
+      return new Promise(async (resolve) => {
+        interceptor = new Interceptor();
+        interceptor.enable();
+
+        let didIntercept = false;
+
+        interceptor.on('intercept', ({ proxy }: IInterceptEvent) => {
+          didIntercept = true;
+
+          proxy();
+        });
+
+        interceptor.on('proxied', () => {
+          expect(didIntercept).to.eql(true); // Intercept must happen first
+
+          resolve();
+        });
+
+        await testClient.getRequest();
+      });
+    });
   });
 });

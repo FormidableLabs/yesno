@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import {
   formatUrl,
-  ISerializedHttp,
   ISerializedRequest,
+  ISerializedRequestResponse,
   ISerializedResponse,
 } from '../http-serializer';
 
@@ -15,7 +15,18 @@ export interface ISerializedHttpPartialDeepMatch {
   response?: ResponseQuery;
 }
 
-export type MatchFn = (serialized: ISerializedHttp) => boolean;
+export interface ISerializedRequestResponseToMatch {
+  request: ISerializedRequest;
+  response?: ISerializedResponse;
+}
+
+export type MatchFn = (serialized: ISerializedRequestResponse) => boolean;
+
+export type UnsafeMatchFn = (serialized: ISerializedRequestResponseToMatch) => boolean;
+
+export type Matcher = ISerializedHttpPartialDeepMatch | MatchFn;
+
+export const EMPTY_RESPONSE = { body: {}, headers: {}, statusCode: 0 };
 
 /**
  * Curried function to determine whether a query matches an intercepted request.
@@ -24,9 +35,7 @@ export type MatchFn = (serialized: ISerializedHttp) => boolean;
  *
  * RegEx values are tested for match.
  */
-export function match(
-  fnOrPartialMatch: ISerializedHttpPartialDeepMatch | MatchFn,
-): (intercepted: ISerializedHttp) => boolean {
+export function match(fnOrPartialMatch: ISerializedHttpPartialDeepMatch | MatchFn): UnsafeMatchFn {
   const equalityOrRegExpDeep = (reqResValue: any, queryValue: any): boolean => {
     if (queryValue instanceof RegExp) {
       return queryValue.test(reqResValue);
@@ -38,9 +47,9 @@ export function match(
     }
   };
 
-  const matcher = _.isFunction(fnOrPartialMatch)
+  const matcher: MatchFn = _.isFunction(fnOrPartialMatch)
     ? fnOrPartialMatch
-    : (serialized: ISerializedHttp): boolean => {
+    : (serialized: ISerializedRequestResponse): boolean => {
         const query = fnOrPartialMatch as ISerializedHttpPartialDeepMatch;
         let isMatch = true;
 
@@ -63,5 +72,10 @@ export function match(
         return isMatch;
       };
 
-  return matcher;
+  return (serialized: ISerializedRequestResponseToMatch) =>
+    matcher({
+      request: serialized.request,
+      // Response will be empty if matching against requests
+      response: serialized.response || EMPTY_RESPONSE,
+    });
 }

@@ -12,18 +12,33 @@ Store the current execution context for YesNo by tracking requests & mocks.
 
 ### Properties
 
+* [comparatorFn](_context_.context.md#comparatorfn)
 * [inFlightRequests](_context_.context.md#inflightrequests)
 * [interceptedRequestsCompleted](_context_.context.md#interceptedrequestscompleted)
 * [loadedMocks](_context_.context.md#loadedmocks)
+* [mode](_context_.context.md#mode)
+* [responsesForMatchingRequests](_context_.context.md#responsesformatchingrequests)
 
 ### Methods
 
+* [addResponseForMatchingRequests](_context_.context.md#addresponseformatchingrequests)
 * [clear](_context_.context.md#clear)
+* [getMatchingIntercepted](_context_.context.md#getmatchingintercepted)
+* [getMatchingMocks](_context_.context.md#getmatchingmocks)
+* [getResponseDefinedMatching](_context_.context.md#getresponsedefinedmatching)
+* [hasResponsesDefinedForMatchers](_context_.context.md#hasresponsesdefinedformatchers)
 
 ---
 
 ## Properties
 
+<a id="comparatorfn"></a>
+
+###  comparatorFn
+
+**● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)* =  comparatorByUrl
+
+___
 <a id="inflightrequests"></a>
 
 ###  inFlightRequests
@@ -51,9 +66,38 @@ ___
 Serialized records loaded from disk.
 
 ___
+<a id="mode"></a>
+
+###  mode
+
+**● mode**: *`Mode`* =  Mode.Spy
+
+___
+<a id="responsesformatchingrequests"></a>
+
+###  responsesForMatchingRequests
+
+**● responsesForMatchingRequests**: *[IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)[]* =  []
+
+___
 
 ## Methods
 
+<a id="addresponseformatchingrequests"></a>
+
+###  addResponseForMatchingRequests
+
+▸ **addResponseForMatchingRequests**(matchingResponse: *[IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)*): `void`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| matchingResponse | [IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md) |
+
+**Returns:** `void`
+
+___
 <a id="clear"></a>
 
 ###  clear
@@ -61,6 +105,60 @@ ___
 ▸ **clear**(): `void`
 
 **Returns:** `void`
+
+___
+<a id="getmatchingintercepted"></a>
+
+###  getMatchingIntercepted
+
+▸ **getMatchingIntercepted**(matcher: *[Matcher](../modules/_filtering_matcher_.md#matcher)*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| matcher | [Matcher](../modules/_filtering_matcher_.md#matcher) |
+
+**Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+
+___
+<a id="getmatchingmocks"></a>
+
+###  getMatchingMocks
+
+▸ **getMatchingMocks**(matcher: *[Matcher](../modules/_filtering_matcher_.md#matcher)*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| matcher | [Matcher](../modules/_filtering_matcher_.md#matcher) |
+
+**Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+
+___
+<a id="getresponsedefinedmatching"></a>
+
+###  getResponseDefinedMatching
+
+▸ **getResponseDefinedMatching**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*):  [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md) &#124; `undefined`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| request | [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md) |
+
+**Returns:**  [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md) &#124; `undefined`
+
+___
+<a id="hasresponsesdefinedformatchers"></a>
+
+###  hasResponsesDefinedForMatchers
+
+▸ **hasResponsesDefinedForMatchers**(): `boolean`
+
+**Returns:** `boolean`
 
 ___
 

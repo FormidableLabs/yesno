@@ -55,7 +55,7 @@ const SerializedHttp = t.intersection([
 ]);
 
 /**
- * HTTP request/response serialized in a consistent format to be stored on disk in a mocks file
+ * HTTP request/response serialized in a consistent format
  */
 export interface ISerializedHttp extends t.TypeOf<typeof SerializedHttp> {}
 
@@ -68,6 +68,14 @@ export interface ISerializedResponse extends t.TypeOf<typeof SerializedResponse>
  * HTTP response serialized in a consistent format
  */
 export interface ISerializedRequest extends t.TypeOf<typeof SerializedRequest> {}
+
+/**
+ * HTTP request & response
+ */
+export interface ISerializedRequestResponse {
+  request: ISerializedRequest;
+  response: ISerializedResponse;
+}
 
 export interface IHeaders extends t.TypeOf<typeof Headers> {}
 

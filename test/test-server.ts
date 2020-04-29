@@ -5,6 +5,9 @@ const debug = require('debug')('yesno:test-server');
 
 export const PORT = 3001;
 
+export const URI_ENDPOINT_GET = `http://localhost:${PORT}/get`;
+export const URI_ENDPOINT_POST = `http://localhost:${PORT}/post`;
+
 export interface ITestServer extends Server {
   getRequestCount: () => number;
 }

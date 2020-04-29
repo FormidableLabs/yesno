@@ -16,6 +16,7 @@
 * [IHeaders](../interfaces/_http_serializer_.iheaders.md)
 * [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 * [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
+* [ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md)
 * [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 
 ### Variables

@@ -28,8 +28,7 @@ ___
 
 ### `<Optional>` matcher
 
-**● matcher**: * [ISerializedHttpPartialDeepMatch](_filtering_matcher_.iserializedhttppartialdeepmatch.md) &#124; [MatchFn](../modules/_filtering_matcher_.md#matchfn)
-*
+**● matcher**: *[Matcher](../modules/_filtering_matcher_.md#matcher)*
 
 ___
 

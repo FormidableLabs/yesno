@@ -32,6 +32,7 @@ Can filter both intercepted HTTP requests and loaded mocks.
 * [only](_filtering_collection_.filteredhttpcollection.md#only)
 * [redact](_filtering_collection_.filteredhttpcollection.md#redact)
 * [request](_filtering_collection_.filteredhttpcollection.md#request)
+* [respond](_filtering_collection_.filteredhttpcollection.md#respond)
 * [response](_filtering_collection_.filteredhttpcollection.md#response)
 
 ---
@@ -141,6 +142,27 @@ Return serialized request part of the _single_ matching intercepted HTTP request
 Throws an exception if multiple requests were matched.
 
 **Returns:** [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
+
+___
+<a id="respond"></a>
+
+###  respond
+
+▸ **respond**(response: *[PartialResponseForRequest](../modules/_filtering_collection_.md#partialresponseforrequest)*): `void`
+
+Provide a mock response for all matching requests.
+
+Use callback to dynamically generate response per request.
+
+Matching responses defined here take _precedence_ over mocks loaded normally.
+
+**Parameters:**
+
+| Name | Type | Description |
+| ------ | ------ | ------ |
+| response | [PartialResponseForRequest](../modules/_filtering_collection_.md#partialresponseforrequest) |  Serialized HTTP response or callback |
+
+**Returns:** `void`
 
 ___
 <a id="response"></a>
