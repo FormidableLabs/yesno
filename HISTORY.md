@@ -1,6 +1,11 @@
 History
 =======
 
+## 0.0.7
+
+- Add missing docs
+- Allow intercepting only specified requests (#64)
+
 ## 0.0.6
 
 - Make the filter in `yesno.matching()` optional
