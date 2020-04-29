@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {
   formatUrl,
-  ISeralizedRequestResponse,
+  ISerializedRequestResponse,
   ISerializedRequest,
   ISerializedResponse,
 } from '../http-serializer';
@@ -20,7 +20,7 @@ export interface ISerializedRequestResponseToMatch {
   response?: ISerializedResponse;
 }
 
-export type MatchFn = (serialized: ISeralizedRequestResponse) => boolean;
+export type MatchFn = (serialized: ISerializedRequestResponse) => boolean;
 
 export type UnsafeMatchFn = (serialized: ISerializedRequestResponseToMatch) => boolean;
 
@@ -49,7 +49,7 @@ export function match(fnOrPartialMatch: ISerializedHttpPartialDeepMatch | MatchF
 
   const matcher: MatchFn = _.isFunction(fnOrPartialMatch)
     ? fnOrPartialMatch
-    : (serialized: ISeralizedRequestResponse): boolean => {
+    : (serialized: ISerializedRequestResponse): boolean => {
         const query = fnOrPartialMatch as ISerializedHttpPartialDeepMatch;
         let isMatch = true;
 

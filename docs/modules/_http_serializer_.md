@@ -14,9 +14,9 @@
 * [ClientRequestFull](../interfaces/_http_serializer_.clientrequestfull.md)
 * [ICreateRecord](../interfaces/_http_serializer_.icreaterecord.md)
 * [IHeaders](../interfaces/_http_serializer_.iheaders.md)
-* [ISeralizedRequestResponse](../interfaces/_http_serializer_.iseralizedrequestresponse.md)
 * [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 * [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)
+* [ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md)
 * [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md)
 
 ### Variables

@@ -6,7 +6,7 @@ import Context from './context';
 import { YesNoError } from './errors';
 import * as comparator from './filtering/comparator';
 import {
-  ISeralizedRequestResponse,
+  ISerializedRequestResponse,
   ISerializedHttp,
   ISerializedRequest,
   ISerializedResponse,
@@ -36,7 +36,7 @@ export default class MockResponse {
    *
    * @returns The received request & sent response. Returns `undefined` if unable to respond
    */
-  public async send(): Promise<ISeralizedRequestResponse | undefined> {
+  public async send(): Promise<ISerializedRequestResponse | undefined> {
     const {
       interceptedRequest,
       interceptedResponse,

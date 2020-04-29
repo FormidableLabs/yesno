@@ -72,7 +72,7 @@ export interface ISerializedRequest extends t.TypeOf<typeof SerializedRequest> {
 /**
  * HTTP request & response
  */
-export interface ISeralizedRequestResponse {
+export interface ISerializedRequestResponse {
   request: ISerializedRequest;
   response: ISerializedResponse;
 }

@@ -36,13 +36,13 @@
 **Ƭ MatchFn**: *`function`*
 
 #### Type declaration
-▸(serialized: *[ISeralizedRequestResponse](../interfaces/_http_serializer_.iseralizedrequestresponse.md)*): `boolean`
+▸(serialized: *[ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md)*): `boolean`
 
 **Parameters:**
 
 | Name | Type |
 | ------ | ------ |
-| serialized | [ISeralizedRequestResponse](../interfaces/_http_serializer_.iseralizedrequestresponse.md) |
+| serialized | [ISerializedRequestResponse](../interfaces/_http_serializer_.iserializedrequestresponse.md) |
 
 **Returns:** `boolean`
 
