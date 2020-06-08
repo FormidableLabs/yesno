@@ -54,7 +54,7 @@ ___
 
 ▸ **redact**(record: *[ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)*, properties: *`string`[]*, redactor?: *[Redactor](_filtering_redact_.md#redactor)*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)
 
-Redact properties on the matching intercepted records.
+Redact properties on the matching intercepted records. Note that header names are forced to lower case.
 
 Use a `.` to reference a nested property
 *__todo__*: Benchmark & investigate alternatives
