@@ -24,6 +24,9 @@ export function redact(
   const redacted = _.cloneDeep(record);
 
   properties.forEach((property) => {
+    if (property.startsWith('request.headers')) {
+      property = property.toLowerCase();
+    }
     const currentValue = _.get(redacted, property);
 
     if (currentValue !== undefined) {

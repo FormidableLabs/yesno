@@ -47,6 +47,17 @@ describe('redact#redact', () => {
     expect(redacted, 'Missing properties have no effect').to.not.have.property('foobar');
   });
 
+  it('should ignore case when redacting headers', () => {
+    const original = serialized();
+    const redacted = redact(original, ['request.headers.X-test-header']);
+
+    expect(redacted, 'No mutation').to.not.eql(original);
+    expect(redacted).to.have.nested.property(
+      'request.headers.x-test-header',
+      DEFAULT_REDACT_SYMBOL,
+    );
+  });
+
   it('should support providing a custom redactor', () => {
     const mockRedactSymbol = 'REDACTED!';
     const mockRedactor = sinon.mock().returns(mockRedactSymbol);
