@@ -106,7 +106,7 @@ export async function save({
 function helpMessageMissingMock(filename: string): string {
   const { name } = path.parse(filename);
   // tslint:disable-next-line:max-line-length
-  return `Mock file for "${name}" does not exist. To generate the missing file now you may run the command:${EOL}${EOL}./node_modules/.bin/yesno generate "${filename}"`;
+  return `Mock file for "${name}" does not exist. If you are using itRecorded, you can run the test in record mode by setting the YESNO_RECORDING_MODE environment variable to "record".${EOL}${EOL}YESNO_RECORDING_MODE=record <test command>${EOL}${EOL}Or to generate the missing file now you may run the command:${EOL}${EOL}./node_modules/.bin/yesno generate "${filename}"`;
 }
 
 export function hydrateHttpMock(mock: IHttpMock): ISerializedHttp {
