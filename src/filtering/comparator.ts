@@ -27,9 +27,9 @@ export const byUrl: ComparatorFn = (interceptedRequest, mockRequest, { requestIn
   assertEqual(
     interceptedRequest.method,
     mockRequest.method,
-    `Expected request #${requestIndex} for ${host} to HTTP method "${mockRequest.method}", not "${
-      interceptedRequest.method
-    }"`,
+    `Expected request #${requestIndex} for ${host}${interceptedRequest.path} to HTTP method "${
+      mockRequest.method
+    }", not "${interceptedRequest.method}"`,
   );
 
   assertEqual(
