@@ -231,7 +231,7 @@ describe('Yesno', () => {
 
     it('should reject for method mismatch', async () => {
       await expect(mockedRequest({ method: 'GET' })).to.be.rejectedWith(
-        /YesNo: Request does not match mock. Expected request #0 for example.com to HTTP method "POST", not "GET"/,
+        /YesNo: Request does not match mock. Expected request #0 for example.com\/my\/path to HTTP method "POST", not "GET"/,
       );
     });
 
