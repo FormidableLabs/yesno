@@ -160,6 +160,18 @@ await yesno.save(testName, dir); // Recorded mocks are sanitized
 
 The matching method can filter on any of the properties in the serialized object. See the API documentation for more examples.
 
+### Mocking matched results
+
+Matched results can be replaced with static or dynamic mocked responses. Use the `.respond()` method on a filtered http collection to define the response.
+
+```
+yesno.matching(/get/).respond({ statusCode: 400 })
+
+yesno.matching({ request: { path: '/post' } }) .respond((request) => ({ statusCode: 401, body: request.body }))
+```
+
+Responses defined in this way take precedence over normally loaded mocks.
+
 ### Restoring HTTP behavior
 
 When we no longer need YesNo to intercept requests we can call `yesno.restore()`. This will completely restore HTTP behavior & clear our mocks. It's advisable to run this after every test.
@@ -199,20 +211,53 @@ YesNo is written in [TypeScript](typescriptlang.org) and uses its type syntax wh
 To see typedoc generated documentation, click [here](./docs/README.md).
 
 ##### [`YesNo`](#YesNo)
-- [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void);
-- [`yesno.mock(mocks?: HttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void);
-- [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#yesnorecordingoptions-iinterceptoptions--ifileoptions-promiserecording);
-- [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<Any>) => void`](#yesnotestoptions-irecordabletest-name-string-test---promiseany--void);
-- [`yesno.restore(): void`](#yesnorestore-void);
-- [`yesno.save(options: IFileOptions): Promise<void>`](#yesnosaveoptions-ifileoptions--isaveoptions-promisevoid)
-- [`yesno.load(options: IFileOptions & ISaveOptions): Promise<ISerializedHttp[]>`](#yesnoloadoptions-ifileoptions-promiseiserializedhttp);
-- [`yesno.matching(query: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection);
+- [YesNo](#yesno)
+  - [Why?](#why)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Intercepting live requests](#intercepting-live-requests)
+    - [Mocking responses](#mocking-responses)
+    - [Recording Requests](#recording-requests)
+    - [Filtering results](#filtering-results)
+    - [Mocking matched results](#mocking-matched-results)
+    - [Restoring HTTP behavior](#restoring-http-behavior)
+  - [Examples](#examples)
+  - [API](#api)
+        - [`YesNo`](#yesno-1)
+        - [`FilteredHttpCollection`](#filteredhttpcollection)
+        - [`Recording`](#recording)
+        - [`ISerializedHttp`](#iserializedhttp)
+    - [`YesNo`](#yesno-2)
+        - [`yesno.spy(options?: IInterceptOptions): void`](#yesnospyoptions-iinterceptoptions-void)
+        - [`IInterceptOptions`](#iinterceptoptions)
+        - [`yesno.mock(mocks: ISerializedHttp[] | ISerializedHttpMock[], options?: IInterceptOptions): void`](#yesnomockmocks-iserializedhttp--iserializedhttpmock-options-iinterceptoptions-void)
+        - [`yesno.recording(options?: IInterceptOptions & IFileOptions): Promise<Recording>`](#yesnorecordingoptions-iinterceptoptions--ifileoptions-promiserecording)
+        - [`yesno.test(options: IRecordableTest): (name: string, test: () => Promise<any>) => void`](#yesnotestoptions-irecordabletest-name-string-test---promiseany--void)
+        - [`IRecordableTest`](#irecordabletest)
+        - [`yesno.restore(): void`](#yesnorestore-void)
+        - [`yesno.save(options: IFileOptions & ISaveOptions): Promise<void>`](#yesnosaveoptions-ifileoptions--isaveoptions-promisevoid)
+        - [`IFileOptions`](#ifileoptions)
+        - [`ISaveOptions`](#isaveoptions)
+        - [`yesno.load(options: IFileOptions): Promise<ISerializedHttp[]>`](#yesnoloadoptions-ifileoptions-promiseiserializedhttp)
+        - [`yesno.matching(filter?: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection)
+    - [`FilteredHttpCollection`](#filteredhttpcollection-1)
+        - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp)
+        - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp)
+        - [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor----%22%22-void)
+        - [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp)
+        - [`collection.respond(): ISerializedHttp`](#collectionrespond-iserializedhttp)
+        - [`collection.response(): ISerializedHttp`](#collectionresponse-iserializedhttp)
+      - [Recording](#recording-1)
+        - [`recording.complete(): Promise<void>`](#recordingcomplete-promisevoid)
+      - [ISerializedHttp](#iserializedhttp-1)
+  - [Maintenance Status](#maintenance-status)
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
 - [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 - [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp);
+- [`collection.respond(): ISerializedHttp`](#collectionrespond-iserializedhttp);
 - [`collection.response(): ISerializedHttp`](#collectionresponse-iserializedhttp);
 
 ##### [`Recording`](#Recording)
@@ -246,11 +291,11 @@ See also [`IInterceptOptions`](#IInterceptOptions).
 
 Begin a new recording. Recording allow you to alternatively spy, record or mock behavior according to the value of the environment variable `YESNO_RECORDING_MODE`. The values and the accompanying behaviors of theses modes are described below.
 
-| Mode | Value | Description |
-|--|--|--|
-| Spy | "spy" | Intercept requests & proxy to destination. Don't save. Equivalent to `yesno.spy()`  |
-| Record | "record" | Intercept requests & proxy to destination. Save to disk on completion. Equivalent to `yesno.spy()` & `yesno.save()` |
-| Mock | "mock" (default) | Load mocks from disks. Intercept requests & respond with mocks. Don't save. Equivalent to `yesno.mock(await yesno.load())`. |
+| Mode   | Value            | Description                                                                                                                 |
+| ------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Spy    | "spy"            | Intercept requests & proxy to destination. Don't save. Equivalent to `yesno.spy()`                                          |
+| Record | "record"         | Intercept requests & proxy to destination. Save to disk on completion. Equivalent to `yesno.spy()` & `yesno.save()`         |
+| Mock   | "mock" (default) | Load mocks from disks. Intercept requests & respond with mocks. Don't save. Equivalent to `yesno.mock(await yesno.load())`. |
 
 **Example**
 
@@ -422,6 +467,12 @@ await myApi.getUsers(token);
 
 expect(yesno.matching(/users/).request()).to.have.nested.property('headers.authorization', token)
 ```
+
+##### `collection.respond(): ISerializedHttp`
+
+Provide a mock response for all matching requests. Optionally provide a callback to dynamically generate a response for each request.
+
+Any matching responses defined in this way take precedence over normally loaded mocks.
 
 ##### `collection.response(): ISerializedHttp`
 

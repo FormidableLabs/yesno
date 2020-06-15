@@ -9,7 +9,7 @@ export function defaultRedactor(): string {
 }
 
 /**
- * Redact properties on the matching intercepted records.
+ * Redact properties on the matching intercepted records. Note that header names are forced to lower case.
  *
  * Use a `.` to reference a nested property
  * @todo Benchmark & investigate alternatives
