@@ -220,6 +220,36 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 
+    it('should support out of order mocks', async () => {
+      yesno.mock([createMock(), createMock(), createMock()]);
+      yesno
+        .matching({
+          request: {
+            path: '/test',
+          },
+        })
+        .respond({
+          body: 'fizbaz',
+          statusCode: 200,
+        });
+
+      expect(yesno.intercepted()).to.have.lengthOf(0);
+
+      // consumes first mock
+      let response = await requestTestServer();
+      expect(response).to.eql('foobar');
+
+      // consumes matched mock
+      response = await requestTestServer({ uri: 'http://localhost/test' });
+      expect(response).to.eql('fizbaz');
+      expect(yesno.intercepted()).to.have.lengthOf(2);
+
+      // consumes third mock
+      response = await requestTestServer();
+      expect(response).to.eql('foobar');
+      expect(yesno.intercepted()).to.have.lengthOf(3);
+    });
+
     it('should reject a request for which no mock has been provided');
     it('should handle unexpected errors');
 
