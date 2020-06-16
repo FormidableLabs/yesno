@@ -57,6 +57,30 @@ describe('Yesno', () => {
     });
   }
 
+  /**
+   * Make a mocked response
+   *
+   * @param options to override the default response values
+   */
+  function createMock(options: PartialDeep<IHttpMock> = {}): IHttpMock {
+    return _.merge(
+      {
+        request: {
+          host: 'localhost',
+          method: 'GET',
+          path: '/get',
+          port: 3001,
+          protocol: 'http',
+        },
+        response: {
+          body: 'foobar',
+          statusCode: 200,
+        },
+      },
+      options,
+    ) as IHttpMock;
+  }
+
   before(async () => {
     server = await testServer.start();
   });
@@ -155,24 +179,6 @@ describe('Yesno', () => {
   });
 
   describe('#mock', () => {
-    function createMock(options: PartialDeep<IHttpMock> = {}): IHttpMock {
-      return _.merge(
-        {
-          request: {
-            host: 'localhost',
-            method: 'GET',
-            path: '/get',
-            port: 3001,
-            protocol: 'http',
-          },
-          response: {
-            body: 'foobar',
-            statusCode: 200,
-          },
-        },
-        options,
-      ) as IHttpMock;
-    }
     beforeEach(async () => {
       await yesno.mock(await yesno.load({ filename: `${mocksDir}/mock-test-yesno.json` }));
     });
@@ -572,6 +578,41 @@ describe('Yesno', () => {
 
         expect(mockedResponse).to.have.property('statusCode', 401);
         expect(mockedResponse).to.have.deep.property('body', body);
+      });
+
+      it('should support mock override with respond', async () => {
+        yesno.mock([
+          createMock({ response: { body: 'a' } }),
+          createMock({ response: { body: 'b' } }),
+          createMock({ response: { body: 'c' } }),
+        ]);
+        yesno
+          .matching({
+            request: {
+              path: '/test',
+            },
+          })
+          .respond({
+            body: 'fizbaz',
+            statusCode: 200,
+          });
+
+        expect(yesno.intercepted()).to.have.lengthOf(0);
+
+        // consumes first mock
+        let response = await requestTestServer();
+        expect(response).to.eql('a');
+        expect(yesno.intercepted()).to.have.lengthOf(1);
+
+        // consumes matched mock
+        response = await requestTestServer({ uri: 'http://localhost/test' });
+        expect(response).to.eql('fizbaz');
+        expect(yesno.intercepted()).to.have.lengthOf(2);
+
+        // consumes third mock
+        response = await requestTestServer();
+        expect(response).to.eql('c');
+        expect(yesno.intercepted()).to.have.lengthOf(3);
       });
     });
   });
