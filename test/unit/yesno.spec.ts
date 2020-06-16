@@ -220,8 +220,12 @@ describe('Yesno', () => {
       expect(yesno.intercepted()).to.have.lengthOf(1);
     });
 
-    it('should support out of order mocks', async () => {
-      yesno.mock([createMock(), createMock(), createMock()]);
+    it('should support mock override with respond', async () => {
+      yesno.mock([
+        createMock({ response: { body: 'a' } }),
+        createMock({ response: { body: 'b' } }),
+        createMock({ response: { body: 'c' } }),
+      ]);
       yesno
         .matching({
           request: {
@@ -237,7 +241,8 @@ describe('Yesno', () => {
 
       // consumes first mock
       let response = await requestTestServer();
-      expect(response).to.eql('foobar');
+      expect(response).to.eql('a');
+      expect(yesno.intercepted()).to.have.lengthOf(1);
 
       // consumes matched mock
       response = await requestTestServer({ uri: 'http://localhost/test' });
@@ -246,7 +251,7 @@ describe('Yesno', () => {
 
       // consumes third mock
       response = await requestTestServer();
-      expect(response).to.eql('foobar');
+      expect(response).to.eql('c');
       expect(yesno.intercepted()).to.have.lengthOf(3);
     });
 
