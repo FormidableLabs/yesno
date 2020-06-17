@@ -586,16 +586,10 @@ describe('Yesno', () => {
           createMock({ response: { body: 'b' } }),
           createMock({ response: { body: 'c' } }),
         ]);
-        yesno
-          .matching({
-            request: {
-              path: '/test',
-            },
-          })
-          .respond({
-            body: 'fizbaz',
-            statusCode: 200,
-          });
+        yesno.matching({ request: { path: '/test' } }).respond({
+          body: 'fizbaz',
+          statusCode: 200,
+        });
 
         expect(yesno.intercepted()).to.have.lengthOf(0);
 
@@ -613,6 +607,46 @@ describe('Yesno', () => {
         response = await requestTestServer();
         expect(response).to.eql('c');
         expect(yesno.intercepted()).to.have.lengthOf(3);
+      });
+    });
+
+    describe('#ignore', () => {
+      it('allows ignoring a mocked url', async () => {
+        yesno.mock([createMock(), createMock(), createMock()]);
+
+        // verify the mocked response
+        let response = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.property('body', 'foobar');
+
+        // add the ignore filter
+        yesno.matching({ request: { path: '/get' } }).ignore();
+
+        // verify the unmocked response
+        response = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.nested.property('body.headers.host', 'localhost:3001');
+
+        // verify the unmocked response with a matching respond defined
+        yesno
+          .matching({ request: { path: '/get' } })
+          .respond({ statusCode: 400, body: { foo: 'bar' } });
+
+        response = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.nested.property('body.headers.host', 'localhost:3001');
       });
     });
   });

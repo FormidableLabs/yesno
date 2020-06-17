@@ -27,6 +27,7 @@ Can filter both intercepted HTTP requests and loaded mocks.
 
 ### Methods
 
+* [ignore](_filtering_collection_.filteredhttpcollection.md#ignore)
 * [intercepted](_filtering_collection_.filteredhttpcollection.md#intercepted)
 * [mocks](_filtering_collection_.filteredhttpcollection.md#mocks)
 * [only](_filtering_collection_.filteredhttpcollection.md#only)
@@ -78,6 +79,19 @@ ___
 
 ## Methods
 
+<a id="ignore"></a>
+
+###  ignore
+
+▸ **ignore**(): `void`
+
+Ignore a mock for all matching requests.
+
+Matching requests defined here take _precedence_ over all mocks and will be proxied.
+
+**Returns:** `void`
+
+___
 <a id="intercepted"></a>
 
 ###  intercepted

@@ -13,6 +13,7 @@ Store the current execution context for YesNo by tracking requests & mocks.
 ### Properties
 
 * [comparatorFn](_context_.context.md#comparatorfn)
+* [ignoresForMatchingRequests](_context_.context.md#ignoresformatchingrequests)
 * [inFlightRequests](_context_.context.md#inflightrequests)
 * [interceptedRequestsCompleted](_context_.context.md#interceptedrequestscompleted)
 * [loadedMocks](_context_.context.md#loadedmocks)
@@ -21,11 +22,14 @@ Store the current execution context for YesNo by tracking requests & mocks.
 
 ### Methods
 
+* [addIgnoreForMatchingRequests](_context_.context.md#addignoreformatchingrequests)
 * [addResponseForMatchingRequests](_context_.context.md#addresponseformatchingrequests)
 * [clear](_context_.context.md#clear)
 * [getMatchingIntercepted](_context_.context.md#getmatchingintercepted)
 * [getMatchingMocks](_context_.context.md#getmatchingmocks)
 * [getResponseDefinedMatching](_context_.context.md#getresponsedefinedmatching)
+* [hasIgnoresDefinedForMatchers](_context_.context.md#hasignoresdefinedformatchers)
+* [hasMatchingIgnore](_context_.context.md#hasmatchingignore)
 * [hasResponsesDefinedForMatchers](_context_.context.md#hasresponsesdefinedformatchers)
 
 ---
@@ -37,6 +41,13 @@ Store the current execution context for YesNo by tracking requests & mocks.
 ###  comparatorFn
 
 **● comparatorFn**: *[ComparatorFn](../modules/_filtering_comparator_.md#comparatorfn)* =  comparatorByUrl
+
+___
+<a id="ignoresformatchingrequests"></a>
+
+###  ignoresForMatchingRequests
+
+**● ignoresForMatchingRequests**: *[IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)[]* =  []
 
 ___
 <a id="inflightrequests"></a>
@@ -83,6 +94,21 @@ ___
 
 ## Methods
 
+<a id="addignoreformatchingrequests"></a>
+
+###  addIgnoreForMatchingRequests
+
+▸ **addIgnoreForMatchingRequests**(matchingResponse: *[IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)*): `void`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| matchingResponse | [IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md) |
+
+**Returns:** `void`
+
+___
 <a id="addresponseformatchingrequests"></a>
 
 ###  addResponseForMatchingRequests
@@ -150,6 +176,30 @@ ___
 | request | [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md) |
 
 **Returns:**  [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md) &#124; `undefined`
+
+___
+<a id="hasignoresdefinedformatchers"></a>
+
+###  hasIgnoresDefinedForMatchers
+
+▸ **hasIgnoresDefinedForMatchers**(): `boolean`
+
+**Returns:** `boolean`
+
+___
+<a id="hasmatchingignore"></a>
+
+###  hasMatchingIgnore
+
+▸ **hasMatchingIgnore**(request: *[ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md)*): `boolean`
+
+**Parameters:**
+
+| Name | Type |
+| ------ | ------ |
+| request | [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md) |
+
+**Returns:** `boolean`
 
 ___
 <a id="hasresponsesdefinedformatchers"></a>
