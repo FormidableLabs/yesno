@@ -278,12 +278,13 @@ export class YesNo implements IFiltered {
   private async onIntercept(event: IInterceptEvent): Promise<void> {
     this.recordRequest(event.requestSerializer, event.requestNumber);
 
-    if (
-      (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) ||
-      (this.ctx.hasIgnoresDefinedForMatchers() &&
-        this.ctx.hasMatchingIgnore(event.requestSerializer))
-    ) {
+    if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
       // No need to mock, send event to its original destination
+      return event.proxy();
+    }
+
+    // proxy requst if ignore is set
+    if (this.ctx.hasMatchingIgnore(event.requestSerializer)) {
       return event.proxy();
     }
 

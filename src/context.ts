@@ -93,15 +93,15 @@ export default class Context {
     return firstMatchingResponse;
   }
 
-  public hasIgnoresDefinedForMatchers(): boolean {
-    return !!this.ignoresForMatchingRequests.length;
-  }
-
   public addIgnoreForMatchingRequests(matchingResponse: IResponseForMatchingRequest): void {
     this.ignoresForMatchingRequests.push(matchingResponse);
   }
 
   public hasMatchingIgnore(request: ISerializedRequest): boolean {
+    if (!this.ignoresForMatchingRequests.length) {
+      return false;
+    }
+
     for (const { matcher } of this.ignoresForMatchingRequests) {
       if (match(matcher)({ request })) {
         return true;
