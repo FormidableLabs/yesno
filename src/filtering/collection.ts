@@ -58,6 +58,16 @@ export default class FilteredHttpCollection implements IFiltered {
   }
 
   /**
+   * Ignore a mock for all matching requests.
+   *
+   * Matching requests defined here take _precedence_ over all mocks and will be proxied.
+   */
+  public ignore(): void {
+    const response = { statusCode: 0 }; // will be overridden by proxied response
+    this.ctx.addIgnoreForMatchingRequests({ response, matcher: this.matcher });
+  }
+
+  /**
    * Provide a mock response for all matching requests.
    *
    * Use callback to dynamically generate response per request.

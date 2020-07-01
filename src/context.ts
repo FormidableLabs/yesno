@@ -43,11 +43,14 @@ export default class Context {
    */
   public inFlightRequests: Array<IInFlightRequest | null> = [];
 
+  public ignoresForMatchingRequests: IResponseForMatchingRequest[] = [];
+
   public responsesForMatchingRequests: IResponseForMatchingRequest[] = [];
 
   public comparatorFn: ComparatorFn = comparatorByUrl;
 
   public clear() {
+    this.ignoresForMatchingRequests = [];
     this.interceptedRequestsCompleted = [];
     this.inFlightRequests = [];
     this.loadedMocks = [];
@@ -88,5 +91,23 @@ export default class Context {
     }
 
     return firstMatchingResponse;
+  }
+
+  public addIgnoreForMatchingRequests(matchingResponse: IResponseForMatchingRequest): void {
+    this.ignoresForMatchingRequests.push(matchingResponse);
+  }
+
+  public hasMatchingIgnore(request: ISerializedRequest): boolean {
+    if (!this.ignoresForMatchingRequests.length) {
+      return false;
+    }
+
+    for (const { matcher } of this.ignoresForMatchingRequests) {
+      if (match(matcher)({ request })) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

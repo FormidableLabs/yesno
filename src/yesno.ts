@@ -283,6 +283,11 @@ export class YesNo implements IFiltered {
       return event.proxy();
     }
 
+    // proxy requst if ignore is set
+    if (this.ctx.hasMatchingIgnore(event.requestSerializer)) {
+      return event.proxy();
+    }
+
     try {
       const mockResponse = new MockResponse(event, this.ctx);
       const sent = await mockResponse.send();

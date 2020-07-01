@@ -172,6 +172,12 @@ yesno.matching({ request: { path: '/post' } }) .respond((request) => ({ statusCo
 
 Responses defined in this way take precedence over normally loaded mocks.
 
+### Ignoring matched mocks to proxy requests
+
+Matched requests can ignore the defined mocks and proxy the request to the original host. This provides mixing of live and mocked results. Use the `.ignore()` method on a filtered http collection to disable the mock.
+
+Matching requests set in this way take precedence over all defined and loaded mocks.
+
 ### Restoring HTTP behavior
 
 When we no longer need YesNo to intercept requests we can call `yesno.restore()`. This will completely restore HTTP behavior & clear our mocks. It's advisable to run this after every test.
@@ -242,6 +248,7 @@ To see typedoc generated documentation, click [here](./docs/README.md).
         - [`yesno.matching(filter?: HttpFilter): FilteredHttpCollection`](#yesnomatchingfilter-httpfilter-filteredhttpcollection)
     - [`FilteredHttpCollection`](#filteredhttpcollection-1)
         - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp)
+        - [`collection.ignore(): ISerializedHttp`](#collectionignore-iserializedhttp)
         - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp)
         - [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor----%22%22-void)
         - [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp)
@@ -254,6 +261,7 @@ To see typedoc generated documentation, click [here](./docs/README.md).
 
 ##### [`FilteredHttpCollection`](#filteredhttpcollection-1)
 - [`collection.mocks(): ISerializedHttp[]`](#collectionmocks-iserializedhttp);
+- [`collection.ignore(): ISerializedHttp`](#collectionignore-iserializedhttp);
 - [`collection.intercepted(): ISerializedHttp[]`](#collectionintercepted-iserializedhttp);
 - [`collection.redact(property: string | string[], redactor: Redactor = () => "*****"): void`](#collectionredactproperty-string--string-redactor-redactor-----void);
 - [`collection.request(): ISerializedHttp`](#collectionrequest-iserializedhttp);
@@ -429,6 +437,12 @@ yesno.matching().response(); // short-cut to get the response from the one inter
 ##### `collection.mocks(): ISerializedHttp[]`
 
 Return the mocks defined within the collection.
+
+##### `collection.ignore(): ISerializedHttp`
+
+Ignore any mocked responses for all matching requests. Matching requests will be proxied to the host.
+
+Any matching requested set in this way take precedence over all defined and loaded mocks.
 
 ##### `collection.intercepted(): ISerializedHttp[]`
 
