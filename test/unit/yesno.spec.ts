@@ -204,7 +204,10 @@ describe('Yesno', () => {
     it('should replace the mocks on subsequent calls but preserve existing intercepted requests');
 
     it('should throw an error if a mock shape is invalid', () => {
-      const mocks = [createMock(), createMock()];
+      const mocks = [
+        createMock({ response: { body: 'a' } }),
+        createMock({ response: { body: 'b' } }),
+      ];
       (mocks[0] as any).request.host = undefined;
 
       expect(() => yesno.mock(mocks)).to.throw(
@@ -612,7 +615,11 @@ describe('Yesno', () => {
 
     describe('#ignore', () => {
       it('allows ignoring a mocked url', async () => {
-        yesno.mock([createMock(), createMock(), createMock()]);
+        yesno.mock([
+          createMock({ response: { body: 'a' } }),
+          createMock({ response: { body: 'b' } }),
+          createMock({ response: { body: 'c' } }),
+        ]);
 
         // verify the mocked response
         let response = await requestTestServer({
@@ -621,7 +628,7 @@ describe('Yesno', () => {
           simple: false,
         });
         expect(response).to.have.property('statusCode', 200);
-        expect(response).to.have.property('body', 'foobar');
+        expect(response).to.have.property('body', 'a');
 
         // add the ignore filter
         yesno.matching({ request: { path: '/get' } }).ignore();
@@ -634,12 +641,9 @@ describe('Yesno', () => {
         });
         expect(response).to.have.property('statusCode', 200);
         expect(response).to.have.nested.property('body.headers.host', 'localhost:3001');
+        expect(response).to.have.nested.property('body.source', 'server');
 
-        // verify the unmocked response with a matching respond defined
-        yesno
-          .matching({ request: { path: '/get' } })
-          .respond({ statusCode: 400, body: { foo: 'bar' } });
-
+        // verify the response continues to be unmocked
         response = await requestTestServer({
           json: true,
           resolveWithFullResponse: true,
@@ -647,6 +651,41 @@ describe('Yesno', () => {
         });
         expect(response).to.have.property('statusCode', 200);
         expect(response).to.have.nested.property('body.headers.host', 'localhost:3001');
+        expect(response).to.have.nested.property('body.source', 'server');
+      });
+
+      it('allows ignoring a mocked url defined with .respond', async () => {
+        yesno.mock([
+          createMock({ response: { body: 'a' } }),
+          createMock({ response: { body: 'b' } }),
+        ]);
+
+        // set mock override with respond
+        yesno
+          .matching({ request: { path: '/get' } })
+          .respond({ statusCode: 400, body: { foo: 'bar' } });
+
+        // verify the overriden mocked response
+        let response = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        expect(response).to.have.property('statusCode', 400);
+        expect(response).to.have.deep.property('body', { foo: 'bar' });
+
+        // add the ignore filter
+        yesno.matching({ request: { path: '/get' } }).ignore();
+
+        // verify the unmocked response
+        response = await requestTestServer({
+          json: true,
+          resolveWithFullResponse: true,
+          simple: false,
+        });
+        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.nested.property('body.headers.host', 'localhost:3001');
+        expect(response).to.have.nested.property('body.source', 'server');
       });
     });
   });

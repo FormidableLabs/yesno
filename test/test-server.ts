@@ -26,7 +26,7 @@ export function start(port: number = PORT): Promise<ITestServer> {
     debug('Received GET request');
     res.status(headers['x-status-code'] ? parseInt(headers['x-status-code'] as string, 10) : 200);
     res.setHeader('x-test-server-header', 'foo');
-    res.send({ headers, method: 'GET', path: '/get' });
+    res.send({ headers, source: 'server', method: 'GET', path: '/get' });
   });
 
   app.post('/post', ({ headers, body }: express.Request, res: express.Response) => {
