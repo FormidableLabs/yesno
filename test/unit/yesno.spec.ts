@@ -175,6 +175,25 @@ describe('Yesno', () => {
       );
     });
 
+    it('should send headers for form-data', async () => {
+      yesno.spy();
+
+      await rp({
+        formData: {
+          fooBuffer: Buffer.from('foo-buffer'),
+          fooString: 'foobar-string',
+        },
+        headers: { 'x-test-header': 'foo' },
+        method: 'POST',
+        uri: 'http://localhost:3001/post',
+      });
+
+      const intercepted = yesno.intercepted();
+      expect(intercepted).to.have.lengthOf(1);
+      expect(intercepted[0]).to.have.nested.property('request.headers.x-test-header', 'foo');
+      expect(intercepted[0]).to.have.nested.property('response.body.headers.x-test-header', 'foo');
+    });
+
     it('should support binary');
   });
 
