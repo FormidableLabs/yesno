@@ -36,6 +36,11 @@ export function start(port: number = PORT): Promise<ITestServer> {
     res.send({ headers, body, method: 'POST', path: '/post' });
   });
 
+  app.get('/timeout', ({ headers }: express.Request, res: express.Response) => {
+    debug('Received GET timeout request');
+    res.status(500).send({ error: 'TIMEOUT' });
+  });
+
   return new Promise((resolve) => {
     const server = app.listen(port, () => {
       debug('Test server running on port %d', port);

@@ -116,7 +116,19 @@ describe('Yesno', () => {
   describe('#spy', () => {
     it('should enable the interceptor');
     it('should give us access to intercepted requests');
-    it('should handle timeouts');
+
+    it.only('should handle timeouts', async () => {
+      yesno.spy();
+
+      const response = await rp({
+        method: 'GET',
+        resolveWithFullResponse: true,
+        uri: 'http://localhost:3001/timeout',
+      });
+
+      expect(response).to.have.property('statusCode', 200);
+    });
+
     it('should handle invalid SSL');
     it('should support application/json');
     it('should support application/x-www-form-url-encoded');

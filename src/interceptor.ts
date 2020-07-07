@@ -6,7 +6,7 @@ import * as https from 'https';
 import * as _ from 'lodash';
 import Mitm from 'mitm';
 import { Socket } from 'net';
-import * as readable from 'readable-stream';
+import { pipeline } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
@@ -218,7 +218,12 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
         proxying: true,
       } as ProxyRequestOptions);
 
-      (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
+      pipeline(interceptedRequest, requestSerializer, proxiedRequest, (err) => {
+        // console.log('foo');
+        if (err) {
+          debugReq('Error on intercepted request:', err);
+        }
+      });
 
       interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
       interceptedRequest.on('aborted', () => {
@@ -235,7 +240,11 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
         if (proxiedResponse.statusCode) {
           interceptedResponse.writeHead(proxiedResponse.statusCode, proxiedResponse.headers);
         }
-        (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
+        pipeline(proxiedResponse, responseSerializer, interceptedResponse, (err) => {
+          if (err) {
+            debugReq('Proxied request error', err);
+          }
+        });
 
         proxiedResponse.on('end', () => {
           debugReq('Emitting "proxied"');
