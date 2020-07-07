@@ -1,9 +1,9 @@
+import axios from 'axios';
 import { expect } from 'chai';
 import * as http from 'http';
 import * as https from 'https';
 import * as _ from 'lodash';
 import * as path from 'path';
-import rp from 'request-promise';
 import yesno from '../../src';
 import * as testServer from '../test-server';
 
@@ -35,19 +35,17 @@ describe('yesno', () => {
       const filename = `${tmpDir}/record-test-1-yesno.json`;
       const now = Date.now();
 
-      await rp.get({
+      await axios.get('http://localhost:3001/get?foo=bar', {
         headers: {
           'x-status-code': 299,
           'x-timestamp': now,
         },
-        uri: 'http://localhost:3001/get?foo=bar',
       });
-      await rp.post({
-        body: {
+      await axios.post('http://localhost:3001/post', {
+        data: {
           foo: 'bar',
         },
-        json: true,
-        uri: 'http://localhost:3001/post',
+        responseType: 'json',
       });
 
       expect(yesno.intercepted()).to.have.length(2);
@@ -69,20 +67,18 @@ describe('yesno', () => {
     it('should allow querying for the various requests made', async () => {
       yesno.spy();
 
-      await rp.get({
+      await axios.get('http://localhost:3001/get', {
         headers: {
           'x-foo': 'bar',
         },
-        uri: 'http://localhost:3001/get',
       });
 
       await expect(
-        rp.post({
+        axios.post('http://localhost:3001/post', 'foo', {
           headers: {
             'x-status-code': 500,
           },
-          json: true,
-          uri: 'http://localhost:3001/post',
+          responseType: 'json',
         }),
       ).to.be.rejected;
 
@@ -103,20 +99,19 @@ describe('yesno', () => {
     });
 
     it('should treat JSON request or response bodies as objects', async () => {
-      await rp.post({
-        body: {
+      await axios.post(
+        'http://localhost:3001/post',
+        {
           nested: {
             foobar: 'fizbaz',
           },
         },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+        {
+          responseType: 'json',
+        },
+      );
 
-      await rp.post({
-        body: '{ "foo": "bar" }',
-        uri: 'http://localhost:3001/post',
-      });
+      await axios.post('http://localhost:3001/post', '{ "foo": "bar" }');
 
       const interceptedJSON = yesno.intercepted()[0];
       const interceptedNotJSON = yesno.intercepted()[1];
@@ -131,17 +126,19 @@ describe('yesno', () => {
   describe('#redact', () => {
     it('should allow redacting a single nested property', async () => {
       await expect(
-        rp.post({
-          body: {
+        axios.post(
+          'http://localhost:3001/post',
+          {
             password: 'secret',
             username: 'hulkhoganhero',
           },
-          headers: {
-            'x-status-code': 500,
+          {
+            headers: {
+              'x-status-code': 500,
+            },
+            responseType: 'json',
           },
-          json: true,
-          uri: 'http://localhost:3001/post',
-        }),
+        ),
       ).to.be.rejected;
 
       const toRedact = 'request.body.password';
@@ -170,20 +167,21 @@ describe('yesno', () => {
 
       const now = Date.now();
 
-      const response1 = await rp.get({
+      const response1 = await axios.get('http://localhost:3001/get?foo=bar', {
         headers: {
           'x-status-code': 299,
           'x-timestamp': now,
         },
-        uri: 'http://localhost:3001/get?foo=bar',
       });
-      const response2 = await rp.post({
-        body: {
+      const response2 = await axios.post(
+        'http://localhost:3001/post',
+        {
           foo: 'bar',
         },
-        json: true,
-        uri: 'http://localhost:3001/post',
-      });
+        {
+          responseType: 'json',
+        },
+      );
 
       expect(response1).to.eql(mocks[0].response.body);
       expect(response2).to.eql(mocks[1].response.body);
@@ -191,49 +189,50 @@ describe('yesno', () => {
   });
 
   it('should send get to test server', async () => {
-    const response: rp.RequestPromise = await rp.get({
+    const response = await axios.get('http://localhost:3001/get', {
       headers: {
         'x-test-header': TEST_HEADER_VALUE,
       },
-      json: true,
-      qs: {
+      responseType: 'json',
+      params: {
         fiz: 'baz',
       },
-      uri: 'http://localhost:3001/get',
     });
 
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
+    expect(response).to.have.nested.property('data.headers.x-test-header', TEST_HEADER_VALUE);
   });
 
   it('should proxy HTTP GET requests', async () => {
-    const response: rp.RequestPromise = await rp.get({
+    const response = await axios.get('http://postman-echo.com/get', {
       headers: {
         'x-test-header': TEST_HEADER_VALUE,
       },
-      json: true,
-      uri: 'http://postman-echo.com/get',
+      responseType: 'json',
     });
 
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
+    expect(response).to.have.nested.property('data.headers.x-test-header', TEST_HEADER_VALUE);
   });
 
   it('should proxy HTTP POST requests', async () => {
-    const response: rp.RequestPromise = await rp.post({
-      body: {
+    const response = await axios.post(
+      'https://postman-echo.com/post',
+      {
         test: TEST_BODY_VALUE,
       },
-      headers: {
-        'x-test-header': TEST_HEADER_VALUE,
+      {
+        headers: {
+          'x-test-header': TEST_HEADER_VALUE,
+        },
+        responseType: 'json',
       },
-      json: true,
-      uri: 'https://postman-echo.com/post',
-    });
+    );
 
+console.log(response);
     expect(response, 'Missing response').to.be.ok;
-    expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
-    expect(response).to.have.nested.property('json.test', TEST_BODY_VALUE);
+    expect(response).to.have.nested.property('data.headers.x-test-header', TEST_HEADER_VALUE);
+    expect(response).to.have.nested.property('data.json.test', TEST_BODY_VALUE);
   });
 
   it('should mock HTTPS requests', (done) => {
