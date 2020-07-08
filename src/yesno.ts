@@ -161,7 +161,7 @@ export class YesNo implements IFiltered {
    * @returns Full filename of saved JSON if generated
    */
   public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
-    options.records = options.records || this.getRecordsToSave();
+    options.records = options.records || this.getRecordsToSave(options.force);
 
     return file.save(options);
   }
@@ -224,10 +224,10 @@ export class YesNo implements IFiltered {
     return env as Mode;
   }
 
-  private getRecordsToSave(): ISerializedHttp[] {
+  private getRecordsToSave(force: boolean = false): ISerializedHttp[] {
     const inFlightRequests = this.ctx.inFlightRequests.filter((x) => x) as IInFlightRequest[];
 
-    if (inFlightRequests.length) {
+    if (inFlightRequests.length && !force) {
       const urls = inFlightRequests
         .map(
           ({ requestSerializer }) => `${requestSerializer.method}${formatUrl(requestSerializer)}`,
