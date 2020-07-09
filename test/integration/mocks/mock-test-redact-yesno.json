@@ -1,0 +1,56 @@
+{
+  "records": [
+    {
+      "__duration": 41,
+      "__id": "1",
+      "__timestamp": 1594314369237,
+      "__version": "1.0.0",
+      "request": {
+        "body": {
+          "password": "*****",
+          "username": "hulkhoganhero"
+        },
+        "headers": {
+          "x-status-code": 200,
+          "host": "localhost:3001",
+          "accept": "application/json",
+          "content-type": "application/json",
+          "content-length": 48
+        },
+        "host": "localhost",
+        "method": "POST",
+        "path": "/post",
+        "port": 3001,
+        "protocol": "http"
+      },
+      "response": {
+        "body": {
+          "headers": {
+            "x-status-code": "200",
+            "host": "localhost:3001",
+            "accept": "application/json",
+            "content-type": "application/json",
+            "content-length": "48",
+            "connection": "close"
+          },
+          "body": {
+            "password": "secret",
+            "username": "hulkhoganhero"
+          },
+          "method": "POST",
+          "path": "/post"
+        },
+        "headers": {
+          "x-powered-by": "Express",
+          "x-test-server-header": "foo",
+          "content-type": "application/json; charset=utf-8",
+          "content-length": "251",
+          "etag": "W/\"fb-kMrRfN5TqT3Sw6VGbMDQrSt8J4E\"",
+          "date": "Thu, 09 Jul 2020 17:06:09 GMT",
+          "connection": "close"
+        },
+        "statusCode": 200
+      }
+    }
+  ]
+}
