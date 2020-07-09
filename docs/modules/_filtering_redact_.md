@@ -56,6 +56,8 @@ ___
 
 Redact properties on the matching intercepted records. Note that header names are forced to lower case.
 
+Run redact after a request in spy mode to redact the specified properties in the generated mocks to save.  Run redact before any requests in mock mode to redact the specified properties on all intercepted requests.
+
 Use a `.` to reference a nested property
 *__todo__*: Benchmark & investigate alternatives
 

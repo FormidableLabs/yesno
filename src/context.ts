@@ -1,6 +1,7 @@
 import { PartialResponseForRequest } from './filtering/collection';
 import { byUrl as comparatorByUrl, ComparatorFn } from './filtering/comparator';
 import { match, Matcher } from './filtering/matcher';
+import { Redactor } from './filtering/redact';
 import {
   ISerializedHttp,
   ISerializedRequest,
@@ -8,6 +9,11 @@ import {
   RequestSerializer,
 } from './http-serializer';
 import { RecordMode as Mode } from './recording';
+
+export interface IRedactProp {
+  property: string | string[];
+  redactor?: Redactor;
+}
 
 export interface IInFlightRequest {
   startTime: number;
@@ -24,6 +30,11 @@ export interface IResponseForMatchingRequest {
  */
 export default class Context {
   public mode: Mode = Mode.Spy;
+
+  /**
+   * Setting to redact all incoming requests to match redacted mocks
+   */
+  public autoRedact: IRedactProp | null = null;
 
   /**
    * Completed serialized request-response objects. Used for:

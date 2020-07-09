@@ -9,7 +9,7 @@ import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
 import { ComparatorFn } from './filtering/comparator';
 import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
-import { Redactor } from './filtering/redact';
+import { redact as redactRecord, Redactor } from './filtering/redact';
 import {
   createRecord,
   formatUrl,
@@ -206,7 +206,10 @@ export class YesNo implements IFiltered {
    * Redact property on all records
    */
   public redact(property: string | string[], redactor?: Redactor): void {
-    return this.getCollection().redact(property, redactor);
+    if (this.getCollection().intercepted().length) {
+      return this.getCollection().redact(property, redactor);
+    }
+    this.ctx.autoRedact = { property, redactor };
   }
 
   private getModeByEnv(): Mode {
@@ -293,6 +296,19 @@ export class YesNo implements IFiltered {
       const sent = await mockResponse.send();
 
       if (sent) {
+        // redact properties if needed
+        if (this.ctx.autoRedact !== null) {
+          const properties = _.isArray(this.ctx.autoRedact.property)
+            ? this.ctx.autoRedact.property
+            : [this.ctx.autoRedact.property];
+          const record = createRecord({
+            duration: 0,
+            request: sent.request,
+            response: sent.response,
+          });
+          sent.request = redactRecord(record, properties, this.ctx.autoRedact.redactor).request;
+        }
+
         this.recordResponse(sent.request, sent.response, event.requestNumber);
       } else if (this.isMode(Mode.Mock)) {
         throw new Error('Unexpectedly failed to send mock respond');

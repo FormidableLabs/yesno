@@ -159,6 +159,32 @@ describe('yesno', () => {
         'secret',
       );
     });
+
+    it('should allow redacting intercepted requests as well', async () => {
+      // run redact before the request to redact the intercepted request
+      const toRedact = 'request.body.password';
+      yesno.redact(toRedact);
+
+      const mocks = await yesno.load({
+        filename: `${path.join(__dirname, 'mocks')}/mock-test-redact-yesno.json`,
+      });
+      yesno.mock(mocks);
+
+      await rp.post({
+        body: {
+          password: 'secret',
+          username: 'hulkhoganhero',
+        },
+        headers: {
+          'x-status-code': 200,
+        },
+        json: true,
+        uri: 'http://localhost:3001/post',
+      });
+
+      const intercepted = yesno.intercepted();
+      expect(intercepted[0]).to.have.nested.property(toRedact, '*****');
+    });
   });
 
   describe('mock mode', () => {
