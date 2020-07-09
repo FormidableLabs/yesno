@@ -156,7 +156,13 @@ ___
 
 ### `<Private>` getRecordsToSave
 
-▸ **getRecordsToSave**(): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+▸ **getRecordsToSave**(force?: *`boolean`*): [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
+
+**Parameters:**
+
+| Name | Type | Default value |
+| ------ | ------ | ------ |
+| `Default value` force | `boolean` | false |
 
 **Returns:** [ISerializedHttp](../interfaces/_http_serializer_.iserializedhttp.md)[]
 

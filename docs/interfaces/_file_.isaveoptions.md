@@ -10,12 +10,21 @@
 
 ### Properties
 
+* [force](_file_.isaveoptions.md#force)
 * [records](_file_.isaveoptions.md#records)
 
 ---
 
 ## Properties
 
+<a id="force"></a>
+
+### `<Optional>` force
+
+**● force**: * `undefined` &#124; `false` &#124; `true`
+*
+
+___
 <a id="records"></a>
 
 ### `<Optional>` records

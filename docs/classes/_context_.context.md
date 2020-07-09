@@ -28,7 +28,6 @@ Store the current execution context for YesNo by tracking requests & mocks.
 * [getMatchingIntercepted](_context_.context.md#getmatchingintercepted)
 * [getMatchingMocks](_context_.context.md#getmatchingmocks)
 * [getResponseDefinedMatching](_context_.context.md#getresponsedefinedmatching)
-* [hasIgnoresDefinedForMatchers](_context_.context.md#hasignoresdefinedformatchers)
 * [hasMatchingIgnore](_context_.context.md#hasmatchingignore)
 * [hasResponsesDefinedForMatchers](_context_.context.md#hasresponsesdefinedformatchers)
 
@@ -176,15 +175,6 @@ ___
 | request | [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md) |
 
 **Returns:**  [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md) &#124; `undefined`
-
-___
-<a id="hasignoresdefinedformatchers"></a>
-
-###  hasIgnoresDefinedForMatchers
-
-▸ **hasIgnoresDefinedForMatchers**(): `boolean`
-
-**Returns:** `boolean`
 
 ___
 <a id="hasmatchingignore"></a>
