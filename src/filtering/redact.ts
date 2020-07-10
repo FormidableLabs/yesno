@@ -17,7 +17,7 @@ export function defaultRedactor(): string {
  * intercepted requests to save.
  *
  * If you want incoming requests in mock mode to be redacted to match the saved mocks,
- * run yesno.redact before any requests have been mode to redact the specified
+ * run yesno.redact before any requests have been made to redact the specified
  * properties on all intercepted requests.
  *
  * Use a `.` to reference a nested property
