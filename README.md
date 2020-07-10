@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=master)](https://travis-ci.com/FormidableLabs/yesno)
-[![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/master/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
+[![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=main)](https://travis-ci.com/FormidableLabs/yesno)
+[![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/main/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
 [![Maintenance Status][maintenance-image]](#maintenance-status)
 
 
@@ -195,7 +195,7 @@ If you're using `yesno.test()` it'll call restore for you whenever it runs.
 
 ## Examples
 
-Visit the [examples](https://github.com/FormidableLabs/yesno/tree/master/examples) directory to see sample tests written with YesNo.
+Visit the [examples](https://github.com/FormidableLabs/yesno/tree/main/examples) directory to see sample tests written with YesNo.
 
 You can run the tests yourselves after cloning the repo.
 
