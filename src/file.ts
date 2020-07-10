@@ -20,6 +20,7 @@ export interface ISaveFile {
 }
 
 export interface ISaveOptions {
+  force?: boolean;
   records?: ISerializedHttp[];
 }
 

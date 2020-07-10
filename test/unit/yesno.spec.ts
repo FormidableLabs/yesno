@@ -506,6 +506,16 @@ describe('Yesno', () => {
   });
 
   describe('#save', () => {
+    const mockRequest = {
+      body: {},
+      headers: {},
+      host: 'test',
+      method: 'GET',
+      path: '/',
+      port: 80,
+      protocol: 'http',
+    };
+
     it('should create the directory if it does not exist', async () => {
       const nestedDir = `${__dirname}/tmp/my/dir`;
       const filename = `${nestedDir}/file.json`;
@@ -518,7 +528,52 @@ describe('Yesno', () => {
     });
 
     it('should save intercepted requests');
-    it('should throw an error if there are any in flight requests');
+
+    it('should throw an error if there are any in flight requests', async () => {
+      const ctx = 'ctx';
+      const nestedDir = `${__dirname}/tmp/save/dir`;
+      const filename = `${nestedDir}/file.json`;
+
+      expect(fse.existsSync(nestedDir)).to.be.false;
+      expect(fse.existsSync(filename)).to.be.false;
+
+      Object.defineProperty(yesno[ctx], 'inFlightRequests', [
+        {
+          requestSerializer: mockRequest,
+          startTime: null,
+        },
+      ]);
+
+      try {
+        expect(async () => await yesno.save({ filename })).to.throw(
+          'Error: YesNo: Cannot save. Still have 1 in flight requests',
+        );
+      } catch (e) {
+        Object.defineProperty(yesno[ctx], 'inFlightRequests', []);
+      }
+    });
+
+    it('should allow force save with in flight requests', async () => {
+      const ctx = 'ctx';
+      const nestedDir = `${__dirname}/tmp/save/dir`;
+      const filename = `${nestedDir}/file.json`;
+
+      expect(fse.existsSync(nestedDir)).to.be.false;
+      expect(fse.existsSync(filename)).to.be.false;
+
+      Object.defineProperty(yesno[ctx], 'inFlightRequests', [
+        {
+          requestSerializer: mockRequest,
+          startTime: null,
+        },
+      ]);
+
+      await yesno.save({ filename, force: true });
+      expect(fse.existsSync(filename)).to.be.true;
+
+      Object.defineProperty(yesno[ctx], 'inFlightRequests', []);
+    });
+
     it('should take no action in mock mode (if not provided requests)');
     it('should allow setting the full filename');
     it('should allow providing the records');
