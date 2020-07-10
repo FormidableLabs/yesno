@@ -1,6 +1,6 @@
 import { IDebugger } from 'debug';
 import * as _ from 'lodash';
-import * as readable from 'readable-stream';
+import { pipeline } from 'stream';
 
 import Context from './context';
 import { YesNoError } from './errors';
@@ -15,6 +15,7 @@ import { IInterceptEvent } from './interceptor';
 import { RecordMode as Mode } from './recording';
 
 const debug: IDebugger = require('debug')('yesno:mock-response');
+const noop = () => {/**/};
 
 /**
  * Encapsulates logic for sending a response for an intercepted HTTP request
@@ -47,7 +48,7 @@ export default class MockResponse {
 
     debug(`[#${requestNumber}] Mock response`);
 
-    await (readable as any).pipeline(interceptedRequest, requestSerializer);
+    await pipeline(interceptedRequest, requestSerializer, noop);
     const request = requestSerializer.serialize();
     response = this.ctx.getResponseDefinedMatching(request);
 
