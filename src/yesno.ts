@@ -270,10 +270,11 @@ export class YesNo implements IFiltered {
   }
 
   private createInterceptor() {
-    const interceptor = new Interceptor();
+    const DebugInterceptor = require("../../mitm-experiments/index").Interceptor;
+    const interceptor = new DebugInterceptor();
 
-    interceptor.on('intercept', this.onIntercept.bind(this));
-    interceptor.on('proxied', this.onProxied.bind(this));
+    // interceptor.on('intercept', this.onIntercept.bind(this));
+    // interceptor.on('proxied', this.onProxied.bind(this));
 
     return interceptor;
   }
