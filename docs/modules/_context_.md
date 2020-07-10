@@ -11,6 +11,7 @@
 ### Interfaces
 
 * [IInFlightRequest](../interfaces/_context_.iinflightrequest.md)
+* [IRedactProp](../interfaces/_context_.iredactprop.md)
 * [IResponseForMatchingRequest](../interfaces/_context_.iresponseformatchingrequest.md)
 
 ---

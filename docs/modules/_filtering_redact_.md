@@ -56,6 +56,10 @@ ___
 
 Redact properties on the matching intercepted records. Note that header names are forced to lower case.
 
+If you want to redact a property in the saved mock file, run yesno.redact after a request has been made in spy mode to redact the specified properties in the intercepted requests to save.
+
+If you want incoming requests in mock mode to be redacted to match the saved mocks, run yesno.redact before any requests have been made to redact the specified properties on all intercepted requests.
+
 Use a `.` to reference a nested property
 *__todo__*: Benchmark & investigate alternatives
 

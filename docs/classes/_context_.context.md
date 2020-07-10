@@ -12,6 +12,7 @@ Store the current execution context for YesNo by tracking requests & mocks.
 
 ### Properties
 
+* [autoRedact](_context_.context.md#autoredact)
 * [comparatorFn](_context_.context.md#comparatorfn)
 * [ignoresForMatchingRequests](_context_.context.md#ignoresformatchingrequests)
 * [inFlightRequests](_context_.context.md#inflightrequests)
@@ -28,7 +29,6 @@ Store the current execution context for YesNo by tracking requests & mocks.
 * [getMatchingIntercepted](_context_.context.md#getmatchingintercepted)
 * [getMatchingMocks](_context_.context.md#getmatchingmocks)
 * [getResponseDefinedMatching](_context_.context.md#getresponsedefinedmatching)
-* [hasIgnoresDefinedForMatchers](_context_.context.md#hasignoresdefinedformatchers)
 * [hasMatchingIgnore](_context_.context.md#hasmatchingignore)
 * [hasResponsesDefinedForMatchers](_context_.context.md#hasresponsesdefinedformatchers)
 
@@ -36,6 +36,16 @@ Store the current execution context for YesNo by tracking requests & mocks.
 
 ## Properties
 
+<a id="autoredact"></a>
+
+###  autoRedact
+
+**● autoRedact**: * [IRedactProp](../interfaces/_context_.iredactprop.md) &#124; `null`
+* =  null
+
+Setting to redact all incoming requests to match redacted mocks
+
+___
 <a id="comparatorfn"></a>
 
 ###  comparatorFn
@@ -176,15 +186,6 @@ ___
 | request | [ISerializedRequest](../interfaces/_http_serializer_.iserializedrequest.md) |
 
 **Returns:**  [ISerializedResponse](../interfaces/_http_serializer_.iserializedresponse.md) &#124; `undefined`
-
-___
-<a id="hasignoresdefinedformatchers"></a>
-
-###  hasIgnoresDefinedForMatchers
-
-▸ **hasIgnoresDefinedForMatchers**(): `boolean`
-
-**Returns:** `boolean`
 
 ___
 <a id="hasmatchingignore"></a>
