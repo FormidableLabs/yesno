@@ -158,6 +158,11 @@ export class YesNo implements IFiltered {
   /**
    * Save intercepted requests
    *
+   * Normally save is called by the complete method and will only succeed if there are
+   * no in-flight requests (i.e. all open requests have completed). However, if for some
+   * reason a request will not complete and you need to save the successful requests up to
+   * that point, you can set 'force' option to true and call this save method.
+   *
    * @returns Full filename of saved JSON if generated
    */
   public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {
