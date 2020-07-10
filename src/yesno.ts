@@ -158,6 +158,9 @@ export class YesNo implements IFiltered {
   /**
    * Save intercepted requests
    *
+   * You can save only filtered requests by using yesno.matching to get the filtered
+   * records. Then pass them in the records parameter of the options to save.
+   *
    * @returns Full filename of saved JSON if generated
    */
   public async save(options: file.ISaveOptions & file.IFileOptions): Promise<string | void> {

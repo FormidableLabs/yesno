@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
 import * as _ from 'lodash';
@@ -30,7 +31,7 @@ describe('yesno', () => {
     server.close();
   });
 
-  describe.skip('#save', () => {
+  describe('#save', () => {
     it('should create records locally', async () => {
       const filename = `${tmpDir}/record-test-1-yesno.json`;
       const now = Date.now();
@@ -62,6 +63,48 @@ describe('yesno', () => {
       expect(mocks[0]).to.have.nested.property('response.statusCode', 299);
       expect(mocks[0]).to.have.nested.property('response.headers');
       expect(mocks[0]).to.have.nested.property('response.body');
+
+      fs.unlinkSync(filename);
+    });
+
+    it('should save only matching requests', async () => {
+      const filename = `${tmpDir}/save-filter-test-1-yesno.json`;
+      yesno.spy();
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-test-header': TEST_HEADER_VALUE,
+        },
+        json: true,
+        uri: 'http://postman-echo.com/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(3);
+
+      const records = yesno.matching(/\/postman-echo.com/).intercepted();
+      expect(records, 'Match URL by RegExp').to.have.lengthOf(1);
+
+      await yesno.save({ filename, records });
+
+      const mocks = await yesno.load({ filename });
+      expect(mocks).to.have.lengthOf(1);
+      expect(mocks[0]).to.have.nested.property('request.host', 'postman-echo.com');
+
+      fs.unlinkSync(filename);
     });
   });
 
