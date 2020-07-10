@@ -219,8 +219,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
         proxying: true,
       } as ProxyRequestOptions);
 
-      pipeline(interceptedRequest, requestSerializer, proxiedRequest, noop);
-
       interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
       interceptedRequest.on('aborted', () => {
         debugReq('Intercepted request aborted');
@@ -237,8 +235,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
           interceptedResponse.writeHead(proxiedResponse.statusCode, proxiedResponse.headers);
         }
 
-        pipeline(proxiedResponse, responseSerializer, interceptedResponse, noop);
-
         proxiedResponse.on('end', () => {
           debugReq('Emitting "proxied"');
           this.emit('proxied', {
@@ -247,7 +243,11 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
             responseSerializer,
           });
         });
+
+        pipeline(proxiedResponse, responseSerializer, interceptedResponse, noop);
       });
+
+      pipeline(interceptedRequest, requestSerializer, proxiedRequest, noop);
     };
 
     // YesNo will listen for this event to mock the response
