@@ -184,6 +184,7 @@ export class ResponseSerializer extends Transform implements ISerializedResponse
   }
 
   public serialize(): ISerializedResponse {
+    console.log("TODO ResponseSerializer serialize");
     return {
       body: serializeJSON(this.headers, this.body as string) as string | object,
       headers: this.headers,

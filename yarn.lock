@@ -1800,10 +1800,10 @@ minimist@~0.0.1:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8=
 
-mitm@^1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/mitm/-/mitm-1.7.0.tgz#da03b8448090168bc68bcd847c6e014fde320829"
-  integrity sha512-O6EjnhSf7dDq+pveB5WlRbaz34cZgQuRfey7RonqsD2QB//eVXniYnH5u8QMB6bG7BUIJofL7UPaopE3iYkKlA==
+mitm@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/mitm/-/mitm-1.7.1.tgz#f79771d4992734f6b77ee45d1bffa1bb218e28a9"
+  integrity sha512-SX2qv5zz+MxjcgLxbByE+iZachquhDg9xlIuNd22L3h7auFEKS9DaBUTiKv+REx+ZOK//Fmk0S8MaPlXAEYfOg==
   dependencies:
     semver ">= 5 < 6"
     underscore ">= 1.1.6 < 1.6"

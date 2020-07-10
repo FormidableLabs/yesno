@@ -219,17 +219,53 @@ describe('yesno', () => {
     expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
   });
 
-  it('should proxy HTTP POST requests', async () => {
-    const response: rp.RequestPromise = await rp.post({
-      body: {
+  it.only('should proxy HTTP POST requests', async () => {
+    // const response: rp.RequestPromise = await rp.post({
+    //   body: {
+    //     test: TEST_BODY_VALUE,
+    //   },
+    //   headers: {
+    //     'x-test-header': TEST_HEADER_VALUE,
+    //   },
+    //   json: true,
+    //   uri: 'https://postman-echo.com/post',
+    // });
+
+    const httpPost = () => new Promise((resolve, reject) => {
+      const postData = JSON.stringify({
         test: TEST_BODY_VALUE,
-      },
-      headers: {
-        'x-test-header': TEST_HEADER_VALUE,
-      },
-      json: true,
-      uri: 'https://postman-echo.com/post',
+      });
+
+      const req = https.request({
+        hostname: 'postman-echo.com',
+        port: 443,
+        path: '/post',
+        method: 'POST',
+        headers: {
+          'x-test-header': TEST_HEADER_VALUE,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        },
+      }, (res) => {
+        let data = "";
+        res.on('data', (d) => {
+          console.log("TODO RES DATA", d.toString());
+          data += d.toString();
+        });
+        res.on('pipe', () => {
+          console.log("TODO RES PIPE")
+        })
+        res.on('end', () => {
+          console.log("TODO RES END", data);
+          resolve(JSON.parse(data))
+        });
+      });
+
+      req.on('error', reject);
+      req.write(postData);
+      req.end();
     });
+    const response = await httpPost();
 
     expect(response, 'Missing response').to.be.ok;
     expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);

@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import Mitm from 'mitm';
 import { Socket } from 'net';
 import * as readable from 'readable-stream';
+import { Transform, pipeline } from 'stream'; // TODO REMOVE
 import { v4 as uuidv4 } from 'uuid';
 import { YESNO_INTERNAL_HTTP_HEADER } from './consts';
 import { ClientRequestFull, RequestSerializer, ResponseSerializer } from './http-serializer';
@@ -194,6 +195,13 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
     interceptedResponse.on('finish', () => {
       debugReq('Response finished');
     });
+    ["close", "drain", "error", "finish", "pipe", "unpipe"].forEach((evt) => {
+      interceptedResponse.on(evt, (arg: any) => {
+        setTimeout((_evt) => {
+          console.log("TODO interceptedResponse", _evt, (arg || "").toString());
+        }, 1000, evt);
+      });
+    });
 
     const { clientOptions } = this.clientRequests[id];
     const clientRequest = this.clientRequests[id].clientRequest as ClientRequestFull;
@@ -218,8 +226,6 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
         proxying: true,
       } as ProxyRequestOptions);
 
-      (readable as any).pipeline(interceptedRequest, requestSerializer, proxiedRequest);
-
       interceptedRequest.on('error', (e: any) => debugReq('Error on intercepted request:', e));
       interceptedRequest.on('aborted', () => {
         debugReq('Intercepted request aborted');
@@ -232,20 +238,59 @@ export default class Interceptor extends EventEmitter implements IInterceptEvent
       proxiedRequest.on('response', (proxiedResponse: http.IncomingMessage) => {
         const responseSerializer = new ResponseSerializer(proxiedResponse);
         debugReq('proxied response (%d)', proxiedResponse.statusCode);
+        // console.log("TODO WILL PASS NOW");
         if (proxiedResponse.statusCode) {
           interceptedResponse.writeHead(proxiedResponse.statusCode, proxiedResponse.headers);
         }
-        (readable as any).pipeline(proxiedResponse, responseSerializer, interceptedResponse);
 
         proxiedResponse.on('end', () => {
           debugReq('Emitting "proxied"');
+          console.log("TODO proxiedResponse END");
           this.emit('proxied', {
             requestNumber,
             requestSerializer,
             responseSerializer,
           });
         });
+
+        class DebugTransform extends Transform {
+          _transform(chunk: any, encoding: any, callback: any) {
+            setTimeout((data) => {
+              console.log("TODO debugTransform", { data })
+            }, 1000, chunk.toString())
+            callback(null, chunk);
+          }
+        }
+
+        pipeline(
+          proxiedResponse,
+          responseSerializer,
+          new DebugTransform(),
+          interceptedResponse,
+          (err: any) => {
+            if (err) {
+              console.error('Response pipeline failed.', err);
+            } else {
+              console.log('Response pipeline succeeded.');
+            }
+          }
+        );
+
+
       });
+
+      pipeline(
+        interceptedRequest,
+        requestSerializer,
+        proxiedRequest,
+        (err: any) => {
+          if (err) {
+            console.error('Request pipeline failed.', err);
+          } else {
+            console.log('Request pipeline succeeded.');
+          }
+        }
+      );
     };
 
     // YesNo will listen for this event to mock the response
