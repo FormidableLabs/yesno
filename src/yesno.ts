@@ -286,7 +286,7 @@ export class YesNo implements IFiltered {
       return event.proxy();
     }
 
-    // proxy requst if ignore is set
+    // proxy request if ignore is set
     if (this.ctx.hasMatchingIgnore(event.requestSerializer)) {
       return event.proxy();
     }

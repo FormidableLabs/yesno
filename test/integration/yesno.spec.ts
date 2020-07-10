@@ -245,7 +245,7 @@ describe('yesno', () => {
     expect(response).to.have.nested.property('headers.x-test-header', TEST_HEADER_VALUE);
   });
 
-  it('should proxy HTTPS POST requests', async () => {
+  it.only('should proxy HTTPS POST requests', async () => {
     const response: rp.RequestPromise = await rp.post({
       body: {
         test: TEST_BODY_VALUE,
