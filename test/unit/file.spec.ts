@@ -76,8 +76,8 @@ describe('file', () => {
     it('reads the file specified and returns the stored serialized http mocks', async () => {
       stubReadFile.resolves(Buffer.from(expectedData, 'utf8'));
 
-      const results: ISerializedHttp[] = await file.load({ filename: mockFileName });
-      expect(results).deep.equals(mockRecords);
+      const results = await file.load({ filename: mockFileName });
+      expect(results.records).deep.equals(mockRecords);
 
       expect(stubReadFile).calledOnce.and.calledWithExactly(mockFileName);
     });

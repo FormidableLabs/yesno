@@ -8,6 +8,8 @@ import rp from 'request-promise';
 import yesno from '../../src';
 import * as testServer from '../test-server';
 
+const YESNO_RECORDING_MODE = 'YESNO_RECORDING_MODE';
+
 describe('yesno', () => {
   const TEST_HEADER_VALUE = 'foo';
   const TEST_BODY_VALUE = 'fiz';
@@ -104,6 +106,50 @@ describe('yesno', () => {
       expect(mocks).to.have.lengthOf(1);
       expect(mocks[0]).to.have.nested.property('request.host', 'postman-echo.com');
 
+      fs.unlinkSync(filename);
+    });
+  });
+
+  describe('#record', () => {
+    it('should save matching and ignore settings', async () => {
+      const filename = `${tmpDir}/save-settings-test-1-yesno.json`;
+      process.env[YESNO_RECORDING_MODE] = 'record';
+      const recording = await yesno.recording({ filename });
+      yesno.matching(/\/postman-echo.com/).save();
+      yesno.matching(/\/localhost/).ignore();
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-test-header': TEST_HEADER_VALUE,
+        },
+        json: true,
+        uri: 'http://postman-echo.com/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(3);
+
+      await recording.complete();
+
+      const mocks = await yesno.load({ filename });
+      expect(mocks).to.have.lengthOf(3);
+      expect(mocks[1]).to.have.nested.property('request.host', 'postman-echo.com');
+
+      // clean up
+      process.env[YESNO_RECORDING_MODE] = 'spy';
       fs.unlinkSync(filename);
     });
   });

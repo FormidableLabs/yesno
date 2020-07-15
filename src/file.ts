@@ -11,16 +11,22 @@ import {
   MIME_TYPE_JSON,
 } from './consts';
 
+import { IResponseForMatchingRequest } from './context';
 import { YesNoError } from './errors';
+import { HttpFilter, ISerializedHttpPartialDeepMatch } from './filtering/matcher';
 import { createRecord, IHeaders, ISerializedHttp } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:mocks');
 
 export interface ISaveFile {
+  filter?: HttpFilter;
+  ignoreMatchingRequests?: IResponseForMatchingRequest[];
   records: ISerializedHttp[];
 }
 
 export interface ISaveOptions {
+  filter?: HttpFilter;
   force?: boolean;
+  ignoreMatchingRequests?: IResponseForMatchingRequest[];
   records?: ISerializedHttp[];
 }
 
@@ -49,12 +55,29 @@ export interface IHttpMock {
   readonly response: IPartialMockResponse;
 }
 
+function regexToString(rgx: string | RegExp) {
+  if (typeof rgx !== 'string') {
+    return '_RgX:' + rgx.toString();
+  }
+  return rgx;
+}
+
+function toRegex(str: string) {
+  if (str.substr(0, 5) === '_RgX:') {
+    const idx = str.lastIndexOf('/');
+    const exp = str.substring(6, idx); // remove beginning and trailing slashes
+    const flags = str.substr(idx + 1);
+    return new RegExp(exp, flags);
+  }
+  return str;
+}
+
 /**
  * Read mocks from a specified file.
  *
  * @throws YesNoError If file is improperly formatted
  */
-export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[]> {
+export async function load({ filename }: IFileOptions): Promise<ISaveFile> {
   debug('Loading mocks from', filename);
 
   let data: Buffer;
@@ -70,7 +93,8 @@ export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[
     throw e;
   }
 
-  let obj: ISaveFile;
+  let obj;
+  let ret: ISaveFile;
   const dataString: string = data.toString();
 
   try {
@@ -83,21 +107,53 @@ export async function load({ filename }: IFileOptions): Promise<ISerializedHttp[
     throw new YesNoError('Invalid JSON format. Missing top level "records" key.');
   }
 
-  return obj.records;
+  // restore regexp values
+  if (obj.filter && obj.filter.url && typeof obj.filter.url === 'string') {
+    obj.filter.url = toRegex(obj.filter.url);
+  }
+
+  if (obj.ignoreMatchingRequests && obj.ignoreMatchingRequests.length) {
+    obj.ignoreMatchingRequests.map((o: IResponseForMatchingRequest) => {
+      if (typeof o.matcher !== 'function' && typeof o.matcher.url === 'string') {
+        o.matcher.url = toRegex(o.matcher.url);
+      }
+    });
+  }
+  ret = obj;
+
+  return ret;
 }
 
 /**
  * Save HTTP records to the specified file
  */
 export async function save({
+  filter,
   filename,
+  ignoreMatchingRequests,
   records = [],
 }: ISaveOptions & IFileOptions): Promise<string> {
   debug('Saving %d records to %s', records.length, filename);
 
   await ensureDir(path.dirname(filename));
 
-  const payload: ISaveFile = { records };
+  // convert RegExp values to strings for saving
+  if (filter && typeof filter === 'object') {
+    if (filter instanceof RegExp) {
+      filter = regexToString(filter);
+    } else if (filter.url) {
+      filter.url = regexToString(filter.url);
+    }
+  }
+  if (ignoreMatchingRequests && ignoreMatchingRequests.length) {
+    ignoreMatchingRequests.map((o) => {
+      if (typeof o.matcher !== 'function' && o.matcher.url && typeof o.matcher.url !== 'string') {
+        o.matcher.url = regexToString(o.matcher.url);
+      }
+    });
+  }
+
+  const payload: ISaveFile = { filter, ignoreMatchingRequests, records };
   const contents = JSON.stringify(payload, null, 2);
   await writeFile(filename, contents);
 

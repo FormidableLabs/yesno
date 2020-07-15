@@ -24,6 +24,8 @@ export type MatchFn = (serialized: ISerializedRequestResponse) => boolean;
 
 export type UnsafeMatchFn = (serialized: ISerializedRequestResponseToMatch) => boolean;
 
+export type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn;
+
 export type Matcher = ISerializedHttpPartialDeepMatch | MatchFn;
 
 export const EMPTY_RESPONSE = { body: {}, headers: {}, statusCode: 0 };

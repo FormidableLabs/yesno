@@ -1,6 +1,6 @@
 import { PartialResponseForRequest } from './filtering/collection';
 import { byUrl as comparatorByUrl, ComparatorFn } from './filtering/comparator';
-import { match, Matcher } from './filtering/matcher';
+import { HttpFilter, match, Matcher } from './filtering/matcher';
 import { Redactor } from './filtering/redact';
 import {
   ISerializedHttp,
@@ -37,6 +37,11 @@ export default class Context {
   public autoRedact: IRedactProp | null = null;
 
   /**
+   * Host/URL filter defined for only recording/mocking matching requests
+   */
+  public filter: HttpFilter | undefined = undefined;
+
+  /**
    * Completed serialized request-response objects. Used for:
    * A. Assertions
    * B. Saved to disk if in record mode
@@ -54,6 +59,9 @@ export default class Context {
    */
   public inFlightRequests: Array<IInFlightRequest | null> = [];
 
+  /**
+   * Will not mock ignored matching requests
+   */
   public ignoresForMatchingRequests: IResponseForMatchingRequest[] = [];
 
   public responsesForMatchingRequests: IResponseForMatchingRequest[] = [];

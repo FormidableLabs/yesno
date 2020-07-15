@@ -1,5 +1,7 @@
 import { IDebugger } from 'debug';
+import Context, { IResponseForMatchingRequest } from './context';
 import { IFileOptions, save } from './file';
+import { HttpFilter } from './filtering/matcher';
 import { ISerializedHttp } from './http-serializer';
 const debug: IDebugger = require('debug')('yesno:recording');
 
@@ -19,6 +21,10 @@ export enum RecordMode {
 }
 
 export interface IRecordingOptions extends IFileOptions {
+  /**
+   * Link to context of the parent
+   */
+  context: Context;
   /**
    * Get all recorded HTTP requests we need to save to disc
    */
@@ -48,6 +54,10 @@ export default class Recording {
       debug('Record mode, saving');
       return save({
         ...this.options,
+        filter: this.options.context ? this.options.context.filter : undefined,
+        ignoreMatchingRequests: this.options.context
+          ? this.options.context.ignoresForMatchingRequests
+          : undefined,
         records: this.options.getRecordsToSave(),
       });
     }

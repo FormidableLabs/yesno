@@ -58,6 +58,13 @@ export default class FilteredHttpCollection implements IFiltered {
   }
 
   /**
+   * Save the matching filter with the recording
+   */
+  public save(): void {
+    this.ctx.filter = this.matcher;
+  }
+
+  /**
    * Ignore a mock for all matching requests.
    *
    * Matching requests defined here take _precedence_ over all mocks and will be proxied.

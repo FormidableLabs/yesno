@@ -8,7 +8,7 @@ import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
 import { ComparatorFn } from './filtering/comparator';
-import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
+import { HttpFilter, ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
 import { redact as redactRecord, Redactor } from './filtering/redact';
 import {
   createRecord,
@@ -27,8 +27,6 @@ const debug: IDebugger = require('debug')('yesno');
 
 export type GenericTest = (...args: any) => Promise<any> | void;
 export type GenericTestFunction = (title: string, fn: GenericTest) => any;
-
-export type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn;
 
 export interface IRecordableTest {
   test?: GenericTestFunction;
@@ -110,6 +108,7 @@ export class YesNo implements IFiltered {
 
     return new Recording({
       ...options,
+      context: this.ctx,
       getRecordsToSave: this.getRecordsToSave.bind(this),
       mode,
     });
@@ -149,11 +148,14 @@ export class YesNo implements IFiltered {
    */
   public async load(options: file.IFileOptions): Promise<ISerializedHttp[]> {
     debug('Loading mocks');
-    const records = await file.load(options as file.IFileOptions);
+    const recording = await file.load(options as file.IFileOptions);
 
-    validateSerializedHttpArray(records);
+    this.ctx.filter = recording.filter;
+    this.ctx.ignoresForMatchingRequests = recording.ignoreMatchingRequests || [];
 
-    return records;
+    validateSerializedHttpArray(recording.records);
+
+    return recording.records;
   }
   /**
    * Save intercepted requests
