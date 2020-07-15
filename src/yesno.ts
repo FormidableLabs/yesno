@@ -368,6 +368,19 @@ export class YesNo implements IFiltered {
     response: ISerializedResponse,
     requestNumber: number,
   ): void {
+    // see if an ignore is set for this record
+    if (this.ctx.hasMatchingIgnore(request)) {
+      const rec = {
+        __id: 'ignored',
+        __version: '',
+        request,
+        response: { body: '', headers: {}, statusCode: 0 },
+      };
+      this.ctx.interceptedRequestsCompleted[requestNumber] = rec;
+      this.ctx.inFlightRequests[requestNumber] = null;
+      debug('Skipping ignored response for %s %s', request.method, request.host);
+      return;
+    }
     const duration =
       Date.now() - (this.ctx.inFlightRequests[requestNumber] as IInFlightRequest).startTime;
     const record = createRecord({ request, response, duration });

@@ -149,7 +149,7 @@ describe('yesno', () => {
       expect(mocks[1]).to.have.nested.property('request.host', 'postman-echo.com');
 
       // clean up
-      process.env[YESNO_RECORDING_MODE] = 'spy';
+      process.env[YESNO_RECORDING_MODE] = 'mock';
       fs.unlinkSync(filename);
     });
   });
