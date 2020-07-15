@@ -111,11 +111,51 @@ describe('yesno', () => {
   });
 
   describe('#record', () => {
-    it('should save matching and ignore settings', async () => {
+    it('should save matching settings', async () => {
       const filename = `${tmpDir}/save-settings-test-1-yesno.json`;
       process.env[YESNO_RECORDING_MODE] = 'record';
       const recording = await yesno.recording({ filename });
       yesno.matching(/\/postman-echo.com/).save();
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-test-header': TEST_HEADER_VALUE,
+        },
+        json: true,
+        uri: 'http://postman-echo.com/get',
+      });
+
+      await rp.get({
+        headers: {
+          'x-foo': 'bar',
+        },
+        uri: 'http://localhost:3001/get',
+      });
+
+      expect(yesno.intercepted(), 'Returns all intercepted requests').to.have.lengthOf(3);
+
+      await recording.complete();
+
+      const mocks = await yesno.load({ filename });
+      expect(mocks).to.have.lengthOf(3);
+      expect(mocks[1]).to.have.nested.property('request.host', 'postman-echo.com');
+
+      // clean up
+      process.env[YESNO_RECORDING_MODE] = 'spy';
+      fs.unlinkSync(filename);
+    });
+
+    it('should save ignore settings', async () => {
+      const filename = `${tmpDir}/save-settings-test-1-yesno.json`;
+      process.env[YESNO_RECORDING_MODE] = 'record';
+      const recording = await yesno.recording({ filename });
       yesno.matching(/\/localhost/).ignore();
 
       await rp.get({
@@ -149,7 +189,7 @@ describe('yesno', () => {
       expect(mocks[1]).to.have.nested.property('request.host', 'postman-echo.com');
 
       // clean up
-      process.env[YESNO_RECORDING_MODE] = 'mock';
+      process.env[YESNO_RECORDING_MODE] = 'spy';
       fs.unlinkSync(filename);
     });
   });

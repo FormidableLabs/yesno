@@ -152,6 +152,9 @@ export async function save({
       }
     });
   }
+  else {
+    ignoreMatchingRequests = undefined;
+  }
 
   const payload: ISaveFile = { filter, ignoreMatchingRequests, records };
   const contents = JSON.stringify(payload, null, 2);
