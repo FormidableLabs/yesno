@@ -77,7 +77,7 @@ describe('file', () => {
       stubReadFile.resolves(Buffer.from(expectedData, 'utf8'));
 
       const results = await file.load({ filename: mockFileName });
-      expect(results.records).deep.equals(mockRecords);
+      expect(results).deep.equals(mockRecords);
 
       expect(stubReadFile).calledOnce.and.calledWithExactly(mockFileName);
     });

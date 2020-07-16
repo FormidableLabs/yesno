@@ -108,7 +108,6 @@ export class YesNo implements IFiltered {
 
     return new Recording({
       ...options,
-      context: this.ctx,
       getRecordsToSave: this.getRecordsToSave.bind(this),
       mode,
     });
@@ -150,12 +149,9 @@ export class YesNo implements IFiltered {
     debug('Loading mocks');
     const recording = await file.load(options as file.IFileOptions);
 
-    this.ctx.filter = recording.filter;
-    this.ctx.ignoresForMatchingRequests = recording.ignoreMatchingRequests || [];
+    validateSerializedHttpArray(recording);
 
-    validateSerializedHttpArray(recording.records);
-
-    return recording.records;
+    return recording;
   }
   /**
    * Save intercepted requests
