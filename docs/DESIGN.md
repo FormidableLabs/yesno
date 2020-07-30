@@ -12,7 +12,7 @@ Case 1 is the most basic and requires the most work by the user. It is intended 
 
 ### Differentiating from Nock
 
-Currently Nock can handle case 1 pretty well and we don't need to try to add value here.  YesNo should focus on being easy to use for use cases 2 and 3 while allowing the flexibilty to handle most special cases through the rule system.
+Currently Nock can handle case 1 pretty well and we don't need to try to add value here. Nock does have nockback feature that can record and playback responses, but requires modification of the recorded response file to remove mocks. YesNo should focus on being easy to use for use cases 2 and 3 while allowing the flexibilty to handle most special cases through the rule system.
 
 ## mockRule Design
 
