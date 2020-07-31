@@ -35,6 +35,7 @@ With the addition of mockRule and rule based processing of requests, the followi
   - `yesno.mockRule().respond()` - matching requests will be mocked with the defined response
   - `yesno.mockRule().redact()` - matching properties will be redacted
 - `yesno.matching()` - used after responses have been intercepted to filter the collection
+- `yesno.mockMode()` - allows the user to match mocks multiple times, defaults to `strict` (each recorded mock matches once)
 - `yesno.mockMatchingFunction()` - allows the user to override the default matching function, the callback gets passed:
   - the request data object
   - the collection of mocks
