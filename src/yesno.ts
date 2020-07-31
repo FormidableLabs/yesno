@@ -8,7 +8,7 @@ import { YesNoError } from './errors';
 import * as file from './file';
 import FilteredHttpCollection, { IFiltered } from './filtering/collection';
 import { ComparatorFn } from './filtering/comparator';
-import { ISerializedHttpPartialDeepMatch, MatchFn } from './filtering/matcher';
+import { HttpFilter, ISerializedHttpPartialDeepMatch, match, MatchFn } from './filtering/matcher';
 import { redact as redactRecord, Redactor } from './filtering/redact';
 import {
   createRecord,
@@ -22,13 +22,12 @@ import {
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
 import MockResponse from './mock-response';
 import Recording, { RecordMode as Mode } from './recording';
+import Rule, { MockMode } from './rule';
 
 const debug: IDebugger = require('debug')('yesno');
 
 export type GenericTest = (...args: any) => Promise<any> | void;
 export type GenericTestFunction = (title: string, fn: GenericTest) => any;
-
-export type HttpFilter = string | RegExp | ISerializedHttpPartialDeepMatch | MatchFn;
 
 export interface IRecordableTest {
   test?: GenericTestFunction;
@@ -75,6 +74,19 @@ export class YesNo implements IFiltered {
   public spy(options?: IYesNoInterceptingOptions): void {
     this.enable(options);
     this.setMode(Mode.Spy);
+  }
+
+  /**
+   * Set rule for mock/record
+   *
+   * @param filter to match requests
+   * @return new rule index
+   */
+  public mockRule(filter: HttpFilter): Rule {
+    const matcher = _.isString(filter) || _.isRegExp(filter) ? { url: filter } : filter;
+    const rule = new Rule({ context: this.ctx, matcher });
+    this.ctx.rules.push(rule);
+    return rule;
   }
 
   /**
@@ -155,6 +167,7 @@ export class YesNo implements IFiltered {
 
     return records;
   }
+
   /**
    * Save intercepted requests
    *
@@ -286,6 +299,54 @@ export class YesNo implements IFiltered {
   private async onIntercept(event: IInterceptEvent): Promise<void> {
     this.recordRequest(event.requestSerializer, event.requestNumber);
 
+    const sendMockResponse = async () => {
+      try {
+        const mockResponse = new MockResponse(event, this.ctx);
+        const sent = await mockResponse.send();
+
+        if (sent) {
+          // redact properties if needed
+          if (this.ctx.autoRedact !== null) {
+            const properties = _.isArray(this.ctx.autoRedact.property)
+              ? this.ctx.autoRedact.property
+              : [this.ctx.autoRedact.property];
+            const record = createRecord({
+              duration: 0,
+              request: sent.request,
+              response: sent.response,
+            });
+            sent.request = redactRecord(record, properties, this.ctx.autoRedact.redactor).request;
+          }
+
+          this.recordResponse(sent.request, sent.response, event.requestNumber);
+        } else if (this.isMode(Mode.Mock)) {
+          throw new Error('Unexpectedly failed to send mock respond');
+        }
+      } catch (e) {
+        if (!(e instanceof YesNoError)) {
+          debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
+          e.message = `YesNo: Mock response failed: ${e.message}`;
+        } else {
+          debug(`[#${event.requestNumber}] Mock response failed`, e.message);
+        }
+
+        event.clientRequest.emit('error', e);
+      }
+    };
+
+    // process the set of defined rules
+    for (const rule of this.ctx.rules) {
+      // see if the rule matches
+      const matchFound = match(rule.matcher)({ request: event.requestSerializer });
+      if (matchFound) {
+        if (rule.mode === MockMode.Live) {
+          return event.proxy();
+        }
+        // check for a matching mock
+        return sendMockResponse();
+      }
+    }
+
     if (!this.ctx.hasResponsesDefinedForMatchers() && !this.isMode(Mode.Mock)) {
       // No need to mock, send event to its original destination
       return event.proxy();
@@ -296,38 +357,7 @@ export class YesNo implements IFiltered {
       return event.proxy();
     }
 
-    try {
-      const mockResponse = new MockResponse(event, this.ctx);
-      const sent = await mockResponse.send();
-
-      if (sent) {
-        // redact properties if needed
-        if (this.ctx.autoRedact !== null) {
-          const properties = _.isArray(this.ctx.autoRedact.property)
-            ? this.ctx.autoRedact.property
-            : [this.ctx.autoRedact.property];
-          const record = createRecord({
-            duration: 0,
-            request: sent.request,
-            response: sent.response,
-          });
-          sent.request = redactRecord(record, properties, this.ctx.autoRedact.redactor).request;
-        }
-
-        this.recordResponse(sent.request, sent.response, event.requestNumber);
-      } else if (this.isMode(Mode.Mock)) {
-        throw new Error('Unexpectedly failed to send mock respond');
-      }
-    } catch (e) {
-      if (!(e instanceof YesNoError)) {
-        debug(`[#${event.requestNumber}] Mock response failed unexpectedly`, e);
-        e.message = `YesNo: Mock response failed: ${e.message}`;
-      } else {
-        debug(`[#${event.requestNumber}] Mock response failed`, e.message);
-      }
-
-      event.clientRequest.emit('error', e);
-    }
+    sendMockResponse();
   }
 
   private onProxied({ requestSerializer, responseSerializer, requestNumber }: IProxiedEvent): void {

@@ -9,6 +9,7 @@ import {
   RequestSerializer,
 } from './http-serializer';
 import { RecordMode as Mode } from './recording';
+import Rule from './rule';
 
 export interface IRedactProp {
   property: string | string[];
@@ -30,6 +31,7 @@ export interface IResponseForMatchingRequest {
  */
 export default class Context {
   public mode: Mode = Mode.Spy;
+  public rules: Rule[] = [];
 
   /**
    * Setting to redact all incoming requests to match redacted mocks
