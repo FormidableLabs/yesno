@@ -45,4 +45,18 @@ export default class Rule implements IRule {
     this.ctx.rules[index].mode = MockMode.Record;
     return this.ctx.rules[index];
   }
+
+  /**
+   * Set the rule mode to 'live'
+   */
+  public live(): IRule {
+    const index = this.ctx.rules.length - 1;
+
+    if (index < 0) {
+      throw new YesNoError('No rules have been defined yet');
+    }
+
+    this.ctx.rules[index].mode = MockMode.Live;
+    return this.ctx.rules[index];
+  }
 }
