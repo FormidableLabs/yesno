@@ -41,7 +41,7 @@ With the addition of mockRule and rule based processing of requests, the followi
   - the collection of mocks
   - returns true on match
 
-## Matching logic
+## Mock Matching logic
 
 ```
 // strict mode (index based mocking, so no reusing mocks, no out of order mocks)
@@ -58,6 +58,8 @@ yesno.mockMatchingFunction((currentRequestObj, listOfMocks, mockRuleArray, reque
               - use an inline mock (can match multiple times)
           - increment i (let's not increment i going forward)
           - stop processing rule list
+
+Default is equivalent to yesno.mockMatchingFunction(yesno.mockMatching.STRICT)
 
 // matching mode (request signature based mocking, can reuse mocks, handles out of order mocks)
 yesno.mockMatchingFunction((currentRequestObj, listOfMocks, mockRuleArray, requestCounter) => {
