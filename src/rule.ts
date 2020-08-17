@@ -3,7 +3,7 @@ import { YesNoError } from './errors';
 import { Matcher } from './filtering/matcher';
 import MockResponse from './mock-response';
 
-export enum MockMode {
+export enum RuleType {
   Live = 'LIVE',
   Record = 'RECORD',
   Respond = 'RESPOND',
@@ -12,7 +12,7 @@ export enum MockMode {
 export interface IRule {
   matcher: Matcher;
   mock?: MockResponse;
-  mode: MockMode;
+  ruleType: RuleType;
 }
 
 export interface IRuleParams {
@@ -23,17 +23,17 @@ export interface IRuleParams {
 export default class Rule implements IRule {
   public matcher: Matcher;
   public mock?: MockResponse;
-  public mode: MockMode;
+  public ruleType: RuleType;
   private readonly ctx: Context;
 
   constructor({ context, matcher = {} }: IRuleParams) {
     this.ctx = context;
     this.matcher = matcher;
-    this.mode = MockMode.Record;
+    this.ruleType = RuleType.Record;
   }
 
   /**
-   * Set the rule mode to 'record'
+   * Set the rule type to 'record'
    */
   public record(): IRule {
     const index = this.ctx.rules.length - 1;
@@ -42,12 +42,12 @@ export default class Rule implements IRule {
       throw new YesNoError('No rules have been defined yet');
     }
 
-    this.ctx.rules[index].mode = MockMode.Record;
+    this.ctx.rules[index].ruleType = RuleType.Record;
     return this.ctx.rules[index];
   }
 
   /**
-   * Set the rule mode to 'live'
+   * Set the rule type to 'live'
    */
   public live(): IRule {
     const index = this.ctx.rules.length - 1;
@@ -56,7 +56,7 @@ export default class Rule implements IRule {
       throw new YesNoError('No rules have been defined yet');
     }
 
-    this.ctx.rules[index].mode = MockMode.Live;
+    this.ctx.rules[index].ruleType = RuleType.Live;
     return this.ctx.rules[index];
   }
 }
