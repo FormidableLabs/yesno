@@ -22,7 +22,7 @@ import {
 import Interceptor, { IInterceptEvent, IInterceptOptions, IProxiedEvent } from './interceptor';
 import MockResponse from './mock-response';
 import Recording, { RecordMode as Mode } from './recording';
-import Rule, { MockMode } from './rule';
+import Rule, { RuleType } from './rule';
 
 const debug: IDebugger = require('debug')('yesno');
 
@@ -339,7 +339,7 @@ export class YesNo implements IFiltered {
       // see if the rule matches
       const matchFound = match(rule.matcher)({ request: event.requestSerializer });
       if (matchFound) {
-        if (rule.mode === MockMode.Live) {
+        if (rule.ruleType === RuleType.Live) {
           return event.proxy();
         }
         // check for a matching mock
