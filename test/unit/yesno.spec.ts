@@ -432,7 +432,7 @@ describe('Yesno', () => {
 
     it('should add a rule with defaults', async () => {
 
-      await yesno.mockRule("foo");
+      await yesno.mockRule('foo');
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
       expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Record);
@@ -440,7 +440,7 @@ describe('Yesno', () => {
 
     it('should add a rule with type RECORD', async () => {
 
-      await yesno.mockRule("foo").record();
+      await yesno.mockRule('foo').record();
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
       expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Record);
@@ -448,7 +448,7 @@ describe('Yesno', () => {
 
     it('should add a rule with type LIVE', async () => {
 
-      await yesno.mockRule("foo").live();
+      await yesno.mockRule('foo').live();
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
       expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Live);
