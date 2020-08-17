@@ -12,6 +12,7 @@ import { IHttpMock } from '../../src/file';
 import { ComparatorFn, IComparatorMetadata } from '../../src/filtering/comparator';
 import { ISerializedRequest } from '../../src/http-serializer';
 import { RecordMode } from '../../src/recording';
+import { RuleType } from '../../src/rule';
 import * as testServer from '../test-server';
 
 type PartialDeep<T> = { [P in keyof T]?: PartialDeep<T[P]> };
@@ -422,6 +423,35 @@ describe('Yesno', () => {
 
         expect(fse.existsSync(tmpFilename)).to.be.false;
       });
+    });
+  });
+
+  describe('#mockRule', () => {
+    const ctx = 'ctx';
+    beforeEach(() => { yesno[ctx].rules = []; });
+
+    it('should add a rule with defaults', async () => {
+
+      await yesno.mockRule("foo");
+
+      expect(yesno[ctx].rules).to.have.lengthOf(1);
+      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Record);
+    });
+
+    it('should add a rule with type RECORD', async () => {
+
+      await yesno.mockRule("foo").record();
+
+      expect(yesno[ctx].rules).to.have.lengthOf(1);
+      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Record);
+    });
+
+    it('should add a rule with type LIVE', async () => {
+
+      await yesno.mockRule("foo").live();
+
+      expect(yesno[ctx].rules).to.have.lengthOf(1);
+      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Live);
     });
   });
 
