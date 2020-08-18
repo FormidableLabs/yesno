@@ -1,7 +1,7 @@
 import Context from './context';
 import { YesNoError } from './errors';
+import { PartialResponseForRequest } from './filtering/collection';
 import { Matcher } from './filtering/matcher';
-import MockResponse from './mock-response';
 
 export enum RuleType {
   Live = 'LIVE',
@@ -11,7 +11,7 @@ export enum RuleType {
 
 export interface IRule {
   matcher: Matcher;
-  mock?: MockResponse;
+  mock?: PartialResponseForRequest;
   ruleType: RuleType;
 }
 
@@ -22,7 +22,7 @@ export interface IRuleParams {
 
 export default class Rule implements IRule {
   public matcher: Matcher;
-  public mock?: MockResponse;
+  public mock?: PartialResponseForRequest;
   public ruleType: RuleType;
   private readonly ctx: Context;
 
@@ -57,6 +57,22 @@ export default class Rule implements IRule {
     }
 
     this.ctx.rules[index].ruleType = RuleType.Live;
+    return this.ctx.rules[index];
+  }
+
+  /**
+   * Set the rule type to 'respond'
+   */
+  public respond(response: PartialResponseForRequest): IRule {
+    const index = this.ctx.rules.length - 1;
+
+    if (index < 0) {
+      throw new YesNoError('No rules have been defined yet');
+    }
+
+    this.ctx.rules[index].ruleType = RuleType.Respond;
+    this.ctx.rules[index].mock = response;
+
     return this.ctx.rules[index];
   }
 }

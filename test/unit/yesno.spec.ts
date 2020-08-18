@@ -429,9 +429,7 @@ describe('Yesno', () => {
   describe('#mockRule', () => {
     const ctx = 'ctx';
     beforeEach(() => {
-      yesno.mock([
-        createMock({ response: { body: 'mocked' } }),
-      ]);
+      yesno.mock([createMock({ response: { body: 'mocked' } })]);
     });
 
     afterEach(() => {
@@ -440,7 +438,6 @@ describe('Yesno', () => {
     });
 
     it('should add a rule with defaults', async () => {
-
       await yesno.mockRule('http://localhost/get');
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
@@ -452,7 +449,6 @@ describe('Yesno', () => {
     });
 
     it('should add a rule with type RECORD', async () => {
-
       await yesno.mockRule('http://localhost/get').record();
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
@@ -464,7 +460,6 @@ describe('Yesno', () => {
     });
 
     it('should add a rule with type LIVE', async () => {
-
       await yesno.mockRule('http://localhost/get').live();
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
@@ -473,6 +468,20 @@ describe('Yesno', () => {
       // verify the proxied response
       const response = await requestTestServer({ json: true });
       expect(response.source).to.equal('server');
+    });
+
+    it('should add a rule with type RESPOND', async () => {
+      await yesno.mockRule('http://localhost/get').respond({
+        body: 'mockRespond',
+        statusCode: 200,
+      });
+
+      expect(yesno[ctx].rules).to.have.lengthOf(1);
+      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Respond);
+
+      // verify the custom mock response
+      const response = await requestTestServer();
+      expect(response).to.equal('mockRespond');
     });
   });
 

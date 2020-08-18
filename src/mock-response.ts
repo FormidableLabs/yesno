@@ -4,6 +4,7 @@ import * as readable from 'readable-stream';
 
 import Context from './context';
 import { YesNoError } from './errors';
+import { PartialResponseForRequest } from './filtering/collection';
 import * as comparator from './filtering/comparator';
 import {
   ISerializedHttp,
@@ -36,20 +37,23 @@ export default class MockResponse {
    *
    * @returns The received request & sent response. Returns `undefined` if unable to respond
    */
-  public async send(): Promise<ISerializedRequestResponse | undefined> {
+  public async send(
+    response?: ISerializedResponse,
+  ): Promise<ISerializedRequestResponse | undefined> {
     const {
       interceptedRequest,
       interceptedResponse,
       requestSerializer,
       requestNumber,
     } = this.event;
-    let response: ISerializedResponse | undefined;
 
     debug(`[#${requestNumber}] Mock response`);
 
     await (readable as any).pipeline(interceptedRequest, requestSerializer);
     const request = requestSerializer.serialize();
-    response = this.ctx.getResponseDefinedMatching(request);
+    if (!response) {
+      response = this.ctx.getResponseDefinedMatching(request);
+    }
 
     if (!response && this.ctx.mode === Mode.Mock) {
       const mock = this.getMockForIntecept(this.event);

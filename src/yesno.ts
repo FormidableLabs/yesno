@@ -6,7 +6,10 @@ import { YESNO_RECORDING_MODE_ENV_VAR } from './consts';
 import Context, { IInFlightRequest } from './context';
 import { YesNoError } from './errors';
 import * as file from './file';
-import FilteredHttpCollection, { IFiltered } from './filtering/collection';
+import FilteredHttpCollection, {
+  IFiltered,
+  PartialResponseForRequest,
+} from './filtering/collection';
 import { ComparatorFn } from './filtering/comparator';
 import { HttpFilter, ISerializedHttpPartialDeepMatch, match, MatchFn } from './filtering/matcher';
 import { redact as redactRecord, Redactor } from './filtering/redact';
@@ -299,10 +302,10 @@ export class YesNo implements IFiltered {
   private async onIntercept(event: IInterceptEvent): Promise<void> {
     this.recordRequest(event.requestSerializer, event.requestNumber);
 
-    const sendMockResponse = async () => {
+    const sendMockResponse = async (response?: ISerializedResponse) => {
       try {
         const mockResponse = new MockResponse(event, this.ctx);
-        const sent = await mockResponse.send();
+        const sent = await mockResponse.send(response);
 
         if (sent) {
           // redact properties if needed
@@ -339,11 +342,32 @@ export class YesNo implements IFiltered {
       // see if the rule matches
       const matchFound = match(rule.matcher)({ request: event.requestSerializer });
       if (matchFound) {
-        if (rule.ruleType === RuleType.Live) {
-          return event.proxy();
+        switch (rule.ruleType) {
+          case RuleType.Live:
+            return event.proxy();
+
+          case RuleType.Respond:
+            if (!rule.mock) {
+              throw new YesNoError('Missing "response" for "mockRule.respond"');
+            }
+
+            const base = { body: {}, headers: {}, statusCode: 200 };
+            const response: ISerializedResponse =
+              typeof rule.mock === 'function'
+                ? {
+                    ...base,
+                    ...rule.mock(event.requestSerializer),
+                  }
+                : {
+                    ...base,
+                    ...rule.mock,
+                  };
+            return sendMockResponse(response);
+
+          default:
+            // check for a matching mock
+            return sendMockResponse();
         }
-        // check for a matching mock
-        return sendMockResponse();
       }
     }
 
