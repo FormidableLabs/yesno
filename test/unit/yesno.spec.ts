@@ -439,16 +439,19 @@ describe('Yesno', () => {
       yesno[ctx].rules = [];
     });
 
-    it('should add a rule with defaults', async () => {
+    it('should throw an error if no action is set', async () => {
 
       await yesno.mockRule('http://localhost/get');
 
       expect(yesno[ctx].rules).to.have.lengthOf(1);
-      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Record);
+      expect(yesno[ctx].rules[0].ruleType).to.equal(RuleType.Init);
 
-      // verify the mocked response
-      const response = await requestTestServer();
-      expect(response).to.equal('mocked');
+      // verify the response
+      try {
+        expect(async () => await requestTestServer()).to.throw(
+          'Error: YesNo: Missing action for mockRule. Set record, live or respond.',
+        );
+      } catch (e) {};
     });
 
     it('should add a rule with type RECORD', async () => {

@@ -4,6 +4,7 @@ import { Matcher } from './filtering/matcher';
 import MockResponse from './mock-response';
 
 export enum RuleType {
+  Init = '',
   Live = 'LIVE',
   Record = 'RECORD',
   Respond = 'RESPOND',
@@ -29,7 +30,7 @@ export default class Rule implements IRule {
   constructor({ context, matcher = {} }: IRuleParams) {
     this.ctx = context;
     this.matcher = matcher;
-    this.ruleType = RuleType.Record;
+    this.ruleType = RuleType.Init;
   }
 
   /**

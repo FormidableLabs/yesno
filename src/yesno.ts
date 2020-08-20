@@ -339,6 +339,11 @@ export class YesNo implements IFiltered {
       // see if the rule matches
       const matchFound = match(rule.matcher)({ request: event.requestSerializer });
       if (matchFound) {
+        if (!rule.ruleType) {
+          const e = new YesNoError('Missing action for mockRule. Please set record, live or respond.');
+          event.clientRequest.emit('error', e);
+          return;
+        }
         if (rule.ruleType === RuleType.Live) {
           return event.proxy();
         }
