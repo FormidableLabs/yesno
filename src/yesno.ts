@@ -119,7 +119,7 @@ export class YesNo implements IFiltered {
    * Create a test function that will wrap its provided test in a recording.
    */
   public test({ it, test, dir, prefix }: IRecordableTest): GenericTestFunction {
-    const runTest = test || it;
+    const runTest = test || it || global.test || global.it;
 
     if (!runTest) {
       throw new YesNoError('Missing "test" or "it" test function');

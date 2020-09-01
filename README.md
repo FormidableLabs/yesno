@@ -329,11 +329,11 @@ A utility method for creating test definitions instrumented with `yesno.recordin
 
 ##### `IRecordableTest`
 
-`options.test: (name: string, test: () => Promise<any>) => any`: A test function, such as `jest.test` or `mocha.it` which accepts a name and test definition. The test may either be synchronous or return a promise.
-
-`options.it: (name: string, test: () => Promise<any>) => any`: Alias for `options.test`
-
 `options.dir: string`: Directory to use for recording
+
+`options.test?: (name: string, test: () => Promise<any>) => any`: A test function, such as `jest.test` or `mocha.it` which accepts a name and test definition. The test may either be synchronous or return a promise. If no parameter is provided for `test` or `it`, falls back to the global `test` or `it`.
+
+`options.it?: (name: string, test: () => Promise<any>) => any`: Alias for `options.test`
 
 `options.prefix?: string`: _Optional_. Prefix to use for all fixtures. Useful to prevent conflicts with similarly named tests in other files.
 
