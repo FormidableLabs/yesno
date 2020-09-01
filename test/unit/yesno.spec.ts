@@ -398,8 +398,17 @@ describe('Yesno', () => {
   });
 
   describe('#test', () => {
+    let globalIt: Mocha.TestFunction;
+
     beforeEach(() => {
       process.env[YESNO_RECORDING_MODE_ENV_VAR] = RecordMode.Spy;
+
+      globalIt = it;
+    });
+
+    afterEach(() => {
+      delete global.test;
+      global.it = globalIt;
     });
 
     it('should create a recordable test', async () => {
@@ -407,14 +416,16 @@ describe('Yesno', () => {
 
       const mockTestFn = sandbox.mock(); // eg jest.test
       const mockTest = sandbox.mock();
+      const mockTestTitle = 'test title';
+
       const expectedFilename = `${dir}/test-title-yesno.json`;
       const expectedFilenamePrefix = `${dir}/foobar-test-title-yesno.json`;
 
       const recordedTest = yesno.test({ test: mockTestFn, dir });
       const recordedTestPrefix = yesno.test({ test: mockTestFn, dir, prefix: 'foobar' });
-      recordedTest('test title', mockTest);
+      recordedTest(mockTestTitle, mockTest);
 
-      expect(mockTestFn).to.have.been.calledOnceWith('test title');
+      expect(mockTestFn).to.have.been.calledOnceWith(mockTestTitle);
 
       expect(fse.existsSync(expectedFilename)).to.be.false;
       expect(fse.existsSync(expectedFilenamePrefix)).to.be.false;
@@ -429,12 +440,26 @@ describe('Yesno', () => {
       mockTestFn.reset();
       mockTest.reset();
 
-      recordedTestPrefix('test title', mockTest);
+      recordedTestPrefix(mockTestTitle, mockTest);
       const callbackPrefix = mockTestFn.args[0][1];
       await callbackPrefix();
 
       expect(fse.existsSync(expectedFilenamePrefix)).to.be.true;
     });
+
+    for (const fnName of ['it', 'test']) {
+      it(`should use the global "${fnName}" if no test function is provided`, async () => {
+        const mockTest = sandbox.mock();
+        const mockTestTitle = 'test title';
+
+        (global as any)[fnName] = sandbox.mock();
+        const recordedTest = yesno.test({ dir });
+
+        recordedTest(mockTestTitle, mockTest);
+
+        expect((global as any)[fnName]).to.have.been.calledOnceWith(mockTestTitle);
+      });
+    }
 
     it('should restore behavior before and after the test regardless of whether it passes', async () => {
       const mockTestFn = sandbox.mock(); // eg jest.test
