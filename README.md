@@ -1,4 +1,4 @@
-[![YesNo — Formidable, We build the modern web](./yesno-Hero.png)](https://formidable.com/open-source/)
+[![YesNo — Formidable, We build the modern web](https://raw.githubusercontent.com/FormidableLabs/yesno/master/yesno-Hero.png)](https://formidable.com/open-source/)
 
 [![Build Status](https://travis-ci.com/FormidableLabs/yesno.svg?branch=main)](https://travis-ci.com/FormidableLabs/yesno)
 [![codecov](https://codecov.io/gh/FormidableLabs/yesno/branch/main/graph/badge.svg)](https://codecov.io/gh/FormidableLabs/yesno)
